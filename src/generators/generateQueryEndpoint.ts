@@ -7,10 +7,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 	// language=text
 	return cleanup(`
 import {FC} from "react";
-import {Form, IFormProps} from "@leight-core/server";	
-import {ISourceContext} from "@leight-core/server";	
-import {useSourceContext, ISourceProviderProps, createQueryHook, createPromiseHook} from "@leight-core/server";	
-import {useLinkContext} from "@leight-core/server";
+import {Form, IFormProps, ISourceContext, useSourceContext, ISourceProviderProps, createQueryHook, createPromiseHook, useLinkContext} from "@leight-core/client";	
 import {AxiosRequestConfig} from "axios";
 ${sdk.imports.map(_import => `import {${_import.imports.join(", ")}} from ${_import.from};`).join("\n")}
 
