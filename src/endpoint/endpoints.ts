@@ -7,6 +7,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQuery exten
 			const response = await handler({
 				req,
 				res,
+				query: req.query,
 				toBody: () => getRawBody(req),
 			});
 			response && res.status(200).json(response);
