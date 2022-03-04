@@ -1,7 +1,7 @@
-import {IChunkServiceDeps, IEndpoint} from "@leight-core/api";
-import {ChunkService, IChunkEndpointQuery} from "@leight-core/server";
+import {IChunkService, IEndpoint} from "@leight-core/api";
+import {IChunkEndpointQuery} from "@leight-core/server";
 
-export const UploadChunkEndpoint: (deps: IChunkServiceDeps) => IEndpoint<"Upload", string, void, IChunkEndpointQuery> = deps => async ({res, query: {chunkId}, toBody}) => {
-	await ChunkService(deps).chunk(chunkId, toBody());
+export const UploadChunkEndpoint: (chunkService: IChunkService) => IEndpoint<"Upload", string, void, IChunkEndpointQuery> = chunkService => async ({res, query: {chunkId}, toBody}) => {
+	await chunkService.chunk(chunkId, toBody());
 	res.status(200).end();
 }

@@ -1,6 +1,6 @@
-import {IChunkCommit, IChunkServiceDeps, IEndpoint, IFile} from "@leight-core/api";
-import {ChunkService, IChunkEndpointQuery} from "@leight-core/server";
+import {IChunkCommit, IChunkService, IEndpoint, IFile} from "@leight-core/api";
+import {IChunkEndpointQuery} from "@leight-core/server";
 
-export const CommitChunkEndpoint: (deps: IChunkServiceDeps) => IEndpoint<"Commit", IChunkCommit, IFile, IChunkEndpointQuery> = deps => async ({req: {body}, query: {chunkId}}) => {
-	return ChunkService(deps).commit(chunkId, body);
+export const CommitChunkEndpoint: (chunkService: IChunkService) => IEndpoint<"Commit", IChunkCommit, IFile, IChunkEndpointQuery> = chunkService => async ({req: {body}, query: {chunkId}}) => {
+	return chunkService.commit(chunkId, body);
 }
