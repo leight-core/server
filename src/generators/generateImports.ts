@@ -13,5 +13,5 @@ export const generateImports = (imports: IImportReflection[]): string => {
 		return obj;
 	}, {}));
 
-	return Object.entries(_imports).map(([_import, imports]) => `import {${imports.join(", ")}} from ${_import};`).join("\n");
+	return Object.entries(_imports).filter(([, imports]) => imports.length).map(([_import, imports]) => `import {${imports.join(", ")}} from ${_import};`).join("\n");
 }
