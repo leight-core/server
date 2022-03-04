@@ -4,11 +4,12 @@ import getRawBody from "raw-body";
 export const Endpoint = <TName extends string, TRequest, TResponse, TQuery extends IQueryParams = void>(handler: IEndpoint<TName, TRequest, TResponse, TQuery>): IEndpointCallback<TName, TRequest, TResponse, TQuery> => {
 	return async (req, res) => {
 		try {
-			return await handler({
+			const response = await handler({
 				req,
 				res,
 				toBody: () => getRawBody(req),
 			});
+			response && res.status(200).json(response);
 		} catch (e) {
 			console.error('Endpoint error', e);
 			res.status(500).send('A request failed with Internal Server Error.' as any);
