@@ -6,7 +6,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 
 	sdk.imports.push(...[
 		{imports: ['FC'], from: '"react"'},
-		{imports: ['AxiosRequestConfig'], from: '"axios"'},
 		{
 			imports: [
 				'ISourceContext',

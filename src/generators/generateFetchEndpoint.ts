@@ -9,7 +9,6 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 
 	sdk.imports.push(...[
 		{imports: ['FC'], from: '"react"'},
-		{imports: ['AxiosRequestConfig'], from: '"axios"'},
 		{imports: ['IQueryParams'], from: '"@leight-core/api"'},
 		{
 			imports: [
