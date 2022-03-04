@@ -8,13 +8,9 @@ export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{f
 	const toLocation = (fileId: string) => config.path.replace('{fileId}', fileId.split('-').join('/'))
 	const mimeOf = (file: string) => mime.lookup(file) || config?.defaultMimeType || 'application/octet-stream';
 	const sizeOf = (file: string) => fs.statSync(file).size;
-	const persistor = config?.persistor || (file => {
-		console.warn(`FileService does not have any persistor! File [${file.location}] will lost metadata if not processed later on.`);
-	});
 
 	return {
 		mimeOf,
-		persistor,
 		sizeOf,
 		toLocation,
 		store: store => {
@@ -31,7 +27,6 @@ export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{f
 				ttl: undefined,
 			};
 			copySync(store.file, location, {overwrite: store.replace});
-			persistor(file);
 			return file;
 		}
 	};
