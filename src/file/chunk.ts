@@ -1,13 +1,22 @@
-import {IChunkService, IChunkServiceConfig, IFile} from "@leight-core/api";
-import {outputFileSync} from "fs-extra";
+import {IChunkServiceFactory} from "@leight-core/api";
+import {outputFileSync, removeSync} from "fs-extra";
 
-export const ChunkService: (config?: IChunkServiceConfig) => IChunkService = (config = {path: '.data/chunk/{chunkId}'}) => {
+export const ChunkService: IChunkServiceFactory = ({config = {path: '.data/chunk/{chunkId}'}, fileService}) => {
+	const toFile = (chunkId: string) => {
+		return config.path.replace('{chunkId}', chunkId.split('-').join('/'));
+	};
+
 	return {
-		async chunk(chunkId, chunk) {
-			outputFileSync(config.path.replace('{chunkId}', chunkId.split('-').join('/')), await chunk, {flag: 'a'});
+		toFile,
+		chunk: async (chunkId, chunk) => outputFileSync(toFile(chunkId), await chunk, {flag: 'a'}),
+		commit: (chunkId, commit) => {
+			const path = toFile(chunkId);
+			const file = fileService.store({
+				file: path,
+				...commit,
+			});
+			removeSync(path);
+			return file;
 		},
-		commit(chunkId, commit): IFile {
-			return {} as any;
-		}
 	}
 }

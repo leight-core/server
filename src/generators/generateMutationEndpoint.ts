@@ -7,6 +7,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 	// language=text
 	return cleanup(`
 import {FC} from "react";
+import {IQueryParams} from "@leight-core/api";
 import {Form, IFormProps, useLinkContext, createMutationHook, createPromiseHook} from "@leight-core/client";	
 import {AxiosRequestConfig} from "axios";
 ${sdk.imports.map(_import => `import {${_import.imports.join(", ")}} from ${_import.from};`).join("\n")}

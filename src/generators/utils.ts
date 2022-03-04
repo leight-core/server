@@ -21,7 +21,7 @@ export const toGeneratorCommons = (sdk: ISdk): IGeneratorCommons => {
 		request,
 		response,
 		api: sdk.endpoint.api,
-		query: sdk.endpoint.generics?.[2] || "void",
+		query: sdk.endpoint.generics?.[2] || "IQueryParams",
 		generics: `${pair}, I${name}QueryParams`,
 	}
 }
