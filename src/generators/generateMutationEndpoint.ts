@@ -1,15 +1,31 @@
-import {cleanup, toGeneratorCommons} from "@leight-core/server";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
 
 export function generateMutationEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
+	sdk.imports.push(...[
+		{imports: ['FC'], from: '"react"'},
+		{imports: ['AxiosRequestConfig'], from: '"axios"'},
+		{imports: ['IQueryParams'], from: '"@leight-core/api"'},
+		{
+			imports: [
+				'Form',
+				'IFormProps',
+				'useSourceContext',
+				'ISourceProviderProps',
+				'createQueryHook',
+				'createPromiseHook',
+				'useLinkContext',
+				'createMutationHook',
+			],
+			from: '"@leight-core/client"',
+		},
+	]);
+
 	// language=text
 	return cleanup(`
-import {FC} from "react";
-import {Form, IFormProps, useLinkContext, createMutationHook, createPromiseHook} from "@leight-core/client";	
-import {AxiosRequestConfig} from "axios";
-${sdk.imports.map(_import => `import {${_import.imports.join(", ")}} from ${_import.from};`).join("\n")}
+${generateImports(sdk.imports)}
 
 ${sdk.interfaces.map(item => item.source).join("\n")}
 

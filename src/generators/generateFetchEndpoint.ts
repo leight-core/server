@@ -1,4 +1,4 @@
-import {cleanup} from "@leight-core/server";
+import {cleanup, generateImports} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
 
 export function generateFetchEndpoint(sdk: ISdk): string {
@@ -7,12 +7,23 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 	const response = (sdk.endpoint.generics?.[0] || "void");
 	const api = sdk.endpoint.api;
 
+	sdk.imports.push(...[
+		{imports: ['FC'], from: '"react"'},
+		{imports: ['AxiosRequestConfig'], from: '"axios"'},
+		{imports: ['IQueryParams'], from: '"@leight-core/api"'},
+		{
+			imports: [
+				'createQueryHook',
+				'createPromiseHook',
+				'useLinkContext',
+			],
+			from: '"@leight-core/client"'
+		},
+	]);
+
 	// language=text
 	return cleanup(`
-import {FC} from "react";
-import {createQueryHook, createPromiseHook, useLinkContext} from "@leight-core/client";
-import {AxiosRequestConfig} from "axios";
-${sdk.imports.map(_import => `import {${_import.imports.join(", ")}} from ${_import.from};`).join("\n")}
+${generateImports(sdk.imports)}
 
 ${sdk.interfaces.map(item => item.source).join("\n")}
 
