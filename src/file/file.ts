@@ -2,7 +2,7 @@ import {IFile, IFileServiceFactory} from "@leight-core/api";
 import mime from 'mime-types';
 import fs from 'node:fs';
 import {v4} from 'uuid';
-import {writeFileSync} from "fs";
+import {copySync} from "fs-extra";
 
 export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{fileId}'}}) => {
 	const toLocation = (fileId: string) => config.path.replace('{fileId}', fileId.split('-').join('/'))
@@ -30,7 +30,7 @@ export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{f
 				created: (new Date()).toISOString(),
 				ttl: undefined,
 			};
-			writeFileSync(location, store.file, {flag: 'w'});
+			copySync(store.file, location, {overwrite: store.replace});
 			persistor(file);
 			return file;
 		}
