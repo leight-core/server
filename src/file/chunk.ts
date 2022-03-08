@@ -2,9 +2,7 @@ import {IChunkServiceFactory} from "@leight-core/api";
 import {outputFileSync, removeSync} from "fs-extra";
 
 export const ChunkService: IChunkServiceFactory = ({config = {path: '.data/chunk/{chunkId}'}, fileService}) => {
-	const toFile = (chunkId: string) => {
-		return config.path.replace('{chunkId}', chunkId.split('-').join('/'));
-	};
+	const toFile = (chunkId: string) => config.path.replace('{chunkId}', chunkId.split('-').join('/'));
 
 	return {
 		toFile,

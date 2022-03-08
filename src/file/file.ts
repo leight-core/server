@@ -5,7 +5,7 @@ import {v4} from 'uuid';
 import {copySync} from "fs-extra";
 
 export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{fileId}'}}) => {
-	const toLocation = (fileId: string) => fs.realpathSync(config.path.replace('{fileId}', fileId.split('-').join('/')))
+	const toLocation = (fileId: string) => config.path.replace('{fileId}', fileId.split('-').join('/'))
 	const mimeOf = (file: string) => mime.lookup(file) || config?.defaultMimeType || 'application/octet-stream';
 	const sizeOf = (file: string) => fs.statSync(file).size;
 
