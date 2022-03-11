@@ -21,7 +21,7 @@
 		"build": "npm run lint && tsc -p tsconfig.json && tsc -p tsconfig.json -m es6 --outDir lib/esm"
 	},
 	"dependencies": {
-		"@leight-core/api": "^0.5.66",
+		"@leight-core/api": "^0.5.67",
 		"filesize": "^8.0.7",
 		"fs-extra": "^10.0.1",
 		"glob": "^7.2.0",
