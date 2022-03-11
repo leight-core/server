@@ -1,4 +1,4 @@
-import {ICreateEndpoint, IDeleteEndpoint, IEndpoint, IEndpointCallback, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IPatchEndpoint, IQueryEndpoint, IQueryParams, IQueryResult} from "@leight-core/api";
+import {ICreateEndpoint, IDeleteEndpoint, IEndpoint, IEndpointCallback, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IPatchEndpoint, IQuery, IQueryEndpoint, IQueryParams, IQueryResult} from "@leight-core/api";
 import getRawBody from "raw-body";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQuery extends IQueryParams = IQueryParams>(handler: IEndpoint<TName, TRequest, TResponse, TQuery>): IEndpointCallback<TName, TRequest, TResponse, TQuery> => {
@@ -38,7 +38,7 @@ export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQuery 
 	return Endpoint<TName, TRequest, TResponse, TQuery>(handler);
 }
 
-export const QueryEndpoint = <TName extends string, TRequest, TResponse, TQuery extends IQueryParams = IQueryParams>(handler: IQueryEndpoint<TName, TRequest, TResponse, TQuery>): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQuery> => {
+export const QueryEndpoint = <TName extends string, TRequest extends IQuery, TResponse, TQuery extends IQueryParams = IQueryParams>(handler: IQueryEndpoint<TName, TRequest, TResponse, TQuery>): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQuery> => {
 	return Endpoint<TName, TRequest, IQueryResult<TResponse>, TQuery>(handler);
 }
 
