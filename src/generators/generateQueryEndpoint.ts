@@ -7,7 +7,13 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 	const queryParams = `I${generatorCommons.name}QueryParams`;
 
 	sdk.imports.push(...[
-		{imports: ['FC'], from: '"react"'},
+		{
+			imports: [
+				'FC',
+				'ConsumerProps',
+			],
+			from: '"react"',
+		},
 		{
 			imports: [
 				'ISourceContext',
@@ -26,6 +32,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				'createPromiseHook',
 				'useLinkContext',
 				'SourceProvider',
+				'SourceContext',
 			],
 			from: '"@leight-core/client"',
 		},
@@ -49,6 +56,13 @@ export interface I${generatorCommons.name}SourceContext extends ISourceContext<$
 }
 
 export interface I${generatorCommons.name}SourceProps extends Partial<ISourceProviderProps<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+}
+
+export interface I${generatorCommons.name}SourceConsumerProps extends ConsumerProps<ISourceContext<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+}
+
+export const ${generatorCommons.name}SourceConsumer: FC<I${generatorCommons.name}SourceConsumerProps> = props => {
+	return <SourceContext.Consumer {...props}/>
 }
 
 export const ${generatorCommons.name}Source: FC<I${generatorCommons.name}SourceProps> = props => {
