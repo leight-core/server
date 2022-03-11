@@ -22,6 +22,8 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 		},
 	]);
 
+	const generics = generatorCommons.generics.join(', ');
+
 	// language=text
 	return cleanup(`
 ${generateImports(sdk.imports)}
@@ -30,14 +32,14 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${generatorCommons.name}ApiLink = "${generatorCommons.api}";
 
-export type I${generatorCommons.name}QueryParams = ${generatorCommons.query};
+export type I${generatorCommons.name}QueryParams = ${generatorCommons.generics[2] || 'void'};
 
-export const use${generatorCommons.name}Mutation = createMutationHook<${generatorCommons.generics}>(${generatorCommons.name}ApiLink, "post");
+export const use${generatorCommons.name}Mutation = createMutationHook<${generics}>(${generatorCommons.name}ApiLink, "post");
 
-export interface I${generatorCommons.name}DefaultFormProps extends Partial<IFormProps<${generatorCommons.generics}>> {
+export interface I${generatorCommons.name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
 }
 
-export const ${generatorCommons.name}DefaultForm: FC<I${generatorCommons.name}DefaultFormProps> = props => <Form<${generatorCommons.generics}>
+export const ${generatorCommons.name}DefaultForm: FC<I${generatorCommons.name}DefaultFormProps> = props => <Form<${generics}>
 	useMutation={use${generatorCommons.name}Mutation}
 	{...props}
 />
@@ -47,6 +49,6 @@ export const use${generatorCommons.name}Link = (): ((query: I${generatorCommons.
 	return query => linkContext.link(${generatorCommons.name}ApiLink, query);
 }
 
-export const use${generatorCommons.name}Promise = createPromiseHook<${generatorCommons.generics}>(${generatorCommons.name}ApiLink, "post");
+export const use${generatorCommons.name}Promise = createPromiseHook<${generics}>(${generatorCommons.name}ApiLink, "post");
 `);
 }
