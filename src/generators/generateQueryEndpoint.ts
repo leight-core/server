@@ -33,6 +33,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				'useLinkContext',
 				'SourceProvider',
 				'SourceContext',
+				'List',
+				'IListProps',
 			],
 			from: '"@leight-core/client"',
 		},
@@ -78,5 +80,17 @@ export const use${generatorCommons.name}Link = (): ((query: ${queryParams}) => s
 }
 
 export const use${generatorCommons.name}Promise = createPromiseHook<${generatorCommons.generics[0]}, ${generatorCommons.generics[1]}, ${queryParams}>(${generatorCommons.name}ApiLink, "post");
+
+export interface I${generatorCommons.name}ListSourceProps extends Partial<IListProps<ISourceProviderProps<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>>> {
+	sourceProps?: Partial<I${generatorCommons.name}SourceProps>;
+}
+
+export const ${generatorCommons.name}ListSource: FC<I${generatorCommons.name}ListSourceProps> = ({sourceProps, ...props}) => {
+	return <${generatorCommons.name}Source {...sourceProps}>
+		<List<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>
+			{...props}		
+		/>
+	</${generatorCommons.name}Source>
+}
 `);
 }
