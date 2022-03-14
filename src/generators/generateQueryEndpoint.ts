@@ -64,15 +64,15 @@ export type ${queryParams} = ${generatorCommons.generics[4] ?? 'void'};
 
 export const use${generatorCommons.name}Query = createQueryHook<${generatorCommons.generics[0]}, IQueryResult<${generatorCommons.generics[1]}>, ${queryParams}>(${generatorCommons.name}ApiLink, "post");
 
-export const use${generatorCommons.name}Source = () => useSourceContext<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>()
+export const use${generatorCommons.name}Source = () => useSourceContext<${generatorCommons.generics[1]}>()
 
-export interface I${generatorCommons.name}SourceContext extends ISourceContext<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}> {
+export interface I${generatorCommons.name}SourceContext extends ISourceContext<${generatorCommons.generics[1]}> {
 }
 
-export interface I${generatorCommons.name}SourceProps extends Partial<ISourceProviderProps<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+export interface I${generatorCommons.name}SourceProps extends Partial<ISourceProviderProps<${generatorCommons.generics[1]}>> {
 }
 
-export interface I${generatorCommons.name}SourceConsumerProps extends ConsumerProps<ISourceContext<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+export interface I${generatorCommons.name}SourceConsumerProps extends ConsumerProps<ISourceContext<${generatorCommons.generics[1]}>> {
 }
 
 export const ${generatorCommons.name}SourceConsumer: FC<I${generatorCommons.name}SourceConsumerProps> = props => {
@@ -80,7 +80,7 @@ export const ${generatorCommons.name}SourceConsumer: FC<I${generatorCommons.name
 }
 
 export const ${generatorCommons.name}Source: FC<I${generatorCommons.name}SourceProps> = props => {
-	return <SourceProvider<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>
+	return <SourceProvider<${generatorCommons.generics[1]}>
 		useQuery={use${generatorCommons.name}Query}
 		{...props}
 	/>;
@@ -123,11 +123,11 @@ export const ${generatorCommons.name}OrderByProvider: FC<I${generatorCommons.nam
 export const use${generatorCommons.name}OptionalOrderByContext = () => useOptionalOrderByContext<${generatorCommons.generics[2] || 'void'}>()
 export const use${generatorCommons.name}OrderByContext = () => useOrderByContext<${generatorCommons.generics[2] || 'void'}>()
 
-export interface I${generatorCommons.name}ListSourceProps extends Partial<IListProps<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+export interface I${generatorCommons.name}ListSourceProps extends Partial<IListProps<${generatorCommons.generics[1]}>> {
 	sourceProps?: Partial<I${generatorCommons.name}SourceProps>;
 }
 
-export interface I${generatorCommons.name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}>> {
+export interface I${generatorCommons.name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
 }
 
 export const ${generatorCommons.name}SourceControlProvider: FC<I${generatorCommons.name}SourceControlProviderProps> = props => {
@@ -135,14 +135,10 @@ export const ${generatorCommons.name}SourceControlProvider: FC<I${generatorCommo
 }
 
 export const ${generatorCommons.name}ListSource: FC<I${generatorCommons.name}ListSourceProps> = ({sourceProps, ...props}) => {
-	const filterContext = use${generatorCommons.name}OptionalFilterContext();
-	const orderByContext = use${generatorCommons.name}OptionalOrderByContext();
 	return <${generatorCommons.name}Source
-		filter={filterContext?.filter}
-		orderBy={orderByContext?.orderBy}
 		{...sourceProps}
 	>
-		<List<${generatorCommons.generics[1]}, ${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>
+		<List<${generatorCommons.generics[1]}>
 			{...props}		
 		/>
 	</${generatorCommons.name}Source>
