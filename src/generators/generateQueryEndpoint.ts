@@ -103,10 +103,10 @@ export const ${generatorCommons.name}FilterProvider: FC<I${generatorCommons.name
 export const use${generatorCommons.name}OptionalFilterContext = () => useOptionalFilterContext<${generatorCommons.generics[2] || 'void'}>()
 export const use${generatorCommons.name}FilterContext = () => useFilterContext<${generatorCommons.generics[2] || 'void'}>()
 
-export interface I${generatorCommons.name}FilterProps extends IFilterWithoutTranslationProps<${generatorCommons.generics[2] || 'void'}> {
+export interface I${generatorCommons.name}SourceFilterProps extends IFilterWithoutTranslationProps<${generatorCommons.generics[2] || 'void'}> {
 }
 
-export const ${generatorCommons.name}Filter: FC<I${generatorCommons.name}FilterProps> = props => {
+export const ${generatorCommons.name}SourceFilter: FC<I${generatorCommons.name}SourceFilterProps> = props => {
 	return <Filter
 		{...props}
 		translation={'common.filter.${generatorCommons.name}'}
