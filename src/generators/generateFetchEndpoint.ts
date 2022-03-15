@@ -3,7 +3,7 @@ import {ISdk} from "@leight-core/api";
 
 export function generateFetchEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
-	const query = (sdk.endpoint.generics?.[1] || "void");
+	const query = (sdk.endpoint.generics?.[1] || "undefined");
 	const response = (sdk.endpoint.generics?.[0] || "void");
 	const api = sdk.endpoint.api;
 

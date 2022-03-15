@@ -34,11 +34,11 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type I${name}QueryParams = ${generatorCommons.generics[2] || 'void'};
+export type I${name}QueryParams = ${generatorCommons.generics[2] || 'undefined'};
 
 export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
 
-export const use{$name}QueryInvalidate = () => {
+export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
 }

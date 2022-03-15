@@ -49,6 +49,7 @@ enum JobStatus {
   NEW
   // Job has been picked up and is in progress.
   RUNNING
+  SUCCESS
   // Job has failed hard (usually outside of boundaris of the job handler)
   FAILURE
   //  Job has been processed, but there are some failed items
