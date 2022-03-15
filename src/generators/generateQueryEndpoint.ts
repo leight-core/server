@@ -4,8 +4,6 @@ import {ISdk} from "@leight-core/api";
 export function generateQueryEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
-	const queryParams = `I${generatorCommons.name}QueryParams`;
-
 	sdk.imports.push(...[
 		{
 			imports: [
@@ -19,6 +17,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				'ISourceContext',
 				'IQueryParams',
 				'IQueryResult',
+				'IToOptionMapper',
 			],
 			from: '"@leight-core/api"',
 		},
@@ -47,10 +46,18 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				'ISourceControlProviderProps',
 				'IFilterWithoutTranslationProps',
 				'Filter',
+				'IQuerySourceSelectProps',
 			],
 			from: '"@leight-core/client"',
 		},
 	]);
+
+	const queryParams = `I${generatorCommons.name}QueryParams`;
+	const name = generatorCommons.name;
+	const request = generatorCommons.generics[0];
+	const response = generatorCommons.generics[1];
+	const filter = generatorCommons.generics[2] || 'void';
+	const orderBy = generatorCommons.generics[3] || 'void';
 
 	// language=text
 	return cleanup(`
@@ -58,90 +65,102 @@ ${generateImports(sdk.imports)}
 
 ${sdk.interfaces.map(item => item.source).join("\n")}
 
-export const ${generatorCommons.name}ApiLink = "${generatorCommons.api}";
+export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[4] ?? 'void'};
 
-export const use${generatorCommons.name}Query = createQueryHook<${generatorCommons.generics[0]}, IQueryResult<${generatorCommons.generics[1]}>, ${queryParams}>(${generatorCommons.name}ApiLink, "post");
+export const use${name}Query = createQueryHook<${request}, IQueryResult<${response}>, ${queryParams}>(${name}ApiLink, "post");
 
-export const use${generatorCommons.name}Source = () => useSourceContext<${generatorCommons.generics[1]}>()
+export const use${name}Source = () => useSourceContext<${response}>()
 
-export interface I${generatorCommons.name}SourceContext extends ISourceContext<${generatorCommons.generics[1]}> {
+export interface I${name}SourceContext extends ISourceContext<${response}> {
 }
 
-export interface I${generatorCommons.name}SourceProps extends Partial<ISourceProviderProps<${generatorCommons.generics[1]}>> {
+export interface I${name}SourceProps extends Partial<ISourceProviderProps<${response}>> {
 }
 
-export interface I${generatorCommons.name}SourceConsumerProps extends ConsumerProps<ISourceContext<${generatorCommons.generics[1]}>> {
+export interface I${name}SourceConsumerProps extends ConsumerProps<ISourceContext<${response}>> {
 }
 
-export const ${generatorCommons.name}SourceConsumer: FC<I${generatorCommons.name}SourceConsumerProps> = props => {
+export const ${name}SourceConsumer: FC<I${name}SourceConsumerProps> = props => {
 	return <SourceContext.Consumer {...props}/>
 }
 
-export const ${generatorCommons.name}Source: FC<I${generatorCommons.name}SourceProps> = props => {
-	return <SourceProvider<${generatorCommons.generics[1]}>
-		useQuery={use${generatorCommons.name}Query}
+export const ${name}Source: FC<I${name}SourceProps> = props => {
+	return <SourceProvider<${response}>
+		useQuery={use${name}Query}
 		{...props}
 	/>;
 }
 
-export const use${generatorCommons.name}Link = (): ((query: ${queryParams}) => string) => {
+export const use${name}Link = (): ((query: ${queryParams}) => string) => {
 	const linkContext = useLinkContext();
-	return query => linkContext.link(${generatorCommons.name}ApiLink, query);
+	return query => linkContext.link(${name}ApiLink, query);
 }
 
-export const use${generatorCommons.name}Promise = createPromiseHook<${generatorCommons.generics[0]}, ${generatorCommons.generics[1]}, ${queryParams}>(${generatorCommons.name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
-export interface I${generatorCommons.name}FilterProviderProps extends Partial<IFilterProviderProps<${generatorCommons.generics[2] || 'void'}>> {
+export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<${filter}>> {
 }
 
-export const ${generatorCommons.name}FilterProvider: FC<I${generatorCommons.name}FilterProviderProps> = props => {
-	return <FilterProvider<${generatorCommons.generics[2] || 'void'}> {...props}/>
+export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => {
+	return <FilterProvider<${filter}> {...props}/>
 }
 
-export const use${generatorCommons.name}OptionalFilterContext = () => useOptionalFilterContext<${generatorCommons.generics[2] || 'void'}>()
-export const use${generatorCommons.name}FilterContext = () => useFilterContext<${generatorCommons.generics[2] || 'void'}>()
+export const use${name}OptionalFilterContext = () => useOptionalFilterContext<${filter}>()
+export const use${name}FilterContext = () => useFilterContext<${filter}>()
 
-export interface I${generatorCommons.name}SourceFilterProps extends IFilterWithoutTranslationProps<${generatorCommons.generics[2] || 'void'}> {
+export interface I${name}SourceFilterProps extends IFilterWithoutTranslationProps<${filter}> {
 }
 
-export const ${generatorCommons.name}SourceFilter: FC<I${generatorCommons.name}SourceFilterProps> = props => {
+export const ${name}SourceFilter: FC<I${name}SourceFilterProps> = props => {
 	return <Filter
 		{...props}
-		translation={'common.filter.${generatorCommons.name}'}
+		translation={'common.filter.${name}'}
 	/>
 }
 
-export interface I${generatorCommons.name}OrderByProviderProps extends Partial<IOrderByProviderProps<${generatorCommons.generics[2] || 'void'}>> {
+export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<${filter}>> {
 }
 
-export const ${generatorCommons.name}OrderByProvider: FC<I${generatorCommons.name}OrderByProviderProps> = props => {
-	return <OrderByProvider<${generatorCommons.generics[2] || 'void'}> {...props}/>
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => {
+	return <OrderByProvider<${filter}> {...props}/>
 }
 
-export const use${generatorCommons.name}OptionalOrderByContext = () => useOptionalOrderByContext<${generatorCommons.generics[2] || 'void'}>()
-export const use${generatorCommons.name}OrderByContext = () => useOrderByContext<${generatorCommons.generics[2] || 'void'}>()
+export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<${filter}>()
+export const use${name}OrderByContext = () => useOrderByContext<${filter}>()
 
-export interface I${generatorCommons.name}ListSourceProps extends Partial<IListProps<${generatorCommons.generics[1]}>> {
-	sourceProps?: Partial<I${generatorCommons.name}SourceProps>;
+export interface I${name}ListSourceProps extends Partial<IListProps<${response}>> {
+	sourceProps?: Partial<I${name}SourceProps>;
 }
 
-export interface I${generatorCommons.name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}, ${queryParams}>> {
+export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<${filter}, ${orderBy}, ${queryParams}>> {
 }
 
-export const ${generatorCommons.name}SourceControlProvider: FC<I${generatorCommons.name}SourceControlProviderProps> = props => {
-	return <SourceControlProvider<${generatorCommons.generics[2] || 'void'}, ${generatorCommons.generics[3] || 'void'}> {...props}/>
+export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => {
+	return <SourceControlProvider<${filter}, ${orderBy}> {...props}/>
 }
 
-export const ${generatorCommons.name}ListSource: FC<I${generatorCommons.name}ListSourceProps> = ({sourceProps, ...props}) => {
-	return <${generatorCommons.name}Source
+export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...props}) => {
+	return <${name}Source
 		{...sourceProps}
 	>
-		<List<${generatorCommons.generics[1]}>
+		<List<${response}>
 			{...props}		
 		/>
-	</${generatorCommons.name}Source>
+	</${name}Source>
 }
+
+
+export interface I${name}SourceSelectProps extends Partial<IQuerySourceSelectProps<${response}>> {
+	toOption: IToOptionMapper<${response}>;
+	sourceProps?: I${name}SourceProps;
+}
+
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, ...props}) => {
+	return <${name}Source defaultSize={100} {...sourceProps}>
+		<QuerySourceSelect<${response}> {...props}/>
+	</${name}Source>;
+};
 `);
 }

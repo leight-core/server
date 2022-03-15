@@ -45,11 +45,15 @@ model JobLog {
 }
 
 enum JobStatus {
+  // Just created, nobody cares about the job yet
   NEW
+  // Job has been picked up and is in progress.
   RUNNING
-  SUCCESS
+  // Job has failed hard (usually outside of boundaris of the job handler)
   FAILURE
+  //  Job has been processed, but there are some failed items
   REVIEW
+  //  When everything is OK, it's done: goes from review->done and failure->done
   DONE
 }
 ```

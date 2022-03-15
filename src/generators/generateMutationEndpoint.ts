@@ -7,6 +7,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 	sdk.imports.push(...[
 		{imports: ['FC'], from: '"react"'},
 		{imports: ['IQueryParams'], from: '"@leight-core/api"'},
+		{imports: ['useQueryClient'], from: '"react-query"'},
 		{
 			imports: [
 				'Form',
@@ -22,6 +23,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 		},
 	]);
 
+	const name = generatorCommons.name;
 	const generics = generatorCommons.generics.join(', ');
 
 	// language=text
@@ -30,25 +32,30 @@ ${generateImports(sdk.imports)}
 
 ${sdk.interfaces.map(item => item.source).join("\n")}
 
-export const ${generatorCommons.name}ApiLink = "${generatorCommons.api}";
+export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type I${generatorCommons.name}QueryParams = ${generatorCommons.generics[2] || 'void'};
+export type I${name}QueryParams = ${generatorCommons.generics[2] || 'void'};
 
-export const use${generatorCommons.name}Mutation = createMutationHook<${generics}>(${generatorCommons.name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
 
-export interface I${generatorCommons.name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
+export const use{$name}QueryInvalidate = () => {
+	const queryClient = useQueryClient();
+	return () => queryClient.invalidateQueries([${name}ApiLink]);
 }
 
-export const ${generatorCommons.name}DefaultForm: FC<I${generatorCommons.name}DefaultFormProps> = props => <Form<${generics}>
-	useMutation={use${generatorCommons.name}Mutation}
+export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
+}
+
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}>
+	useMutation={use${name}Mutation}
 	{...props}
 />
 
-export const use${generatorCommons.name}Link = (): ((query: I${generatorCommons.name}QueryParams) => string) => {
+export const use${name}Link = (): ((query: I${name}QueryParams) => string) => {
 	const linkContext = useLinkContext();
-	return query => linkContext.link(${generatorCommons.name}ApiLink, query);
+	return query => linkContext.link(${name}ApiLink, query);
 }
 
-export const use${generatorCommons.name}Promise = createPromiseHook<${generics}>(${generatorCommons.name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
 `);
 }
