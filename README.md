@@ -21,17 +21,20 @@ model File {
 
 model Job {
   id           String    @id @default(cuid())
-  agenda       String    @unique
   status       JobStatus @default(NEW)
   total        Int       @default(0)
+  progress     Decimal   @default(0) @db.Decimal(5, 2)
   success      Int?
-  successRatio Decimal?  @db.Decimal(3, 2)
+  successRatio Decimal?  @db.Decimal(5, 2)
   failure      Int?
-  failureRatio Decimal?  @db.Decimal(3, 2)
+  failureRatio Decimal?  @db.Decimal(5, 2)
+  skip         Int?
+  skipRatio    Decimal?  @db.Decimal(5, 2)
   created      DateTime
   logs         JobLog[]
   userId       String?
   user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  params       String?
 }
 
 model JobLog {
@@ -46,6 +49,7 @@ enum JobStatus {
   RUNNING
   SUCCESS
   FAILURE
+  REVIEW
   DONE
 }
 ```
