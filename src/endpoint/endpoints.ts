@@ -10,8 +10,9 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				request: req.body,
 				query: req.query,
 				toBody: () => getRawBody(req),
+				end: chunk => res.end(chunk),
 			});
-			response && res.status(200).json(response);
+			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			console.error('Endpoint error', e);
 			res.status(500).send('A request failed with Internal Server Error.' as any);
@@ -19,12 +20,12 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 	};
 }
 
-export const FetchEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IFetchEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, void, TResponse, TQueryParams> => {
-	return Endpoint<TName, void, TResponse, TQueryParams>(handler);
+export const FetchEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IFetchEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
 }
 
-export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IListEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, void, TResponse, TQueryParams> => {
-	return Endpoint<TName, void, TResponse, TQueryParams>(handler);
+export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IListEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
 }
 
 export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IMutationEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
@@ -39,10 +40,10 @@ export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryP
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 }
 
-export const QueryEndpoint = <TName extends string, TRequest extends IQuery<TFilter, TOrderBy> | undefined, TResponse, TFilter = void, TOrderBy = void, TQueryParams extends IQueryParams | undefined = undefined>(handler: IQueryEndpoint<TName, TRequest, TResponse, TFilter, TOrderBy, TQueryParams>): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQueryParams> => {
+export const QueryEndpoint = <TName extends string, TRequest extends IQuery<TFilter, TOrderBy>, TResponse, TFilter = undefined, TOrderBy = undefined, TQueryParams extends IQueryParams | undefined = undefined>(handler: IQueryEndpoint<TName, TRequest, TResponse, TFilter, TOrderBy, TQueryParams>): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQueryParams> => {
 	return Endpoint<TName, TRequest, IQueryResult<TResponse>, TQueryParams>(handler);
 }
 
-export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IDeleteEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, void, TResponse, TQueryParams> => {
-	return Endpoint<TName, void, TResponse, TQueryParams>(handler);
+export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IDeleteEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
 }

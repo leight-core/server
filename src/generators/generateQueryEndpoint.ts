@@ -78,13 +78,13 @@ export const use${name}Source = () => useSourceContext<${response}>()
 export interface I${name}SourceContext extends ISourceContext<${response}> {
 }
 
-export interface I${name}SourceProps extends Partial<ISourceProviderProps<${response}>> {
-}
-
 export interface I${name}SourceConsumerProps extends ConsumerProps<ISourceContext<${response}>> {
 }
 
 export const ${name}SourceConsumer: FC<I${name}SourceConsumerProps> = props => <SourceContext.Consumer {...props}/>;
+
+export interface I${name}SourceProps extends Partial<ISourceProviderProps<${response}>> {
+}
 
 export const ${name}Source: FC<I${name}SourceProps> = props => {
 	return <SourceProvider<${response}>
@@ -143,8 +143,7 @@ export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...
 	</${name}Source>
 }
 
-
-export interface I${name}SourceSelectProps extends Partial<IQuerySourceSelectProps<${response}>> {
+export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
 	sourceProps?: I${name}SourceProps;
 }
