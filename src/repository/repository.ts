@@ -1,4 +1,4 @@
-import {IQuery, IQueryResult, IToQuery} from "@leight-core/api";
+import {IMapperResult, IQuery, IQueryResult, ISourceMapper, IToQuery} from "@leight-core/api";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
 	const _items = await items;
@@ -12,7 +12,7 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 	}
 }
 
-export const toQuery = <TEntity, TResult, TQuery extends IQuery<TFilter, TOrderBy>, TFilter, TOrderBy>(toQuery: IToQuery<TEntity, TResult, TQuery, TFilter, TOrderBy>) => toResult<TResult>(
+export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(toQuery: IToQuery<TMapper, TQuery>) => toResult<IMapperResult<TMapper>>(
 	toQuery.query.size,
 	toQuery.source.count(),
 	toQuery.mapper(toQuery.source.findMany({
