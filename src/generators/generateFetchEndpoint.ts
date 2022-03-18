@@ -55,6 +55,11 @@ export const ${name}Provider: FC<I${name}Provider> = ({defaultEntity, ...props})
 
 export const use${name}Query = createQueryHook<void, ${response}, I${name}QueryParams>(${name}ApiLink, "get");
 
+export const use${name}QueryInvalidate = () => {
+	const queryClient = useQueryClient();
+	return () => queryClient.invalidateQueries([${name}ApiLink]);
+}
+
 export const use${name}Link = (): ((query: I${name}QueryParams) => string) => {
 	const linkContext = useLinkContext();
 	return query => linkContext.link(${name}ApiLink, query);
