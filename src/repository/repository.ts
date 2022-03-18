@@ -14,7 +14,7 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 
 export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(toQuery: IToQuery<TMapper, TQuery>) => toResult<IMapperResult<TMapper>>(
 	toQuery.query.size,
-	toQuery.source.count(),
+	toQuery.source.count({where: toQuery.query.filter}),
 	toQuery.mapper(toQuery.source.findMany({
 		where: toQuery.query.filter,
 		orderBy: toQuery.query.orderBy,
