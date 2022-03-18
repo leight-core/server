@@ -21,6 +21,7 @@ model File {
 
 model Job {
   id           String    @id @default(cuid())
+  name         String
   status       JobStatus @default(NEW)
   total        Int       @default(0)
   progress     Decimal   @default(0) @db.Decimal(5, 2)
