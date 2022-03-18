@@ -22,6 +22,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				'EntityProvider',
 				'IQueryProps',
 				'Query',
+				'useQueryClient',
 			],
 			from: '"@leight-core/client"'
 		},
