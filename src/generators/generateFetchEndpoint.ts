@@ -10,6 +10,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 	sdk.imports.push(...[
 		{imports: ['FC', 'createContext'], from: '"react"'},
 		{imports: ['IQueryParams', 'IEntityContext'], from: '"@leight-core/api"'},
+		{imports: ['useQueryClient'], from: '"react-query"'},
 		{
 			imports: [
 				'createQueryHook',
@@ -22,7 +23,6 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				'EntityProvider',
 				'IQueryProps',
 				'Query',
-				'useQueryClient',
 			],
 			from: '"@leight-core/client"'
 		},
