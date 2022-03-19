@@ -1,4 +1,4 @@
-import {GetServerSidePropsContext} from "next";
+import {GetServerSideProps, GetServerSidePropsContext} from "next";
 import {ParsedUrlQuery} from "querystring";
 
 export const handlePageFetch = <TProps, TQuery extends ParsedUrlQuery, TFetch extends (id: string) => Promise<any>>(
@@ -6,7 +6,7 @@ export const handlePageFetch = <TProps, TQuery extends ParsedUrlQuery, TFetch ex
 	query: keyof TQuery,
 	fetch: TFetch,
 	mapper: (fetch: NonNullable<Awaited<ReturnType<TFetch>>>) => Promise<any>,
-): any => {
+): GetServerSideProps<TProps, TQuery> => {
 	return async (ctx: GetServerSidePropsContext<TQuery>): Promise<any> => {
 		if (!ctx.params?.[query]) {
 			return {
