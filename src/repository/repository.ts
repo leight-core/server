@@ -12,14 +12,20 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 	}
 }
 
-export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(toQuery: IToQuery<TMapper, TQuery>) => {
-	const where = toQuery.toFilter?.(toQuery.query.filter);
+export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(
+	{
+		query: {size, filter, orderBy},
+		toFilter = filter => filter,
+		source,
+		mapper,
+	}: IToQuery<TMapper, TQuery>) => {
+	const where = toFilter?.(filter);
 	return toResult<IMapperResult<TMapper>>(
-		toQuery.query.size,
-		toQuery.source.count({where}),
-		toQuery.mapper(toQuery.source.findMany({
+		size,
+		source.count({where}),
+		mapper(source.findMany({
 			where,
-			orderBy: toQuery.query.orderBy,
+			orderBy,
 		}))
 	)
 }
