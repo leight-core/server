@@ -1,3 +1,4 @@
+export * from "./generateCreateEndpoint";
 export * from "./generateEndpoint";
 export * from "./generateFetchEndpoint";
 export * from "./generateImports";
