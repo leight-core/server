@@ -20,7 +20,7 @@ export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends 
 		source,
 		mapper,
 	}: IToQuery<TMapper, TQuery>) => {
-	const where = toFilter?.(filter);
+	const where = filter && toFilter?.(filter);
 	return toResult<IMapperResult<TMapper>>(
 		size,
 		source.count({where}),
