@@ -15,7 +15,8 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(
 	{
 		query: {size, filter, orderBy},
-		toFilter = filter => filter,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		toFilter = ({fulltext, ...filter}: any) => filter,
 		source,
 		mapper,
 	}: IToQuery<TMapper, TQuery>) => {
