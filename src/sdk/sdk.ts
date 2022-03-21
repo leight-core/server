@@ -1,8 +1,18 @@
-import {generateCreateEndpoint, generateEndpoint, generateFetchEndpoint, generateListEndpoint, generateMutationEndpoint, generateQueryEndpoint, pickNode, pickNodes, requireNode, toNode} from "@leight-core/server";
+import {generateCreateEndpoint, generateEndpoint, generateEntityEndpoint, generateFetchEndpoint, generateListEndpoint, generateMutationEndpoint, generateQueryEndpoint, pickNode, pickNodes, requireNode, toNode} from "@leight-core/server";
 import {outputFile, readFileSync, remove} from 'fs-extra';
 import ts from 'typescript';
 import {glob} from 'glob';
 import {IEndpointReflection, IGenerators, IImportReflection, IInterfaceReflection, ISdk} from "@leight-core/api";
+
+const defaultGenerators = {
+	"Endpoint": generateEndpoint,
+	"CreateEndpoint": generateCreateEndpoint,
+	"FetchEndpoint": generateFetchEndpoint,
+	"ListEndpoint": generateListEndpoint,
+	"MutationEndpoint": generateMutationEndpoint,
+	"QueryEndpoint": generateQueryEndpoint,
+	"EntityEndpoint": generateEntityEndpoint,
+};
 
 export function isExport(node: ts.Node, sourceFile: ts.SourceFile): boolean {
 	return !!pickNode(["SyntaxList", "ExportKeyword"], node, sourceFile);
@@ -104,14 +114,7 @@ export function toSource(sdk: ISdk, generators: IGenerators): string {
 }
 
 export async function generateSdkFor(path: string, generators?: IGenerators): Promise<string[]> {
-	const _generators = generators || {
-		"Endpoint": generateEndpoint,
-		"CreateEndpoint": generateCreateEndpoint,
-		"FetchEndpoint": generateFetchEndpoint,
-		"ListEndpoint": generateListEndpoint,
-		"MutationEndpoint": generateMutationEndpoint,
-		"QueryEndpoint": generateQueryEndpoint,
-	};
+	const _generators = generators || defaultGenerators;
 	const exported: string[] = [];
 	await remove("src/sdk");
 	toSdks(path, _generators).forEach(sdk => {

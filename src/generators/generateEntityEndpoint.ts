@@ -1,24 +1,19 @@
 import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
 
-export function generateQueryEndpoint(sdk: ISdk): string {
+export function generateEntityEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
 	sdk.imports.push(...[
 		{
 			imports: [
 				'FC',
-				'ConsumerProps',
 			],
 			from: '"react"',
 		},
 		{imports: ['useQueryClient'], from: '"react-query"'},
 		{
 			imports: [
-				'ISourceContext',
-				'IQueryParams',
-				'IQueryResult',
-				'IToOptionMapper',
 				'IQueryFilter',
 				'IQueryOrderBy',
 			],
@@ -26,17 +21,9 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
-				'Form',
-				'IFormProps',
-				'useSourceContext',
-				'ISourceProviderProps',
 				'createQueryHook',
 				'createPromiseHook',
 				'useLinkContext',
-				'SourceProvider',
-				'SourceContext',
-				'List',
-				'IListProps',
 				'IFilterProviderProps',
 				'FilterProvider',
 				'useOptionalFilterContext',
@@ -47,10 +34,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				'useOrderByContext',
 				'SourceControlProvider',
 				'ISourceControlProviderProps',
-				'IFilterWithoutTranslationProps',
-				'Filter',
-				'IQuerySourceSelectProps',
-				'QuerySourceSelect',
 			],
 			from: '"@leight-core/client"',
 		},
@@ -71,27 +54,7 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[4] ?? 'undefined'};
 
-export const use${name}Query = createQueryHook<${request}, IQueryResult<${response}>, ${queryParams}>(${name}ApiLink, "post");
-
-export const use${name}Source = () => useSourceContext<${response}>()
-
-export interface I${name}SourceContext extends ISourceContext<${response}> {
-}
-
-export interface I${name}SourceConsumerProps extends ConsumerProps<ISourceContext<${response}>> {
-}
-
-export const ${name}SourceConsumer: FC<I${name}SourceConsumerProps> = props => <SourceContext.Consumer {...props}/>;
-
-export interface I${name}SourceProps extends Partial<ISourceProviderProps<${response}>> {
-}
-
-export const ${name}Source: FC<I${name}SourceProps> = props => {
-	return <SourceProvider<${response}>
-		useQuery={use${name}Query}
-		{...props}
-	/>;
-}
+export const use${name}Query = createQueryHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
 export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => {
 	const linkContext = useLinkContext();
@@ -108,14 +71,6 @@ export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <
 export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
 export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
 
-export interface I${name}SourceFilterProps extends IFilterWithoutTranslationProps<IQueryFilter<${request}>> {
-}
-
-export const ${name}SourceFilter: FC<I${name}SourceFilterProps> = props => <Filter
-	{...props}
-	translation={'common.filter.${name}'}
-/>;
-
 export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryFilter<${request}>>> {
 }
 
@@ -124,35 +79,10 @@ export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props =>
 export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryFilter<${request}>>()
 export const use${name}OrderByContext = () => useOrderByContext<IQueryFilter<${request}>>()
 
-export interface I${name}ListSourceProps extends Partial<IListProps<${response}>> {
-	sourceProps?: Partial<I${name}SourceProps>;
-}
-
 export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
 }
 
 export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> {...props}/>;
-
-export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...props}) => {
-	return <${name}Source
-		{...sourceProps}
-	>
-		<List<${response}>
-			{...props}		
-		/>
-	</${name}Source>
-}
-
-export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
-	toOption: IToOptionMapper<${response}>;
-	sourceProps?: I${name}SourceProps;
-}
-
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, ...props}) => {
-	return <${name}Source {...sourceProps}>
-		<QuerySourceSelect<${response}> {...props}/>
-	</${name}Source>;
-};
 
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
