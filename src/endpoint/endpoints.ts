@@ -1,5 +1,6 @@
 import {ICreateEndpoint, IDeleteEndpoint, IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IPatchEndpoint, IQuery, IQueryEndpoint, IQueryParams, IQueryResult} from "@leight-core/api";
 import getRawBody from "raw-body";
+import {getToken} from "next-auth/jwt";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	return async (req, res) => {
@@ -10,10 +11,21 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				request: req.body,
 				query: req.query,
 				toBody: () => getRawBody(req),
-				end: chunk => res.end(chunk),
+				end: res.end,
+				toUserId: async () => {
+					const token: any = await getToken({req});
+					if (!token) {
+						throw new Error("Unknown user; missing token.");
+					}
+					return token.sub;
+				}
 			});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
+			if ((e as Error)?.message?.includes('Unknown user; missing token.')) {
+				res.status(403).send('Nope.' as any);
+				return;
+			}
 			console.error('Endpoint error', e);
 			res.status(500).send('A request failed with Internal Server Error.' as any);
 		}
