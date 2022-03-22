@@ -1,4 +1,4 @@
-import {IMapperResult, IQuery, IQueryResult, ISourceMapper, IToQuery} from "@leight-core/api";
+import {IMapperResult, IPrismaClientTransaction, IQuery, IQueryResult, IRepositoryService, ISource, ISourceMapper, IToQuery} from "@leight-core/api";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
 	const _items = await items;
@@ -41,3 +41,23 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 		}))
 	} as any : undefined;
 }
+
+export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQuery<any, any>>(
+	prismaClient: IPrismaClientTransaction,
+	source: ISource<TEntity, TQuery>,
+	mapper: (entity: TEntity) => Promise<TResponse>,
+): Pick<IRepositoryService<any, TEntity, TResponse, TQuery>, "fetch" | "query" | "map" | "toMap"> => ({
+	fetch: async id => (await source.findUnique({
+		where: {id},
+		rejectOnNotFound: true,
+	})) as TEntity,
+	query: async query => toQuery<(entities: Promise<TEntity[]>) => Promise<TResponse[]>, TQuery>({
+		query,
+		source,
+		mapper: async entities => Promise.all((await entities).map(mapper)),
+	}),
+	map: mapper,
+	async toMap(id) {
+		return mapper(await this.fetch(id))
+	},
+});
