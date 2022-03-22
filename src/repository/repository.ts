@@ -46,7 +46,7 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 	prismaClient: IPrismaClientTransaction,
 	source: ISource<TEntity, TQuery>,
 	mapper: (entity: TEntity) => Promise<TResponse>,
-): Pick<IRepositoryService<any, TEntity, TResponse, TQuery>, "fetch" | "query" | "map" | "toMap"> => ({
+): Pick<IRepositoryService<any, TEntity, TResponse, TQuery>, "fetch" | "query" | "map" | "toMap" | "importers"> => ({
 	fetch: async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
@@ -60,4 +60,5 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 	async toMap(id) {
 		return mapper(await this.fetch(id))
 	},
+	importers: () => ({}),
 });
