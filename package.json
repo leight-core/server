@@ -28,7 +28,8 @@
 		"mime-types": "^2.1.35",
 		"minimatch": "^5.0.1",
 		"raw-body": "^2.5.1",
-		"uuid": "^8.3.2"
+		"uuid": "^8.3.2",
+		"xlsx": "^0.18.4"
 	},
 	"peerDependencies": {
 		"next": "^12.1.0",
