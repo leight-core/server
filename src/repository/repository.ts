@@ -14,7 +14,7 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 
 export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(
 	{
-		query: {size, filter, orderBy},
+		query: {page, size, filter, orderBy},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		toFilter = ({fulltext, ...filter}: any) => filter,
 		source,
@@ -27,6 +27,8 @@ export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends 
 		mapper(source.findMany({
 			where,
 			orderBy,
+			take: size,
+			skip: page && size && size * page,
 		}))
 	)
 }
