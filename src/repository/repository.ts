@@ -51,36 +51,36 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
 	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
 	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
-): Pick<TRepositoryService, "fetch" | "query" | "handleQuery" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
-	fetch: async id => (await source.findUnique({
+): Pick<TRepositoryService, "fetch" | "query" | "handleQuery" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => {
+	const list: TRepositoryService['list'] = async entities => Promise.all((await entities).map(mapper));
+	const query: TRepositoryService['query'] = query => toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
+		query,
+		source,
+		mapper: list,
+		toFilter,
+	});
+	const fetch: TRepositoryService['fetch'] = async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
-	})) as IRepositoryEntity<TRepositoryService>,
-	async query(query) {
-		return toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
-			query,
-			source,
-			mapper: this.list,
-			toFilter,
-		})
-	},
-	async handleQuery({request}) {
-		return this.query(request);
-	},
-	map: mapper,
-	list: async entities => Promise.all((await entities).map(mapper)),
-	async toMap(id) {
-		return mapper(await this.fetch(id))
-	},
-	importers: () => ({}),
-	pageFetch(key, query) {
-		return async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
+	})) as IRepositoryEntity<TRepositoryService>;
+	const toMap: TRepositoryService['toMap'] = async id => mapper(await fetch(id));
+	const handleQuery: TRepositoryService['handleQuery'] = ({request}) => query(request);
+
+	return {
+		fetch,
+		query,
+		handleQuery,
+		map: mapper,
+		list,
+		toMap,
+		importers: () => ({}),
+		pageFetch: (key, query) => async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
 			if (!ctx.params?.[query]) {
 				return {
 					notFound: true,
 				}
 			}
-			const item = await this.fetch(ctx.params[query] as string);
+			const item = await fetch(ctx.params[query] as string);
 			if (!item) {
 				return {
 					notFound: true,
@@ -91,6 +91,6 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 					[key]: await mapper(item),
 				}
 			};
-		}
-	},
-});
+		},
+	};
+};
