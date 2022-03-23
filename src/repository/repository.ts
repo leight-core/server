@@ -51,7 +51,7 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
 	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
 	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
-): Pick<TRepositoryService, "fetch" | "query" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
+): Pick<TRepositoryService, "fetch" | "query" | "handleQuery" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
 	fetch: async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
@@ -63,6 +63,9 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 			mapper: this.list,
 			toFilter,
 		})
+	},
+	async handleQuery({request}) {
+		return this.query(request);
 	},
 	map: mapper,
 	list: async entities => Promise.all((await entities).map(mapper)),
