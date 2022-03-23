@@ -1,7 +1,6 @@
-import {IMapperResult, IPrismaClientTransaction, IQuery, IQueryResult, IRepositoryService, ISource, ISourceMapper, IToQuery} from "@leight-core/api";
+import {IMapperResult, IPrismaClientTransaction, IQuery, IQueryResult, IRepositoryEntity, IRepositoryQuery, IRepositoryResponse, IRepositoryService, ISource, ISourceMapper, IToQuery} from "@leight-core/api";
 import {IQueryFilter} from "@leight-core/api/lib/cjs/source/interface";
 import {GetServerSidePropsContext} from "next";
-import {ParsedUrlQuery} from "querystring";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
 	const _items = await items;
@@ -47,18 +46,18 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 	} as any : undefined;
 }
 
-export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQuery<any, any>, TPageFetchProps, TPageFetchQueryParams extends ParsedUrlQuery>(
+export const AbstractRepositoryService = <TRepositoryService extends IRepositoryService<any, any, any, any, any, any>>(
 	prismaClient: IPrismaClientTransaction,
-	source: ISource<TEntity, TQuery>,
-	mapper: (entity: TEntity) => Promise<TResponse>,
-	toFilter?: (filter?: IQueryFilter<TQuery>) => IQueryFilter<TQuery> | undefined,
-): Pick<IRepositoryService<any, TEntity, TResponse, TQuery, TPageFetchProps, TPageFetchQueryParams>, "fetch" | "query" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
+	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
+	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
+	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
+): Pick<TRepositoryService, "fetch" | "query" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
 	fetch: async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
-	})) as TEntity,
+	})) as IRepositoryEntity<TRepositoryService>,
 	async query(query) {
-		return toQuery<(entities: Promise<TEntity[]>) => Promise<TResponse[]>, TQuery>({
+		return toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
 			query,
 			source,
 			mapper: this.list,
@@ -72,7 +71,7 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 	},
 	importers: () => ({}),
 	pageFetch(key, query) {
-		return async (ctx: GetServerSidePropsContext<TPageFetchQueryParams>): Promise<any> => {
+		return async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
 			if (!ctx.params?.[query]) {
 				return {
 					notFound: true,
