@@ -1,4 +1,5 @@
 import {IMapperResult, IPrismaClientTransaction, IQuery, IQueryResult, IRepositoryService, ISource, ISourceMapper, IToQuery} from "@leight-core/api";
+import {IQueryFilter} from "@leight-core/api/lib/cjs/source/interface";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
 	const _items = await items;
@@ -48,6 +49,7 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 	prismaClient: IPrismaClientTransaction,
 	source: ISource<TEntity, TQuery>,
 	mapper: (entity: TEntity) => Promise<TResponse>,
+	toFilter?: (filter?: IQueryFilter<TQuery>) => IQueryFilter<TQuery> | undefined,
 ): Pick<IRepositoryService<any, TEntity, TResponse, TQuery>, "fetch" | "query" | "map" | "toMap" | 'list' | "importers"> => ({
 	fetch: async id => (await source.findUnique({
 		where: {id},
@@ -58,6 +60,7 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 			query,
 			source,
 			mapper: this.list,
+			toFilter,
 		})
 	},
 	map: mapper,
