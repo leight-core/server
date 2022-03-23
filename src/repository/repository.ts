@@ -47,12 +47,12 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 	} as any : undefined;
 }
 
-export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQuery<any, any>>(
+export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQuery<any, any>, TPageFetchProps, TPageFetchQueryParams extends ParsedUrlQuery>(
 	prismaClient: IPrismaClientTransaction,
 	source: ISource<TEntity, TQuery>,
 	mapper: (entity: TEntity) => Promise<TResponse>,
 	toFilter?: (filter?: IQueryFilter<TQuery>) => IQueryFilter<TQuery> | undefined,
-): Pick<IRepositoryService<any, TEntity, TResponse, TQuery>, "fetch" | "query" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
+): Pick<IRepositoryService<any, TEntity, TResponse, TQuery, TPageFetchProps, TPageFetchQueryParams>, "fetch" | "query" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => ({
 	fetch: async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
@@ -71,8 +71,8 @@ export const AbstractRepositoryService = <TEntity, TResponse, TQuery extends IQu
 		return mapper(await this.fetch(id))
 	},
 	importers: () => ({}),
-	pageFetch<TProps, TQueryParams extends ParsedUrlQuery>(key: keyof TProps, query: keyof TQueryParams) {
-		return async (ctx: GetServerSidePropsContext<TQueryParams>): Promise<any> => {
+	pageFetch(key, query) {
+		return async (ctx: GetServerSidePropsContext<TPageFetchQueryParams>): Promise<any> => {
 			if (!ctx.params?.[query]) {
 				return {
 					notFound: true,
