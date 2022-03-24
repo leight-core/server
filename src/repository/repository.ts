@@ -95,8 +95,9 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 	};
 };
 
-export const handleUniqueException = async (e: Error, callback: () => Promise<void>): Promise<void> => {
-	if (e.message?.includes('Unique constraint failed on the fields')) {
+export const handleUniqueException = async <T>(e: any, callback: () => Promise<T>): Promise<T> => {
+	if ((e as Error).message?.includes('Unique constraint failed on the fields')) {
 		return callback();
 	}
+	throw e;
 }
