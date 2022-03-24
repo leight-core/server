@@ -1,5 +1,5 @@
 import {IForeachNodeCallback, INode, INodePath} from "@leight-core/api";
-import minimatch from "minimatch";
+import micromatch from "micromatch";
 import ts from "typescript";
 
 export function toNode(node: ts.Node, sourceFile: ts.SourceFile): INode {
@@ -30,7 +30,7 @@ export function foreachNode(node: ts.Node, sourceFile: ts.SourceFile, callback: 
 
 export function pickNodes(path: string[], root: ts.Node, sourceFile: ts.SourceFile): ts.Node[] {
 	const request = ["*", ...path].join("/");
-	return toNodePaths(root, sourceFile).filter(node => minimatch(node.path, request)).map(node => node.node);
+	return toNodePaths(root, sourceFile).filter(node => micromatch.isMatch(node.path, request)).map(node => node.node);
 }
 
 export function pickNode(path: string[], root: ts.Node, sourceFile: ts.SourceFile): ts.Node | undefined {
