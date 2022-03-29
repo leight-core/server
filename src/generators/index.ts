@@ -6,4 +6,5 @@ export * from "./generateImports";
 export * from "./generateListEndpoint";
 export * from "./generateMutationEndpoint";
 export * from "./generateQueryEndpoint";
+export * from "./generateRequestEndpoint";
 export * from "./utils";

@@ -1,4 +1,19 @@
-import {ICreateEndpoint, IDeleteEndpoint, IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IPatchEndpoint, IQuery, IQueryEndpoint, IQueryParams, IQueryResult} from "@leight-core/api";
+import {
+	ICreateEndpoint,
+	IDeleteEndpoint,
+	IEndpoint,
+	IEndpointCallback,
+	IEntityEndpoint,
+	IFetchEndpoint,
+	IListEndpoint,
+	IMutationEndpoint,
+	IPatchEndpoint,
+	IQuery,
+	IQueryEndpoint,
+	IQueryParams,
+	IQueryResult,
+	IRequestEndpoint
+} from "@leight-core/api";
 import getRawBody from "raw-body";
 import {getToken} from "next-auth/jwt";
 
@@ -62,4 +77,8 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any
 
 export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IDeleteEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
 	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
+}
+
+export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IRequestEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 }

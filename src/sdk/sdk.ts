@@ -1,4 +1,17 @@
-import {generateCreateEndpoint, generateEndpoint, generateEntityEndpoint, generateFetchEndpoint, generateListEndpoint, generateMutationEndpoint, generateQueryEndpoint, pickNode, pickNodes, requireNode, toNode} from "@leight-core/server";
+import {
+	generateCreateEndpoint,
+	generateEndpoint,
+	generateEntityEndpoint,
+	generateFetchEndpoint,
+	generateListEndpoint,
+	generateMutationEndpoint,
+	generateQueryEndpoint,
+	generateRequestEndpoint,
+	pickNode,
+	pickNodes,
+	requireNode,
+	toNode
+} from "@leight-core/server";
 import {outputFile, readFileSync, remove} from 'fs-extra';
 import ts from 'typescript';
 import {glob} from 'glob';
@@ -12,6 +25,7 @@ const defaultGenerators = {
 	"MutationEndpoint": generateMutationEndpoint,
 	"QueryEndpoint": generateQueryEndpoint,
 	"EntityEndpoint": generateEntityEndpoint,
+	"RequestEndpoint": generateRequestEndpoint,
 };
 
 export function isExport(node: ts.Node, sourceFile: ts.SourceFile): boolean {
