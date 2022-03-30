@@ -46,6 +46,10 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 
 	// language=text
 	return cleanup(`
+/**
+ * Generated file; DO NOT modify as it could be overridden by a generator.
+ */
+
 ${generateImports(sdk.imports)}
 
 ${sdk.interfaces.map(item => item.source).join("\n")}
