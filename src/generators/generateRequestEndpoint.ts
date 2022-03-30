@@ -5,20 +5,7 @@ export function generateRequestEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
 	sdk.imports.push(...[
-		{
-			imports: [
-				'FC',
-				'ConsumerProps',
-			],
-			from: '"react"',
-		},
 		{imports: ['useQueryClient'], from: '"react-query"'},
-		{
-			imports: [
-				'IQueryParams',
-			],
-			from: '"@leight-core/api"',
-		},
 		{
 			imports: [
 				'createQueryHook',
@@ -44,7 +31,7 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[4] ?? 'undefined'};
 
-export const use${name}Query = createQueryHook<${request}, IQueryResult<${response}>, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Query = createQueryHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
 export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => {
 	const linkContext = useLinkContext();
