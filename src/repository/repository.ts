@@ -4,6 +4,7 @@ import {
 	IQueryFilter,
 	IQueryResult,
 	IRepositoryCreate,
+	IRepositoryCreateCallback,
 	IRepositoryEntity,
 	IRepositoryFetchProps,
 	IRepositoryFetchQuery,
@@ -62,7 +63,7 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 
 export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
 	name: string,
-	create: (create: IRepositoryCreate<TRepositoryService>) => Promise<IRepositoryEntity<TRepositoryService>>,
+	create: IRepositoryCreateCallback<IRepositoryCreate<TRepositoryService>, IRepositoryEntity<TRepositoryService>>;
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
 	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
 	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
@@ -97,7 +98,18 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		map: mapper,
 		list,
 		toMap,
-		create,
+		create: (request, onUniqueError) => {
+			try {
+				return create(request, onUniqueError);
+			} catch (e) {
+				return handleUniqueException(e, () => {
+					if (onUniqueError) {
+						return onUniqueError(request);
+					}
+					throw e;
+				})
+			}
+		},
 		handleCreate: async ({request}) => mapper(await create(request)),
 		importers: () => ({
 			[name]: () => ({handler: create}),
