@@ -106,9 +106,9 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		map: mapper,
 		list,
 		toMap,
-		create: request => {
+		create: async request => {
 			try {
-				return create(request);
+				return await create(request);
 			} catch (e) {
 				return handleUniqueException(e, () => onUnique(request, e as Error))
 			}
