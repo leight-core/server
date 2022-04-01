@@ -62,11 +62,16 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 
 export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
 	name: string,
-	create: (create: IRepositoryCreate<TRepositoryService>) => Promise<IRepositoryEntity<TRepositoryService>>,
-	onUnique: (create: IRepositoryCreate<TRepositoryService>, error: Error) => Promise<IRepositoryEntity<TRepositoryService>>;
+
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
-	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
-	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
+
+	create(create: IRepositoryCreate<TRepositoryService>): Promise<IRepositoryEntity<TRepositoryService>>,
+
+	onUnique?(create: IRepositoryCreate<TRepositoryService>, error: Error): Promise<IRepositoryEntity<TRepositoryService>>;
+
+	mapper(entity: IRepositoryEntity<TRepositoryService>): Promise<IRepositoryResponse<TRepositoryService>>,
+
+	toFilter?(filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>): IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
 }
 
 export const RepositoryService = <TRepositoryService extends IRepositoryService<any, any, any, any, any, any>>(
