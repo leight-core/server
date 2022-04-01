@@ -4,7 +4,6 @@ import {
 	IQueryFilter,
 	IQueryResult,
 	IRepositoryCreate,
-	IRepositoryCreateCallback,
 	IRepositoryEntity,
 	IRepositoryFetchProps,
 	IRepositoryFetchQuery,
@@ -63,7 +62,8 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 
 export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
 	name: string,
-	create: IRepositoryCreateCallback<IRepositoryCreate<TRepositoryService>, IRepositoryEntity<TRepositoryService>>;
+	create: (create: IRepositoryCreate<TRepositoryService>) => Promise<IRepositoryEntity<TRepositoryService>>,
+	onUnique: (create: IRepositoryCreate<TRepositoryService>, error: Error) => Promise<IRepositoryEntity<TRepositoryService>>;
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
 	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
 	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
@@ -75,6 +75,9 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		source,
 		mapper,
 		create,
+		onUnique = (_, e) => {
+			throw e;
+		},
 		toFilter,
 	}: IRepositoryServiceRequest<TRepositoryService>): IRepositoryService<IRepositoryCreate<TRepositoryService>, IRepositoryEntity<TRepositoryService>, IRepositoryResponse<TRepositoryService>, IRepositoryQuery<TRepositoryService>, IRepositoryFetchProps<TRepositoryService>, IRepositoryFetchQuery<TRepositoryService>> => {
 	const list: TRepositoryService['list'] = async entities => Promise.all((await entities).map(mapper));
@@ -98,16 +101,11 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		map: mapper,
 		list,
 		toMap,
-		create: (request, onUniqueError) => {
+		create: request => {
 			try {
-				return create(request, onUniqueError);
+				return create(request);
 			} catch (e) {
-				return handleUniqueException(e, () => {
-					if (onUniqueError) {
-						return onUniqueError(request);
-					}
-					throw e;
-				})
+				return handleUniqueException(e, () => onUnique(request, e as Error))
 			}
 		},
 		handleCreate: async ({request}) => mapper(await create(request)),
@@ -135,9 +133,9 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 	};
 };
 
-export const handleUniqueException = async <T>(e: any, callback: () => Promise<T>): Promise<T> => {
+export const handleUniqueException = async <T>(e: any, callback: (e: Error) => Promise<T>): Promise<T> => {
 	if ((e as Error).message?.includes('Unique constraint failed on the fields')) {
-		return callback();
+		return callback(e);
 	}
 	throw e;
 }
