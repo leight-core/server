@@ -1,5 +1,19 @@
-import {IMapperResult, IPrismaClientTransaction, IQuery, IQueryResult, IRepositoryEntity, IRepositoryQuery, IRepositoryResponse, IRepositoryService, ISource, ISourceMapper, IToQuery} from "@leight-core/api";
-import {IQueryFilter} from "@leight-core/api/lib/cjs/source/interface";
+import {
+	IMapperResult,
+	IQuery,
+	IQueryFilter,
+	IQueryResult,
+	IRepositoryCreate,
+	IRepositoryEntity,
+	IRepositoryFetchProps,
+	IRepositoryFetchQuery,
+	IRepositoryQuery,
+	IRepositoryResponse,
+	IRepositoryService,
+	ISource,
+	ISourceMapper,
+	IToQuery
+} from "@leight-core/api";
 import {GetServerSidePropsContext} from "next";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
@@ -46,12 +60,22 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 	} as any : undefined;
 }
 
-export const AbstractRepositoryService = <TRepositoryService extends IRepositoryService<any, any, any, any, any, any>>(
-	prismaClient: IPrismaClientTransaction,
+export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
+	name: string,
+	create: (create: IRepositoryCreate<TRepositoryService>) => Promise<IRepositoryEntity<TRepositoryService>>,
 	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
 	mapper: (entity: IRepositoryEntity<TRepositoryService>) => Promise<IRepositoryResponse<TRepositoryService>>,
 	toFilter?: (filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>) => IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
-): Pick<TRepositoryService, "fetch" | "query" | "handleQuery" | "map" | "toMap" | 'list' | 'pageFetch' | "importers"> => {
+}
+
+export const RepositoryService = <TRepositoryService extends IRepositoryService<any, any, any, any, any, any>>(
+	{
+		name,
+		source,
+		mapper,
+		create,
+		toFilter,
+	}: IRepositoryServiceRequest<TRepositoryService>): IRepositoryService<IRepositoryCreate<TRepositoryService>, IRepositoryEntity<TRepositoryService>, IRepositoryResponse<TRepositoryService>, IRepositoryQuery<TRepositoryService>, IRepositoryFetchProps<TRepositoryService>, IRepositoryFetchQuery<TRepositoryService>> => {
 	const list: TRepositoryService['list'] = async entities => Promise.all((await entities).map(mapper));
 	const query: TRepositoryService['query'] = query => toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
 		query,
@@ -73,7 +97,11 @@ export const AbstractRepositoryService = <TRepositoryService extends IRepository
 		map: mapper,
 		list,
 		toMap,
-		importers: () => ({}),
+		create,
+		handleCreate: async ({request}) => mapper(await create(request)),
+		importers: () => ({
+			[name]: () => ({handler: create}),
+		}),
 		pageFetch: (key, query) => async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
 			if (!ctx.params?.[query]) {
 				return {
