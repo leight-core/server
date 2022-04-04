@@ -92,6 +92,7 @@ export interface I${name}SourceProps extends Partial<ISourceProviderProps<${resp
 
 export const ${name}Source: FC<I${name}SourceProps> = props => {
 	return <SourceProvider<${response}>
+		name={"${name}"}
 		useQuery={use${name}Query}
 		{...props}
 	/>;
@@ -107,7 +108,7 @@ export const use${name}Promise = createPromiseHook<${request}, ${response}, ${qu
 export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<IQueryFilter<${request}>>> {
 }
 
-export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<IQueryFilter<${request}>> {...props}/>;
+export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
 export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
@@ -123,7 +124,7 @@ export const ${name}SourceFilter: FC<I${name}SourceFilterProps> = props => <Filt
 export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryFilter<${request}>>> {
 }
 
-export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryFilter<${request}>> {...props}/>;
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryFilter<${request}>>()
 export const use${name}OrderByContext = () => useOrderByContext<IQueryFilter<${request}>>()
@@ -135,7 +136,7 @@ export interface I${name}ListSourceProps extends Partial<IListProps<${response}>
 export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
 }
 
-export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> {...props}/>;
+export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
 
 export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...props}) => {
 	return <${name}Source

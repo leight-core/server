@@ -70,7 +70,7 @@ export const use${name}Promise = createPromiseHook<${request}, ${response}, ${qu
 export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<IQueryFilter<${request}>>> {
 }
 
-export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<IQueryFilter<${request}>> {...props}/>;
+export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
 export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
@@ -78,7 +78,7 @@ export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${req
 export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryFilter<${request}>>> {
 }
 
-export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryFilter<${request}>> {...props}/>;
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryFilter<${request}>>()
 export const use${name}OrderByContext = () => useOrderByContext<IQueryFilter<${request}>>()
@@ -86,7 +86,7 @@ export const use${name}OrderByContext = () => useOrderByContext<IQueryFilter<${r
 export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
 }
 
-export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> {...props}/>;
+export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
