@@ -8,10 +8,10 @@ export const generateImports = (imports: IImportReflection[]): string => {
 		_imports[k] = v.filter((value, index, self) => self.indexOf(value) === index).sort();
 	}
 
-	console.log('Imports', Object.keys(_imports).sort().reduce((obj: any, key: string) => {
+	console.log("Imports", Object.keys(_imports).sort().reduce((obj: any, key: string) => {
 		obj[key] = _imports[key];
 		return obj;
 	}, {}));
 
 	return Object.entries(_imports).filter(([, imports]) => imports.length).map(([_import, imports]) => `import {${imports.join(", ")}} from ${_import};`).join("\n");
-}
+};

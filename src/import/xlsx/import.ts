@@ -1,19 +1,19 @@
-import xlsx from "xlsx";
-import {Readable} from "node:stream";
-import {measureTime} from "measure-time";
-import {toHumanNumber, toHumanTimeMs, toPercent} from "@leight-core/client";
 import {IImportEvents, IImportHandlers, IImportMeta, IImportTabs, IImportTranslations, IJob} from "@leight-core/api";
+import {toHumanNumber, toHumanTimeMs, toPercent} from "@leight-core/client";
+import {measureTime} from "measure-time";
+import {Readable} from "node:stream";
+import xlsx from "xlsx";
 
 export const toTabs = (workbook: xlsx.WorkBook): IImportTabs[] => {
-	const tabs = workbook.Sheets['tabs'];
+	const tabs = workbook.Sheets["tabs"];
 	if (!tabs) {
 		return [];
 	}
 	return xlsx.utils.sheet_to_json<{ tab: string, services: string }>(tabs).map<IImportTabs>(({tab, services}) => ({tab, services: services.split(/,\s+/g)}));
-}
+};
 
 export const toTranslations = (workbook: xlsx.WorkBook): IImportTranslations => {
-	const translations = workbook.Sheets['translations'];
+	const translations = workbook.Sheets["translations"];
 	if (!translations) {
 		return {};
 	}
@@ -21,17 +21,17 @@ export const toTranslations = (workbook: xlsx.WorkBook): IImportTranslations => 
 		obj[current.from] = current.to;
 		return obj;
 	}, {});
-}
+};
 
 export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 	tabs: toTabs(workbook),
 	translations: toTranslations(workbook),
-})
+});
 
 export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.WorkBook, handlers: IImportHandlers, events?: IImportEvents): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
-	console.log('Generating import');
+	console.log("Generating import");
 	const meta = toMeta(workbook);
-	console.log('- Meta\n', meta);
+	console.log("- Meta\n", meta);
 
 	let total = 0;
 	let processed = 0;
@@ -48,10 +48,10 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 			for await (const _ of xlsx.stream.to_json(workSheet)) {
 				total++;
 			}
-		}))
+		}));
 	}));
 
-	console.log('Total', total);
+	console.log("Total", total);
 	await events?.onTotal?.(total);
 
 	await Promise.all(meta.tabs.map(async tab => {
@@ -87,7 +87,7 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				} catch (e) {
 					failure++;
 					await events?.onFailure?.(e as Error, failure, total, processed);
-					console.error('Error on item', item, e);
+					console.error("Error on item", item, e);
 				}
 			}
 			console.log(`Import [${service}] results:
@@ -96,17 +96,17 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 	failure [${failure}/${total} (${toHumanNumber(toPercent(failure, total), 2)}%)] 				
 	skip [${skip}/${total} (${toHumanNumber(toPercent(skip, total), 2)}%)] 				
 	runtime [${toHumanTimeMs(getElapsed().millisecondsTotal)}].
-`)
+`);
 			await handler.end?.({});
 			console.log(`- Service [${service}] done.`);
 		}));
 	}));
-	console.log('- Done');
+	console.log("- Done");
 
 	return {
 		failure,
 		success,
 		skip,
 		total,
-	}
-}
+	};
+};

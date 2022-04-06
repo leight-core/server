@@ -1,30 +1,30 @@
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 
 export function generateMutationEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
 	sdk.imports.push(...[
-		{imports: ['FC'], from: '"react"'},
-		{imports: ['IQueryParams'], from: '"@leight-core/api"'},
-		{imports: ['useQueryClient'], from: '"react-query"'},
+		{imports: ["FC"], from: "\"react\""},
+		{imports: ["IQueryParams"], from: "\"@leight-core/api\""},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
-				'Form',
-				'IFormProps',
-				'useSourceContext',
-				'ISourceProviderProps',
-				'createQueryHook',
-				'createPromiseHook',
-				'useLinkContext',
-				'createMutationHook',
+				"Form",
+				"IFormProps",
+				"useSourceContext",
+				"ISourceProviderProps",
+				"createQueryHook",
+				"createPromiseHook",
+				"useLinkContext",
+				"createMutationHook",
 			],
-			from: '"@leight-core/client"',
+			from: "\"@leight-core/client\"",
 		},
 	]);
 
 	const name = generatorCommons.name;
-	const generics = generatorCommons.generics.join(', ');
+	const generics = generatorCommons.generics.join(", ");
 
 	// language=text
 	return cleanup(`
@@ -38,7 +38,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type I${name}QueryParams = ${generatorCommons.generics[2] || 'undefined'};
+export type I${name}QueryParams = ${generatorCommons.generics[2] || "undefined"};
 
 export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
 

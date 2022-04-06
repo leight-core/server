@@ -12,9 +12,9 @@ export const toGeneratorCommons = (sdk: ISdk): IGeneratorCommons => {
 		name,
 		api: sdk.endpoint.api,
 		generics: sdk.endpoint.generics,
-	}
-}
+	};
+};
 
 export const cleanup = (code: string): string => {
-	return code.replace(/\n\s*\n\s*\n/g, '\n\n').trim() + "\n";
-}
+	return code.replace(/\n\s*\n\s*\n/g, "\n\n").trim() + "\n";
+};

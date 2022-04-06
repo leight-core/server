@@ -1,5 +1,5 @@
-import {cleanup, generateImports} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
+import {cleanup, generateImports} from "@leight-core/server";
 
 export function generateFetchEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
@@ -8,23 +8,23 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 	const api = sdk.endpoint.api;
 
 	sdk.imports.push(...[
-		{imports: ['FC', 'createContext'], from: '"react"'},
-		{imports: ['IQueryParams', 'IEntityContext'], from: '"@leight-core/api"'},
-		{imports: ['useQueryClient'], from: '"react-query"'},
+		{imports: ["FC", "createContext"], from: "\"react\""},
+		{imports: ["IQueryParams", "IEntityContext"], from: "\"@leight-core/api\""},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
-				'createQueryHook',
-				'createPromiseHook',
-				'useLinkContext',
-				'useContext',
-				'useOptionalContext',
-				'IEntityProviderProps',
-				'EntityContext',
-				'EntityProvider',
-				'IQueryProps',
-				'Query',
+				"createQueryHook",
+				"createPromiseHook",
+				"useLinkContext",
+				"useContext",
+				"useOptionalContext",
+				"IEntityProviderProps",
+				"EntityContext",
+				"EntityProvider",
+				"IQueryProps",
+				"Query",
 			],
-			from: '"@leight-core/client"'
+			from: "\"@leight-core/client\""
 		},
 	]);
 

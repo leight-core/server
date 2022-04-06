@@ -1,5 +1,5 @@
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 
 export function generateQueryEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -7,52 +7,52 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 	sdk.imports.push(...[
 		{
 			imports: [
-				'FC',
-				'ConsumerProps',
+				"FC",
+				"ConsumerProps",
 			],
-			from: '"react"',
+			from: "\"react\"",
 		},
-		{imports: ['useQueryClient'], from: '"react-query"'},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
-				'ISourceContext',
-				'IQueryParams',
-				'IQueryResult',
-				'IToOptionMapper',
-				'IQueryFilter',
-				'IQueryOrderBy',
+				"ISourceContext",
+				"IQueryParams",
+				"IQueryResult",
+				"IToOptionMapper",
+				"IQueryFilter",
+				"IQueryOrderBy",
 			],
-			from: '"@leight-core/api"',
+			from: "\"@leight-core/api\"",
 		},
 		{
 			imports: [
-				'Form',
-				'IFormProps',
-				'useSourceContext',
-				'ISourceProviderProps',
-				'createQueryHook',
-				'createPromiseHook',
-				'useLinkContext',
-				'SourceProvider',
-				'SourceContext',
-				'List',
-				'IListProps',
-				'IFilterProviderProps',
-				'FilterProvider',
-				'useOptionalFilterContext',
-				'useFilterContext',
-				'IOrderByProviderProps',
-				'OrderByProvider',
-				'useOptionalOrderByContext',
-				'useOrderByContext',
-				'SourceControlProvider',
-				'ISourceControlProviderProps',
-				'IFilterWithoutTranslationProps',
-				'Filter',
-				'IQuerySourceSelectProps',
-				'QuerySourceSelect',
+				"Form",
+				"IFormProps",
+				"useSourceContext",
+				"ISourceProviderProps",
+				"createQueryHook",
+				"createPromiseHook",
+				"useLinkContext",
+				"SourceProvider",
+				"SourceContext",
+				"List",
+				"IListProps",
+				"IFilterProviderProps",
+				"FilterProvider",
+				"useOptionalFilterContext",
+				"useFilterContext",
+				"IOrderByProviderProps",
+				"OrderByProvider",
+				"useOptionalOrderByContext",
+				"useOrderByContext",
+				"SourceControlProvider",
+				"ISourceControlProviderProps",
+				"IFilterWithoutTranslationProps",
+				"Filter",
+				"IQuerySourceSelectProps",
+				"QuerySourceSelect",
 			],
-			from: '"@leight-core/client"',
+			from: "\"@leight-core/client\"",
 		},
 	]);
 
@@ -73,7 +73,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type ${queryParams} = ${generatorCommons.generics[4] ?? 'undefined'};
+export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
 
 export const use${name}Query = createQueryHook<${request}, IQueryResult<${response}>, ${queryParams}>(${name}ApiLink, "post");
 

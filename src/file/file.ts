@@ -1,12 +1,12 @@
 import {IFile, IFileServiceFactory} from "@leight-core/api";
-import mime from 'mime-types';
-import fs from 'node:fs';
-import {v4} from 'uuid';
 import {copySync} from "fs-extra";
+import mime from "mime-types";
+import fs from "node:fs";
+import {v4} from "uuid";
 
-export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{fileId}'}}) => {
-	const toLocation = (fileId: string) => config.path.replace('{fileId}', fileId.split('-').join('/'))
-	const mimeOf = (file: string) => mime.lookup(file) || config?.defaultMimeType || 'application/octet-stream';
+export const FileService: IFileServiceFactory = ({config = {path: ".data/file/{fileId}"}}) => {
+	const toLocation = (fileId: string) => config.path.replace("{fileId}", fileId.split("-").join("/"));
+	const mimeOf = (file: string) => mime.lookup(file) || config?.defaultMimeType || "application/octet-stream";
 	const sizeOf = (file: string) => fs.statSync(file).size;
 
 	return {
@@ -30,4 +30,4 @@ export const FileService: IFileServiceFactory = ({config = {path: '.data/file/{f
 			return file;
 		}
 	};
-}
+};

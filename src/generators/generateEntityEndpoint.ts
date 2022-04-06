@@ -1,5 +1,5 @@
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 import {ISdk} from "@leight-core/api";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 
 export function generateEntityEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -7,35 +7,35 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 	sdk.imports.push(...[
 		{
 			imports: [
-				'FC',
+				"FC",
 			],
-			from: '"react"',
+			from: "\"react\"",
 		},
-		{imports: ['useQueryClient'], from: '"react-query"'},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
-				'IQueryFilter',
-				'IQueryOrderBy',
+				"IQueryFilter",
+				"IQueryOrderBy",
 			],
-			from: '"@leight-core/api"',
+			from: "\"@leight-core/api\"",
 		},
 		{
 			imports: [
-				'createQueryHook',
-				'createPromiseHook',
-				'useLinkContext',
-				'IFilterProviderProps',
-				'FilterProvider',
-				'useOptionalFilterContext',
-				'useFilterContext',
-				'IOrderByProviderProps',
-				'OrderByProvider',
-				'useOptionalOrderByContext',
-				'useOrderByContext',
-				'SourceControlProvider',
-				'ISourceControlProviderProps',
+				"createQueryHook",
+				"createPromiseHook",
+				"useLinkContext",
+				"IFilterProviderProps",
+				"FilterProvider",
+				"useOptionalFilterContext",
+				"useFilterContext",
+				"IOrderByProviderProps",
+				"OrderByProvider",
+				"useOptionalOrderByContext",
+				"useOrderByContext",
+				"SourceControlProvider",
+				"ISourceControlProviderProps",
 			],
-			from: '"@leight-core/client"',
+			from: "\"@leight-core/client\"",
 		},
 	]);
 
@@ -56,7 +56,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type ${queryParams} = ${generatorCommons.generics[4] ?? 'undefined'};
+export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
 
 export const use${name}Query = createQueryHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 

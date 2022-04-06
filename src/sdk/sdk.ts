@@ -1,3 +1,4 @@
+import {IEndpointReflection, IGenerators, IImportReflection, IInterfaceReflection, ISdk} from "@leight-core/api";
 import {
 	generateCreateEndpoint,
 	generateEndpoint,
@@ -12,10 +13,9 @@ import {
 	requireNode,
 	toNode
 } from "@leight-core/server";
-import {outputFile, readFileSync, remove} from 'fs-extra';
-import ts from 'typescript';
-import {glob} from 'glob';
-import {IEndpointReflection, IGenerators, IImportReflection, IInterfaceReflection, ISdk} from "@leight-core/api";
+import {outputFile, readFileSync, remove} from "fs-extra";
+import {glob} from "glob";
+import ts from "typescript";
 
 const defaultGenerators = {
 	"Endpoint": generateEndpoint,
@@ -58,23 +58,23 @@ export function exportEndpoint(node: ts.Node, sourceFile: ts.SourceFile, generat
 
 	console.info(`=== Checking Endpoint Node ===`);
 
-	const typeRoot = pickNode(['Identifier'], node, sourceFile);
+	const typeRoot = pickNode(["Identifier"], node, sourceFile);
 	if (!typeRoot) {
 		console.info("- endpoint type not found\n");
 		return false;
 	}
 
-	const genericsRoot = pickNode(['SyntaxList'], node, sourceFile);
+	const genericsRoot = pickNode(["SyntaxList"], node, sourceFile);
 	if (!genericsRoot) {
 		console.info("- generics of an endpoint not found (SyntaxList)\n");
 		return false;
 	}
-	const name = pickNode(['LiteralType', 'StringLiteral'], genericsRoot, sourceFile);
+	const name = pickNode(["LiteralType", "StringLiteral"], genericsRoot, sourceFile);
 	if (!name) {
 		console.info("- endpoint name not found\n");
 		return false;
 	}
-	const generics = genericsRoot.getChildren().filter(node => ts.SyntaxKind[node.kind] !== 'CommaToken').slice(1);
+	const generics = genericsRoot.getChildren().filter(node => ts.SyntaxKind[node.kind] !== "CommaToken").slice(1);
 	const type = toNode(typeRoot, sourceFile).source;
 	if (!Object.keys(generators).includes(type)) {
 		console.info(`- unknown endpoint type [${type}]\n`);
@@ -84,7 +84,7 @@ export function exportEndpoint(node: ts.Node, sourceFile: ts.SourceFile, generat
 	console.info("- success\n");
 
 	return {
-		name: toNode(name, sourceFile).source.replace(/"/ig, ''),
+		name: toNode(name, sourceFile).source.replace(/"/ig, ""),
 		api,
 		type,
 		generics: generics.map(node => toNode(node, sourceFile).source),
