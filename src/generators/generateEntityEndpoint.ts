@@ -75,13 +75,13 @@ export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <
 export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
 export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
 
-export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryFilter<${request}>>> {
+export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryOrderBy<${request}>>> {
 }
 
-export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
 
-export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryFilter<${request}>>()
-export const use${name}OrderByContext = () => useOrderByContext<IQueryFilter<${request}>>()
+export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryOrderBy<${request}>>()
+export const use${name}OrderByContext = () => useOrderByContext<IQueryOrderBy<${request}>>()
 
 export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
 }
