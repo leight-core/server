@@ -25,7 +25,7 @@ export async function toResult<TResult>(size: number | undefined, total: Promise
 		total: _total,
 		pages: size && Math.ceil(_total / Math.max(size, 1)),
 		items: _items,
-	}
+	};
 }
 
 export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends IQuery<any, any>>(
@@ -46,17 +46,17 @@ export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends 
 			take: size,
 			skip: page && size && size * page,
 		}))
-	)
-}
+	);
+};
 
 export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof TFilter)[]): Partial<TFilter> | undefined => search ? {
 	OR: fields.map(field => ({
 		[field]: {
 			contains: search,
-			mode: 'insensitive',
+			mode: "insensitive",
 		}
 	}))
-} as any : undefined
+} as any : undefined;
 
 export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
 	name: string,
@@ -83,19 +83,27 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		},
 		toFilter,
 	}: IRepositoryServiceRequest<TRepositoryService>): IRepositoryService<IRepositoryCreate<TRepositoryService>, IRepositoryEntity<TRepositoryService>, IRepositoryResponse<TRepositoryService>, IRepositoryQuery<TRepositoryService>, IRepositoryFetchProps<TRepositoryService>, IRepositoryFetchQuery<TRepositoryService>> => {
-	const list: TRepositoryService['list'] = async entities => Promise.all((await entities).map(mapper));
-	const query: TRepositoryService['query'] = query => toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
+	const list: TRepositoryService["list"] = async entities => Promise.all((await entities).map(mapper));
+	const query: TRepositoryService["query"] = query => toQuery<(entities: Promise<IRepositoryEntity<TRepositoryService>[]>) => Promise<IRepositoryResponse<TRepositoryService>[]>, IRepositoryQuery<TRepositoryService>>({
 		query,
 		source,
 		mapper: list,
 		toFilter,
 	});
-	const fetch: TRepositoryService['fetch'] = async id => (await source.findUnique({
+	const fetch: TRepositoryService["fetch"] = async id => (await source.findUnique({
 		where: {id},
 		rejectOnNotFound: true,
 	})) as IRepositoryEntity<TRepositoryService>;
-	const toMap: TRepositoryService['toMap'] = async id => mapper(await fetch(id));
-	const handleQuery: TRepositoryService['handleQuery'] = ({request}) => query(request);
+	const toMap: TRepositoryService["toMap"] = async id => mapper(await fetch(id));
+	const handleQuery: TRepositoryService["handleQuery"] = ({request}) => query(request);
+
+	const _create: TRepositoryService["create"] = async request => {
+		try {
+			return await create(request);
+		} catch (e) {
+			return handleUniqueException(e, () => onUnique(request, e as Error));
+		}
+	};
 
 	return {
 		fetch,
@@ -104,28 +112,22 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		map: mapper,
 		list,
 		toMap,
-		create: async request => {
-			try {
-				return await create(request);
-			} catch (e) {
-				return handleUniqueException(e, () => onUnique(request, e as Error))
-			}
-		},
-		handleCreate: async ({request}) => mapper(await create(request)),
+		create: _create,
+		handleCreate: async ({request}) => mapper(await _create(request)),
 		importers: () => ({
-			[name]: () => ({handler: create}),
+			[name]: () => ({handler: _create}),
 		}),
 		pageFetch: (key, query) => async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
 			if (!ctx.params?.[query]) {
 				return {
 					notFound: true,
-				}
+				};
 			}
 			const item = await fetch(ctx.params[query] as string);
 			if (!item) {
 				return {
 					notFound: true,
-				}
+				};
 			}
 			return {
 				props: {
@@ -137,8 +139,8 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 };
 
 export const handleUniqueException = async <T>(e: any, callback: (e: Error) => Promise<T>): Promise<T> => {
-	if ((e as Error).message?.includes('Unique constraint failed on the fields')) {
+	if ((e as Error).message?.includes("Unique constraint failed on the fields")) {
 		return callback(e);
 	}
 	throw e;
-}
+};
