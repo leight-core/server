@@ -1,7 +1,7 @@
 import isObject from "isobject";
 import winston, {LoggerOptions} from "winston";
 
-export const Log = (id: string, options?: LoggerOptions): ReturnType<typeof winston["loggers"]["get"]> => {
+export const Logger = (id: string, options?: LoggerOptions): ReturnType<typeof winston["loggers"]["get"]> => {
 	const logger = winston.loggers.get(id, options);
 	const log = logger.log;
 	logger.log = function (...args) {
