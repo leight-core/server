@@ -15,6 +15,7 @@ import {
 	IRequestEndpoint
 } from "@leight-core/api";
 import {Logger} from "@leight-core/server";
+import isObject from "isobject";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
@@ -44,7 +45,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			logger.debug("Endpoint Call Response", {labels, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
-			logger.error(`Endpoint Exception`, {labels, body: req.body, error: e});
+			logger.error(`Endpoint Exception`, {labels, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
 				res.status(403).send("Nope." as any);
 				return;
