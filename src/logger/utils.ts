@@ -36,6 +36,7 @@ export const createLoki = (options?: Partial<LokiTransportOptions>) => new LokiT
 		if (!url) {
 			throw new Error(`Missing Loki env variable "LOKI_URL", for example http://127.0.0.1:3100.`);
 		}
+		console.log(`Loki URL [${process.env.LOKI_URL}]`);
 		return url;
 	})(),
 	...options,
