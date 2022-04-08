@@ -19,10 +19,12 @@ import getRawBody from "raw-body";
 import winston from "winston";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	const logger = winston.loggers.get("endpoint");
 	return async (req, res) => {
+		const timer = logger.startTimer();
+		const meta = {url: req.url, body: req.body};
+		logger.info("Endpoint Call", meta);
 		try {
-			const logger = winston.loggers.get("endpoint");
-			logger.info(`Request to`, {labels: {"leight": "endpoint"}});
 			const response = await handler({
 				req,
 				res,
@@ -38,14 +40,20 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 					return token.sub;
 				}
 			});
+			logger.debug("Endpoint Call Response", {...meta, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
+			logger.error(`Endpoint Exception`, {...meta, error: e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
 				res.status(403).send("Nope." as any);
 				return;
 			}
-			console.error("Endpoint error", e);
 			res.status(500).send("A request failed with Internal Server Error." as any);
+		} finally {
+			timer.done({
+				message: "Endpoint Call Done",
+				labels: meta,
+			});
 		}
 	};
 };

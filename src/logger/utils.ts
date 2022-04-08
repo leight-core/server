@@ -24,6 +24,7 @@ interface LokiTransportOptions extends TransportStream.TransportStreamOptions {
 export const createConsole = () => new transports.Console({
 	format: format.combine(
 		format.colorize(),
+		format.ms(),
 		format.simple(),
 	),
 });
