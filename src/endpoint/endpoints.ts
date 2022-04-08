@@ -14,16 +14,17 @@ import {
 	IQueryResult,
 	IRequestEndpoint
 } from "@leight-core/api";
+import {Logger} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
-import winston from "winston";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	const logger = winston.loggers.get("endpoint");
+	const logger = Logger("endpoint");
 	return async (req, res) => {
+		const token = await getToken({req});
 		const timer = logger.startTimer();
-		const meta = {url: req.url, body: req.body};
-		logger.info("Endpoint Call", meta);
+		const labels = {url: req.url, userId: token?.sub};
+		logger.info("Endpoint Call", {labels, body: req.body});
 		try {
 			const response = await handler({
 				req,
@@ -32,18 +33,18 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				query: req.query,
 				toBody: () => getRawBody(req),
 				end: res.end,
-				toUserId: async () => {
-					const token: any = await getToken({req});
-					if (!token) {
+				toUserId: () => {
+					if (!token?.sub) {
 						throw new Error("Unknown user; missing token.");
 					}
 					return token.sub;
-				}
+				},
+				toMaybeUserId: () => token?.sub,
 			});
-			logger.debug("Endpoint Call Response", {...meta, response});
+			logger.debug("Endpoint Call Response", {labels, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
-			logger.error(`Endpoint Exception`, {...meta, error: e});
+			logger.error(`Endpoint Exception`, {labels, body: req.body, error: e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
 				res.status(403).send("Nope." as any);
 				return;
@@ -52,7 +53,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		} finally {
 			timer.done({
 				message: "Endpoint Call Done",
-				labels: meta,
+				labels,
 			});
 		}
 	};

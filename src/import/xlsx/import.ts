@@ -1,8 +1,8 @@
 import {IImportEvents, IImportHandlers, IImportMeta, IImportTabs, IImportTranslations, IJob} from "@leight-core/api";
-import {toHumanNumber, toHumanTimeMs, toPercent} from "@leight-core/client";
 import {measureTime} from "measure-time";
 import {Readable} from "node:stream";
 import xlsx from "xlsx";
+import {Logger} from "../../logger";
 
 export const toTabs = (workbook: xlsx.WorkBook): IImportTabs[] => {
 	const tabs = workbook.Sheets["tabs"];
@@ -29,9 +29,11 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 });
 
 export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.WorkBook, handlers: IImportHandlers, events?: IImportEvents): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
-	console.log("Generating import");
+	const logger = Logger("import");
+	const jobLabels = {params: job.params, fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
+	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
 	const meta = toMeta(workbook);
-	console.log("- Meta\n", meta);
+	logger.info("Meta", {labels: jobLabels, meta});
 
 	let total = 0;
 	let processed = 0;
@@ -51,7 +53,7 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 		}));
 	}));
 
-	console.log("Total", total);
+	logger.debug("Total", {labels: jobLabels, total});
 	await events?.onTotal?.(total);
 
 	await Promise.all(meta.tabs.map(async tab => {
@@ -60,11 +62,12 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 			return;
 		}
 		return await Promise.all(tab.services.map(async service => {
-			console.log(`- Executing service [${service}]`);
+			const serviceLabels = {...jobLabels, service, tab};
+			logger.info("Executing service", {labels: serviceLabels, tab, service});
 			const stream: Readable = xlsx.stream.to_json(workSheet);
 			const handler = handlers[service]?.();
 			if (!handler) {
-				console.log(`- Service [${service}] not found.`);
+				logger.error("Service handler not found.", {labels: serviceLabels, tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				for await (const _ of stream) {
 					skip++;
@@ -87,21 +90,24 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				} catch (e) {
 					failure++;
 					await events?.onFailure?.(e as Error, failure, total, processed);
-					console.error("Error on item", item, e);
+					logger.error("Error on item", {labels: serviceLabels, tab, service, error: e, item});
 				}
 			}
-			console.log(`Import [${service}] results:
-	imported [${success}]
-	success [${success}/${total} (${toHumanNumber(toPercent(success, total), 2)}%)]
-	failure [${failure}/${total} (${toHumanNumber(toPercent(failure, total), 2)}%)] 				
-	skip [${skip}/${total} (${toHumanNumber(toPercent(skip, total), 2)}%)] 				
-	runtime [${toHumanTimeMs(getElapsed().millisecondsTotal)}].
-`);
+			logger.debug("Import results:", {
+				labels: serviceLabels,
+				tab,
+				service,
+				total,
+				success,
+				failure,
+				skip,
+				runtime: getElapsed().millisecondsTotal,
+			});
 			await handler.end?.({});
-			console.log(`- Service [${service}] done.`);
+			logger.info(`Service done.`, {labels: serviceLabels, tab, service});
 		}));
 	}));
-	console.log("- Done");
+	logger.info("Job Done", {labels: jobLabels});
 
 	return {
 		failure,
