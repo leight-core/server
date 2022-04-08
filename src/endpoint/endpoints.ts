@@ -16,10 +16,13 @@ import {
 } from "@leight-core/api";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
+import winston from "winston";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	return async (req, res) => {
 		try {
+			const logger = winston.loggers.get("endpoint");
+			logger.info(`Request to`, {labels: {"leight": "endpoint"}});
 			const response = await handler({
 				req,
 				res,
