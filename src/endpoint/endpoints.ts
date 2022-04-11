@@ -47,10 +47,10 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		} catch (e) {
 			logger.error(`Endpoint Exception`, {labels, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
-				res.status(403).send("Nope." as any);
+				res.status(403).end("Nope.");
 				return;
 			}
-			res.status(500).send("A request failed with Internal Server Error." as any);
+			res.status(500).end("A request failed with Internal Server Error.");
 		} finally {
 			timer.done({
 				message: "Endpoint Call Done",
