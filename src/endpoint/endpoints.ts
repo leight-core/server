@@ -26,7 +26,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		const token = await getToken({req});
 		const timer = logger.startTimer();
 		const labels = {url: req.url, userId: token?.sub};
-		logger.info("Endpoint Call", {labels, body: req.body});
+		logger.info("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
 			const response = await handler({
 				req,
@@ -43,11 +43,11 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				},
 				toMaybeUserId: () => token?.sub,
 			});
-			logger.debug("Endpoint Call Response", {labels, response});
+			logger.debug("Endpoint Call Response", {labels, url: req.url, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			Sentry.captureException(e);
-			logger.error(`Endpoint Exception`, {labels, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
+			logger.error(`Endpoint Exception`, {labels, url: req.url, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
 				res.status(403).end("Nope.");
 				return;
