@@ -34,8 +34,7 @@
 		"winston": "^3.7.2",
 		"winston-loki": "^6.0.5",
 		"xlsx": "^0.18.4",
-		"isobject": "^4.0.0",
-		"@sentry/nextjs": "^6.19.6"
+		"isobject": "^4.0.0"
 	},
 	"peerDependencies": {
 		"next": "^12.1.0",

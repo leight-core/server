@@ -15,7 +15,6 @@ import {
 	IRequestEndpoint
 } from "@leight-core/api";
 import {Logger} from "@leight-core/server";
-import * as Sentry from "@sentry/nextjs";
 import isObject from "isobject";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
@@ -46,7 +45,6 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			logger.debug("Endpoint Call Response", {labels, url: req.url, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
-			Sentry.captureException(e);
 			logger.error(`Endpoint Exception`, {labels, url: req.url, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
 			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
 				res.status(403).end("Nope.");
