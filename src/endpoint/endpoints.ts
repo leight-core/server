@@ -55,6 +55,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			timer.done({
 				message: "Endpoint Call Done",
 				labels,
+				url: req.url,
 			});
 		}
 	};
