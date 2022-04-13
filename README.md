@@ -5,6 +5,34 @@ Server-side helper stuff.
 ## Schema
 
 ```prisma
+model Token {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  until DateTime?
+
+  UserToken UserToken[]
+}
+
+model UserToken {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenId String
+  token   Token  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tokenId])
+}
+
+model Translation {
+  id       String @id @default(cuid())
+  language String @db.VarChar(32)
+  label    String @db.Text
+  text     String @db.Text
+  hash     String @db.VarChar(128)
+
+  @@unique([language, hash])
+}
+
 model File {
   id       String    @id @default(cuid())
   path     String
@@ -50,6 +78,7 @@ enum JobStatus {
   NEW
   // Job has been picked up and is in progress.
   RUNNING
+  // Job has been successfully done; waiting for "commit".
   SUCCESS
   // Job has failed hard (usually outside of boundaris of the job handler)
   FAILURE
@@ -57,5 +86,15 @@ enum JobStatus {
   REVIEW
   //  When everything is OK, it's done: goes from review->done and failure->done
   DONE
+}
+
+model Metric {
+  id     String  @id @default(cuid())
+  name   String
+  start  Decimal @db.Decimal(10, 2)
+  valuee Decimal @db.Decimal(10, 2)
+  label  String?
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 ```

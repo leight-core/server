@@ -46,7 +46,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			logger.error(`Endpoint Exception`, {labels, url: req.url, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
-			if ((e as Error)?.message?.includes("Unknown user; missing token.")) {
+			if (e instanceof Error && e.message.includes("Unknown user; missing token.")) {
 				res.status(403).end("Nope.");
 				return;
 			}
