@@ -14,14 +14,14 @@ import {
 	IQueryResult,
 	IRequestEndpoint
 } from "@leight-core/api";
-import {Logger} from "@leight-core/server";
+import {Logger, withMetrics} from "@leight-core/server";
 import isObject from "isobject";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
-	return async (req, res) => {
+	return withMetrics(async (req, res) => {
 		const token = await getToken({req});
 		const timer = logger.startTimer();
 		const labels = {url: req.url, userId: token?.sub};
@@ -58,7 +58,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				url: req.url,
 			});
 		}
-	};
+	});
 };
 
 export const FetchEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IFetchEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
