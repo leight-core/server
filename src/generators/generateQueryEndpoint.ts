@@ -100,7 +100,7 @@ export const ${name}Source: FC<I${name}SourceProps> = props => {
 }
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
-export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = () => to${name}Link;
 
 export const use${name}Promise = createPromiseHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 export const ${name}Promise = createPromise<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");

@@ -58,7 +58,7 @@ export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<$
 />
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
-export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = () => to${name}Link;
 
 export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
 

@@ -67,7 +67,7 @@ export const use${name}QueryInvalidate = () => {
 }
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
-export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = () => to${name}Link;
 
 export const use${name}Promise = createPromiseHook<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
 export const ${name}Promise = createPromise<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
