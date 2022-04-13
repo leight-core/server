@@ -62,12 +62,12 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 			return;
 		}
 		return await Promise.all(tab.services.map(async service => {
-			const serviceLabels = {...jobLabels, service, tab};
-			logger.info("Executing service", {labels: serviceLabels, tab, service});
+			const serviceLabels = {...jobLabels, service, tab: tab.tab};
+			logger.info("Executing service", {labels: serviceLabels, tab: tab.tab, service});
 			const stream: Readable = xlsx.stream.to_json(workSheet);
 			const handler = handlers[service]?.();
 			if (!handler) {
-				logger.error("Service handler not found.", {labels: serviceLabels, tab, service});
+				logger.error("Service handler not found.", {labels: serviceLabels, tab: tab.tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				for await (const _ of stream) {
 					skip++;
@@ -90,7 +90,7 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				} catch (e) {
 					failure++;
 					await events?.onFailure?.(e as Error, failure, total, processed);
-					logger.error("Error on item", {labels: serviceLabels, tab, service, error: e, item});
+					logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
 				}
 			}
 			logger.debug("Import results:", {
@@ -104,7 +104,7 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				runtime: getElapsed().millisecondsTotal,
 			});
 			await handler.end?.({});
-			logger.info(`Service done.`, {labels: serviceLabels, tab, service});
+			logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
 		}));
 	}));
 	logger.info("Job Done", {labels: jobLabels});
