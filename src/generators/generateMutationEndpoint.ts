@@ -16,7 +16,8 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 				"ISourceProviderProps",
 				"createQueryHook",
 				"createPromiseHook",
-				"useLinkContext",
+				"createPromise",
+				"toLink",
 				"createMutationHook",
 			],
 			from: "\"@leight-core/client\"",
@@ -25,6 +26,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 
 	const name = generatorCommons.name;
 	const generics = generatorCommons.generics.join(", ");
+	const queryParams = `I${name}QueryParams`;
 
 	// language=text
 	return cleanup(`
@@ -38,7 +40,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type I${name}QueryParams = ${generatorCommons.generics[2] || "undefined"};
+export type ${queryParams} = ${generatorCommons.generics[2] || "undefined"};
 
 export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
 
@@ -55,11 +57,11 @@ export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<$
 	{...props}
 />
 
-export const use${name}Link = (): ((query: I${name}QueryParams) => string) => {
-	const linkContext = useLinkContext();
-	return query => linkContext.link(${name}ApiLink, query);
-}
+export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
 
 export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
+
+export const ${name}Promise = createPromise<${generics}>(${name}ApiLink, "post");
 `);
 }

@@ -23,7 +23,8 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 			imports: [
 				"createQueryHook",
 				"createPromiseHook",
-				"useLinkContext",
+				"createPromise",
+				"toLink",
 				"IFilterProviderProps",
 				"FilterProvider",
 				"useOptionalFilterContext",
@@ -60,12 +61,12 @@ export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
 
 export const use${name}Query = createQueryHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
-export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => {
-	const linkContext = useLinkContext();
-	return queryParams => linkContext.link(${name}ApiLink, queryParams);
-}
+export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
 
 export const use${name}Promise = createPromiseHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
+
+export const ${name}Promise = createPromise<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
 export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<IQueryFilter<${request}>>> {
 }

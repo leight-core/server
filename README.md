@@ -89,12 +89,13 @@ enum JobStatus {
 }
 
 model Metric {
-  id     String  @id @default(cuid())
-  name   String
-  start  Decimal @db.Decimal(10, 2)
-  value  Decimal @db.Decimal(10, 2)
-  label  String?
-  userId String
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  reference String
+  name      String
+  start     Decimal @db.Decimal(10, 2)
+  value     Decimal @db.Decimal(10, 2)
+  label     String?
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 ```

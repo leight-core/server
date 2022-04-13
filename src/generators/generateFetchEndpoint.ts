@@ -5,6 +5,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
 	const query = (sdk.endpoint.generics?.[1] || "undefined");
 	const response = (sdk.endpoint.generics?.[0] || "void");
+	const queryParams = `I${name}QueryParams`;
 	const api = sdk.endpoint.api;
 
 	sdk.imports.push(...[
@@ -13,9 +14,9 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
+				"toLink",
 				"createQueryHook",
 				"createPromiseHook",
-				"useLinkContext",
 				"useContext",
 				"useOptionalContext",
 				"IEntityProviderProps",
@@ -40,7 +41,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${api}";
 
-export type I${name}QueryParams = ${query};
+export type ${queryParams} = ${query};
 
 export const ${name}Context = createContext(null as unknown as IEntityContext<${response}>);
 
@@ -58,24 +59,23 @@ export const ${name}Provider: FC<I${name}Provider> = ({defaultEntity, ...props})
 	</EntityProvider>;
 };
 
-export const use${name}Query = createQueryHook<void, ${response}, I${name}QueryParams>(${name}ApiLink, "get");
+export const use${name}Query = createQueryHook<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
 
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
 }
 
-export const use${name}Link = (): ((query: I${name}QueryParams) => string) => {
-	const linkContext = useLinkContext();
-	return query => linkContext.link(${name}ApiLink, query);
+export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = (): ((queryParams?: ${queryParams}) => string) => to${name}Link => toLink(${name}ApiLink, queryParams);
+
+export const use${name}Promise = createPromiseHook<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
+export const ${name}Promise = createPromise<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
+
+export interface IFetch${name}Props extends Partial<IQueryProps<void, ${response}, ${queryParams}>> {
 }
 
-export const use${name}Promise = createPromiseHook<void, ${response}, I${name}QueryParams>(${name}ApiLink, "get");
-
-export interface IFetch${name}Props extends Partial<IQueryProps<void, ${response}, I${name}QueryParams>> {
-}
-
-export const Fetch${name}: FC<IFetch${name}Props> = props => <Query<void, ${response}, I${name}QueryParams>
+export const Fetch${name}: FC<IFetch${name}Props> = props => <Query<void, ${response}, ${queryParams}>
 	useQuery={use${name}Query}
 	request={undefined}
 	context={useOptional${name}Context()}
