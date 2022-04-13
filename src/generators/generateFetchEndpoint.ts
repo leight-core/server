@@ -17,6 +17,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"toLink",
 				"createQueryHook",
 				"createPromiseHook",
+				"createPromise",
 				"useContext",
 				"useOptionalContext",
 				"IEntityProviderProps",
