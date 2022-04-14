@@ -61,8 +61,8 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 		if (!workSheet) {
 			return;
 		}
-		return tab.services.map(async service => {
-			await (async () => {
+		return await Promise.all(tab.services.map(async service => {
+			return await (async () => {
 				const serviceLabels = {...jobLabels, service, tab: tab.tab};
 				logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
 				const stream: Readable = xlsx.stream.to_json(workSheet);
@@ -106,8 +106,8 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				});
 				await handler.end?.({});
 				logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
-			});
-		});
+			})();
+		}));
 	}));
 	logger.info("Job Done", {labels: jobLabels});
 
