@@ -56,59 +56,57 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 	logger.debug("Total", {labels: jobLabels, total});
 	await events?.onTotal?.(total);
 
-	await Promise.all(meta.tabs.map(async tab => {
+	for (const tab of meta.tabs) {
 		const workSheet = workbook.Sheets[tab.tab];
 		if (!workSheet) {
-			return;
+			continue;
 		}
-		return await Promise.all(tab.services.map(async service => {
-			return await (async () => {
-				const serviceLabels = {...jobLabels, service, tab: tab.tab};
-				logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
-				const stream: Readable = xlsx.stream.to_json(workSheet);
-				const handler = handlers[service]?.();
-				if (!handler) {
-					logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					for await (const _ of stream) {
-						skip++;
-						processed++;
-						await events?.onSkip?.(skip, total, processed);
-					}
-					return;
-				}
-				await handler.begin?.({});
-				const getElapsed = measureTime();
-				for await (const item of stream) {
+		for (const service of tab.services) {
+			const serviceLabels = {...jobLabels, service, tab: tab.tab};
+			logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
+			const stream: Readable = xlsx.stream.to_json(workSheet);
+			const handler = handlers[service]?.();
+			if (!handler) {
+				logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				for await (const _ of stream) {
+					skip++;
 					processed++;
-					try {
-						await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
-							obj[meta.translations[key] || key] = item[key];
-							return obj;
-						}, {}));
-						success++;
-						await events?.onSuccess?.(success, total, processed);
-					} catch (e) {
-						failure++;
-						await events?.onFailure?.(e as Error, failure, total, processed);
-						logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
-					}
+					await events?.onSkip?.(skip, total, processed);
 				}
-				logger.debug("Import results:", {
-					labels: serviceLabels,
-					tab,
-					service,
-					total,
-					success,
-					failure,
-					skip,
-					runtime: getElapsed().millisecondsTotal,
-				});
-				await handler.end?.({});
-				logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
-			})();
-		}));
-	}));
+				continue;
+			}
+			await handler.begin?.({});
+			const getElapsed = measureTime();
+			for await (const item of stream) {
+				processed++;
+				try {
+					await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
+						obj[meta.translations[key] || key] = item[key];
+						return obj;
+					}, {}));
+					success++;
+					await events?.onSuccess?.(success, total, processed);
+				} catch (e) {
+					failure++;
+					await events?.onFailure?.(e as Error, failure, total, processed);
+					logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
+				}
+			}
+			logger.debug("Import results:", {
+				labels: serviceLabels,
+				tab,
+				service,
+				total,
+				success,
+				failure,
+				skip,
+				runtime: getElapsed().millisecondsTotal,
+			});
+			await handler.end?.({});
+			logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
+		}
+	}
 	logger.info("Job Done", {labels: jobLabels});
 
 	return {
