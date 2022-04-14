@@ -93,9 +93,10 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 					logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
 				}
 			}
-			logger.debug("Import results:", {
+			await handler.end?.({});
+			logger.info("Service done, import results:", {
 				labels: serviceLabels,
-				tab,
+				tab: tab.tab,
 				service,
 				total,
 				success,
@@ -103,8 +104,6 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				skip,
 				runtime: getElapsed().millisecondsTotal,
 			});
-			await handler.end?.({});
-			logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
 		}
 	}
 	logger.info("Job Done", {labels: jobLabels});
