@@ -90,7 +90,12 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				} catch (e) {
 					failure++;
 					await events?.onFailure?.(e as Error, failure, total, processed);
-					logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
+					let error = "Error on item";
+					const meta = {labels: serviceLabels, tab: tab.tab, service, item};
+					if (e instanceof Error) {
+						error = e.message;
+					}
+					logger.error(error, meta);
 				}
 			}
 			await handler.end?.({});
