@@ -30,7 +30,7 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 
 export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.WorkBook, handlers: IImportHandlers, events?: IImportEvents): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
 	const logger = Logger("import");
-	const jobLabels = {params: job.params, fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
+	const jobLabels = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
 	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
 	const meta = toMeta(workbook);
 	logger.info("Meta", {labels: jobLabels, meta});
@@ -61,51 +61,53 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 		if (!workSheet) {
 			return;
 		}
-		return await Promise.all(tab.services.map(async service => {
-			const serviceLabels = {...jobLabels, service, tab: tab.tab};
-			logger.info("Executing service", {labels: serviceLabels, tab: tab.tab, service});
-			const stream: Readable = xlsx.stream.to_json(workSheet);
-			const handler = handlers[service]?.();
-			if (!handler) {
-				logger.error("Service handler not found.", {labels: serviceLabels, tab: tab.tab, service});
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				for await (const _ of stream) {
-					skip++;
+		return tab.services.map(async service => {
+			await (async () => {
+				const serviceLabels = {...jobLabels, service, tab: tab.tab};
+				logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
+				const stream: Readable = xlsx.stream.to_json(workSheet);
+				const handler = handlers[service]?.();
+				if (!handler) {
+					logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					for await (const _ of stream) {
+						skip++;
+						processed++;
+						await events?.onSkip?.(skip, total, processed);
+					}
+					return;
+				}
+				await handler.begin?.({});
+				const getElapsed = measureTime();
+				for await (const item of stream) {
 					processed++;
-					await events?.onSkip?.(skip, total, processed);
+					try {
+						await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
+							obj[meta.translations[key] || key] = item[key];
+							return obj;
+						}, {}));
+						success++;
+						await events?.onSuccess?.(success, total, processed);
+					} catch (e) {
+						failure++;
+						await events?.onFailure?.(e as Error, failure, total, processed);
+						logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
+					}
 				}
-				return;
-			}
-			await handler.begin?.({});
-			const getElapsed = measureTime();
-			for await (const item of stream) {
-				processed++;
-				try {
-					await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
-						obj[meta.translations[key] || key] = item[key];
-						return obj;
-					}, {}));
-					success++;
-					await events?.onSuccess?.(success, total, processed);
-				} catch (e) {
-					failure++;
-					await events?.onFailure?.(e as Error, failure, total, processed);
-					logger.error("Error on item", {labels: serviceLabels, tab: tab.tab, service, error: e, item});
-				}
-			}
-			logger.debug("Import results:", {
-				labels: serviceLabels,
-				tab,
-				service,
-				total,
-				success,
-				failure,
-				skip,
-				runtime: getElapsed().millisecondsTotal,
+				logger.debug("Import results:", {
+					labels: serviceLabels,
+					tab,
+					service,
+					total,
+					success,
+					failure,
+					skip,
+					runtime: getElapsed().millisecondsTotal,
+				});
+				await handler.end?.({});
+				logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
 			});
-			await handler.end?.({});
-			logger.info(`Service done.`, {labels: serviceLabels, tab: tab.tab, service});
-		}));
+		});
 	}));
 	logger.info("Job Done", {labels: jobLabels});
 
