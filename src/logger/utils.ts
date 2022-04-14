@@ -40,3 +40,28 @@ export const createLoki = (options?: Partial<LokiTransportOptions>) => new LokiT
 	})(),
 	...options,
 });
+
+const createDefaultMeta = () => ({
+	labels: {
+		version: process.env.NEXT_PUBLIC_BUILD,
+	},
+});
+
+const createDefaultLogger = (service: string) => ({
+	level: "silly",
+	format: winston.format.json(),
+	defaultMeta: createDefaultMeta(),
+	transports: [
+		createConsole(),
+		createLoki({
+			labels: {
+				version: process.env.NEXT_PUBLIC_BUILD,
+				service,
+			},
+		}),
+	],
+});
+
+export const BootstrapLogger = (loggers: string[]) => {
+	loggers.map(name => winston.loggers.add(name, createDefaultLogger(name)));
+};
