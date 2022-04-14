@@ -12,6 +12,7 @@ const histogram = new Histogram({
 export const withMetrics = (endpoint: IEndpointCallback<any, any, any, any>): IEndpointCallback<any, any, any, any> => async (req, res) => {
 	const timer = histogram.startTimer();
 	const response = await endpoint(req, res);
+	console.log("!!!!! req.nextUrl", (req as any).nextUrl);
 	timer({method: req.method, route: req.url, code: res.statusCode});
 	return response;
 };
