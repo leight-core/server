@@ -9,8 +9,17 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			imports: [
 				"FC",
 				"ConsumerProps",
+				"ReactNode",
 			],
 			from: "\"react\"",
+		},
+		{
+			imports: [
+				"Col",
+				"Input",
+				"Row",
+			],
+			from: "\"antd\"",
 		},
 		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
@@ -52,6 +61,9 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"Filter",
 				"IQuerySourceSelectProps",
 				"QuerySourceSelect",
+				"DrawerButton",
+				"MenuIcon",
+				"SelectionProvider",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -151,12 +163,35 @@ export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
 	sourceProps?: I${name}SourceProps;
+	selectionList?: () => ReactNode;
+	withTranslation?: string;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, ...props}) => {
-	return <${name}Source {...sourceProps}>
-		<QuerySourceSelect<${response}> {...props}/>
-	</${name}Source>;
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, withTranslation, ...props}) => {
+	return <Input.Group>
+		<Row gutter={8}>
+			<Col flex={"auto"}> 
+				<${name}Source {...sourceProps}>
+					<QuerySourceSelect<${response}> {...props}/>
+				</${name}Source>
+			</Col>
+			<Col span={selectionList ? 2 : 0}>
+				{selectionList && <DrawerButton
+					type={"link"}
+					icon={<MenuIcon/>}
+					title={\`\${withTranslation}.select.title\`}
+					tooltip={\`\${withTranslation}.select.title.tooltip\`}
+					width={800}
+				>
+					<${name}SourceControlProvider>
+						<SelectionProvider type={"single"}>
+							{selectionList()}
+						</SelectionProvider>
+					</${name}SourceControlProvider>
+				</DrawerButton>}
+			</Col>
+		</Row>
+	</Input.Group>;
 };
 
 export const use${name}QueryInvalidate = () => {
