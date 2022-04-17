@@ -201,7 +201,7 @@ export const use${name}QueryInvalidate = () => {
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
 }
 
-export const use${name}OptionalSelectionContext = useOptionalSelectionContext<${response}>();
-export const use${name}SelectionContext = useSelectionContext<${response}>();
+export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
+export const use${name}SelectionContext = () => useSelectionContext<${response}>();
 `);
 }
