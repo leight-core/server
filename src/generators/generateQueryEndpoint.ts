@@ -64,6 +64,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"DrawerButton",
 				"MenuIcon",
 				"SelectionProvider",
+				"useOptionalSelectionContext",
+				"useSelectionContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -198,5 +200,8 @@ export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
 }
+
+export const use${name}OptionalSelectionContext = useOptionalSelectionContext<${response}>();
+export const use${name}SelectionContext = useSelectionContext<${response}>();
 `);
 }
