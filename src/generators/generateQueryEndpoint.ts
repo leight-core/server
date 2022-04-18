@@ -179,7 +179,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 			</Col>
 			<Col span={selectionList ? 2 : 0}>
 				{selectionList && <DrawerButton
-					type={"link"}
+					type={"text"}
 					icon={<MenuIcon/>}
 					title={\`\${withTranslation}.select.title\`}
 					tooltip={\`\${withTranslation}.select.title.tooltip\`}
