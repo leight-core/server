@@ -172,18 +172,17 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 	toOption: IToOptionMapper<${response}>;
 	sourceProps?: I${name}SourceProps;
 	selectionList?: () => ReactNode;
-	withTranslation?: string;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, withTranslation, ...props}) => {
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, ...props}) => {
 	return <Input.Group>
 		<Row gutter={8}>
 			<Col span={selectionList ? 2 : 0}>
 				{selectionList && <DrawerButton
 					type={"text"}
 					icon={<ReadOutlined/>}
-					title={\`\${withTranslation}.select.title\`}
-					tooltip={\`\${withTranslation}.select.title.tooltip\`}
+					title={"common.selection.${name}.title"}
+					tooltip={"common.selection.${name}.title.tooltip"}
 					width={800}
 				>
 					<${name}SourceControlProvider>
