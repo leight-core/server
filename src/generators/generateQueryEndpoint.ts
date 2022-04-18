@@ -21,6 +21,12 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			],
 			from: "\"antd\"",
 		},
+		{
+			imports: [
+				"ReadOutlined",
+			],
+			from: "\"@ant-design/icons\"",
+		},
 		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
@@ -172,15 +178,10 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, withTranslation, ...props}) => {
 	return <Input.Group>
 		<Row gutter={8}>
-			<Col flex={"auto"}> 
-				<${name}Source {...sourceProps}>
-					<QuerySourceSelect<${response}> {...props}/>
-				</${name}Source>
-			</Col>
 			<Col span={selectionList ? 2 : 0}>
 				{selectionList && <DrawerButton
 					type={"text"}
-					icon={<MenuIcon/>}
+					icon={<ReadOutlined/>}
 					title={\`\${withTranslation}.select.title\`}
 					tooltip={\`\${withTranslation}.select.title.tooltip\`}
 					width={800}
@@ -191,6 +192,11 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 						</SelectionProvider>
 					</${name}SourceControlProvider>
 				</DrawerButton>}
+			</Col>
+			<Col flex={"auto"}> 
+				<${name}Source {...sourceProps}>
+					<QuerySourceSelect<${response}> {...props}/>
+				</${name}Source>
 			</Col>
 		</Row>
 	</Input.Group>;
