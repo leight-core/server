@@ -178,10 +178,14 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, selectionProps, ...props}) => {
 	return <Input.Group>
-		<Row gutter={8}>
+		<Row>
+			<Col flex={"auto"}> 
+				<${name}Source {...sourceProps}>
+					<QuerySourceSelect<${response}> {...props}/>
+				</${name}Source>
+			</Col>
 			<Col span={selectionList ? 2 : 0}>
 				{selectionList && <DrawerButton
-					type={"text"}
 					icon={<ReadOutlined/>}
 					title={"common.selection.${name}.title"}
 					tooltip={"common.selection.${name}.title.tooltip"}
@@ -193,11 +197,6 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 						</SelectionProvider>
 					</${name}SourceControlProvider>
 				</DrawerButton>}
-			</Col>
-			<Col flex={"auto"}> 
-				<${name}Source {...sourceProps}>
-					<QuerySourceSelect<${response}> {...props}/>
-				</${name}Source>
 			</Col>
 		</Row>
 	</Input.Group>;
