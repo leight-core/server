@@ -70,6 +70,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"DrawerButton",
 				"MenuIcon",
 				"SelectionProvider",
+				"ISelectionProviderProps",
 				"useOptionalSelectionContext",
 				"useSelectionContext",
 			],
@@ -117,7 +118,7 @@ export const ${name}Source: FC<I${name}SourceProps> = props => {
 		useQuery={use${name}Query}
 		{...props}
 	/>;
-}
+};
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
@@ -165,16 +166,17 @@ export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...
 		<List<${response}>
 			{...props}		
 		/>
-	</${name}Source>
+	</${name}Source>;
 }
 
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
 	sourceProps?: I${name}SourceProps;
 	selectionList?: () => ReactNode;
+	selectionProps?: Partial<ISelectionProviderProps>;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, ...props}) => {
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, selectionProps, ...props}) => {
 	return <Input.Group>
 		<Row gutter={8}>
 			<Col span={selectionList ? 2 : 0}>
@@ -186,7 +188,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 					width={800}
 				>
 					<${name}SourceControlProvider>
-						<SelectionProvider type={"single"}>
+						<SelectionProvider type={"single"} {...selectionProps}>
 							{selectionList()}
 						</SelectionProvider>
 					</${name}SourceControlProvider>
@@ -204,7 +206,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
-}
+};
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
 export const use${name}SelectionContext = () => useSelectionContext<${response}>();
