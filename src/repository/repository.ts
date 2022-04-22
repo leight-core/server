@@ -135,6 +135,7 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 				}
 			};
 		},
+		toFilter: toFilter || (filter => filter),
 	};
 };
 
