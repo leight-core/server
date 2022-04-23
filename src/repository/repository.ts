@@ -32,7 +32,7 @@ export const toQuery = <TMapper extends ISourceMapper<any, any>, TQuery extends 
 	{
 		query: {page, size, filter, orderBy},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		toFilter = ({fulltext, ...filter}: any) => filter,
+		toFilter = ({fulltext, ...filter}: any = {}) => filter,
 		source,
 		mapper,
 	}: IToQuery<TMapper, TQuery>) => {
