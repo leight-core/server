@@ -184,7 +184,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 					<QuerySourceSelect<${response}> {...props}/>
 				</${name}Source>
 			</Col>
-			<Col span={selectionList ? 2 : 0}>
+			<Col push={0}>
 				{selectionList && <DrawerButton
 					icon={<ReadOutlined/>}
 					title={"common.selection.${name}.title"}
