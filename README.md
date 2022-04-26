@@ -1,4 +1,3 @@
-
 # Server
 
 Server-side helper stuff.
@@ -61,6 +60,7 @@ model Job {
   skip         Int?
   skipRatio    Decimal?  @db.Decimal(5, 2)
   created      DateTime
+  started      DateTime?
   finished     DateTime?
   logs         JobLog[]
   userId       String?
