@@ -59,17 +59,19 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 } as any : undefined;
 
 export interface IRepositoryServiceRequest<TRepositoryService extends IRepositoryService<any, any, any, any, any, any>> {
-	name: string,
+	name: string;
 
-	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>,
+	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>;
 
-	createMany(create: IRepositoryCreate<TRepositoryService>[]): Promise<IRepositoryEntity<TRepositoryService>[]>,
+	create(create: IRepositoryCreate<TRepositoryService>): Promise<IRepositoryEntity<TRepositoryService>>;
 
-	onUnique?(create: IRepositoryCreate<TRepositoryService>[], error: Error): Promise<IRepositoryEntity<TRepositoryService>[]>;
+	createMany(create: IRepositoryCreate<TRepositoryService>[]): Promise<any>;
 
-	mapper(entity: IRepositoryEntity<TRepositoryService>): Promise<IRepositoryResponse<TRepositoryService>>,
+	onUnique?(create: IRepositoryCreate<TRepositoryService>, error: Error): Promise<IRepositoryEntity<TRepositoryService>>;
 
-	toFilter?(filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>): IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined,
+	mapper(entity: IRepositoryEntity<TRepositoryService>): Promise<IRepositoryResponse<TRepositoryService>>;
+
+	toFilter?(filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>): IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined;
 }
 
 export const RepositoryService = <TRepositoryService extends IRepositoryService<any, any, any, any, any, any>>(
@@ -77,6 +79,7 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		name,
 		source,
 		mapper,
+		create,
 		createMany,
 		onUnique = (_, e) => {
 			throw e;
@@ -96,14 +99,13 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 	})) as IRepositoryEntity<TRepositoryService>;
 	const toMap: TRepositoryService["toMap"] = async id => mapper(await fetch(id));
 	const handleQuery: TRepositoryService["handleQuery"] = ({request}) => query(request);
-	const _createMany: TRepositoryService["createMany"] = async request => {
+	const _create: TRepositoryService["create"] = async request => {
 		try {
-			return await createMany(request);
+			return await create(request);
 		} catch (e) {
 			return handleUniqueException(e, () => onUnique(request, e as Error));
 		}
 	};
-	const _create: TRepositoryService["create"] = async entity => (await _createMany([entity]))[0];
 
 	return {
 		fetch,
@@ -113,9 +115,9 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		list,
 		toMap,
 		create: _create,
-		createMany: _createMany,
+		createMany,
 		handleCreate: async ({request}) => mapper(await _create(request)),
-		handleCreateMany: async ({request}) => list(_createMany(request)),
+		handleCreateMany: async ({request}) => list(createMany(request)),
 		importers: () => ({
 			[name]: () => ({handler: _create}),
 		}),
