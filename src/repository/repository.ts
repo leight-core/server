@@ -65,8 +65,6 @@ export interface IRepositoryServiceRequest<TRepositoryService extends IRepositor
 
 	create(create: IRepositoryCreate<TRepositoryService>): Promise<IRepositoryEntity<TRepositoryService>>;
 
-	createMany(create: IRepositoryCreate<TRepositoryService>[]): Promise<any>;
-
 	onUnique?(create: IRepositoryCreate<TRepositoryService>, error: Error): Promise<IRepositoryEntity<TRepositoryService>>;
 
 	mapper(entity: IRepositoryEntity<TRepositoryService>): Promise<IRepositoryResponse<TRepositoryService>>;
@@ -80,7 +78,6 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		source,
 		mapper,
 		create,
-		createMany,
 		onUnique = (_, e) => {
 			throw e;
 		},
@@ -115,9 +112,7 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		list,
 		toMap,
 		create: _create,
-		createMany,
 		handleCreate: async ({request}) => mapper(await _create(request)),
-		handleCreateMany: async ({request}) => list(createMany(request)),
 		importers: () => ({
 			[name]: () => ({handler: _create}),
 		}),
