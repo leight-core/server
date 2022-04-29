@@ -188,6 +188,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 				{selectionList && <DrawerButton
 					icon={<ReadOutlined/>}
 					title={"common.selection.${name}.title"}
+					size={props.size}
 					tooltip={"common.selection.${name}.title.tooltip"}
 					width={800}
 				>
