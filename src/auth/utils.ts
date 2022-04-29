@@ -11,7 +11,7 @@ export const getToken = async <T extends JWT = JWT>(context: GetServerSidePropsC
 
 export const getOptionalToken = async <T extends JWT = JWT>(context: GetServerSidePropsContext<any, any>): Promise<T | undefined> => {
 	try {
-		return getToken<T>(context);
+		return await getToken<T>(context);
 	} catch (e) {
 		return undefined;
 	}
