@@ -15,7 +15,6 @@ import {
 	IRequestEndpoint
 } from "@leight-core/api";
 import {Logger, withMetrics} from "@leight-core/server";
-import isObject from "isobject";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
@@ -45,9 +44,12 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			logger.debug("Endpoint Call Response", {labels, url: req.url, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
-			logger.error("Endpoint Exception", {labels, url: req.url, body: req.body, error: e, message: isObject(e) ? (e as Error).message : e});
-			if (e instanceof Error && e.message.includes("Unknown user; missing token.")) {
-				res.status(403).end("Nope.");
+			logger.error("Endpoint Exception", {labels, url: req.url, body: req.body});
+			if (e instanceof Error) {
+				logger.error(e.message, {labels, url: req.url, body: req.body});
+				if (e.message.includes("Unknown user; missing token.")) {
+					res.status(403).end("Nope.");
+				}
 				return;
 			}
 			res.status(500).end("A request failed with Internal Server Error.");
