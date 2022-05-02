@@ -1,5 +1,5 @@
 {
-	"version": "0.5.147",
+	"version": "0.5.148",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -39,8 +39,6 @@
 	"peerDependencies": {
 		"next": "^12.1.5",
 		"next-auth": "^4.3.4",
-		"react": "^18.1.0",
-		"react-dom": "^18.1.0",
 		"winston": "^3.7.2"
 	},
 	"devDependencies": {
