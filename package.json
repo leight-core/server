@@ -1,5 +1,5 @@
 {
-	"version": "0.5.146",
+	"version": "0.5.147",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -21,8 +21,7 @@
 		"build": "npm run lint && tsc -p tsconfig.json && tsc -p tsconfig.json -m es6 --outDir lib/esm"
 	},
 	"dependencies": {
-		"@leight-core/api": "^0.5.147",
-		"@leight-core/client": "^0.5.98",
+		"@leight-core/api": "^0.5.149",
 		"filesize": "^8.0.7",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.0.1",
@@ -38,10 +37,10 @@
 		"prom-client": "^14.0.1"
 	},
 	"peerDependencies": {
-		"next": "^12.1.0",
-		"next-auth": "^4.3.1",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
+		"next": "^12.1.5",
+		"next-auth": "^4.3.4",
+		"react": "^18.1.0",
+		"react-dom": "^18.1.0",
 		"winston": "^3.7.2"
 	},
 	"devDependencies": {
@@ -49,13 +48,13 @@
 		"@types/glob": "^7.2.0",
 		"@types/micromatch": "^4.0.2",
 		"@types/mime-types": "^2.1.1",
-		"@types/node": "^17.0.21",
+		"@types/node": "^17.0.31",
 		"@types/uuid": "^8.3.4",
-		"@typescript-eslint/eslint-plugin": "^5.15.0",
-		"@typescript-eslint/parser": "^5.15.0",
-		"eslint": "^8.11.0",
-		"eslint-plugin-unicorn": "^41.0.0",
-		"next": "^12.1.0",
-		"typescript": "^4.6.3"
+		"@typescript-eslint/eslint-plugin": "^5.21.0",
+		"@typescript-eslint/parser": "^5.21.0",
+		"eslint": "^8.14.0",
+		"eslint-plugin-unicorn": "^42.0.0",
+		"next": "^12.1.5",
+		"typescript": "^4.6.4"
 	}
 }
