@@ -1,5 +1,5 @@
 {
-	"version": "0.5.148",
+	"version": "0.5.149",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -37,7 +37,7 @@
 		"prom-client": "^14.0.1"
 	},
 	"peerDependencies": {
-		"next": "^12.1.5",
+		"next": "^12.1.6",
 		"next-auth": "^4.3.4",
 		"winston": "^3.7.2"
 	},

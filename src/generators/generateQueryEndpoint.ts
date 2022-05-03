@@ -23,7 +23,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
-				"ReadOutlined",
+				"SelectOutlined",
 			],
 			from: "\"@ant-design/icons\"",
 		},
@@ -186,7 +186,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 			</Col>
 			<Col push={0}>
 				{selectionList && <DrawerButton
-					icon={<ReadOutlined/>}
+					icon={<SelectOutlined/>}
 					title={"common.selection.${name}.title"}
 					size={props.size}
 					tooltip={"common.selection.${name}.title.tooltip"}
