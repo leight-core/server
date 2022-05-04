@@ -191,6 +191,8 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 					size={props.size}
 					tooltip={"common.selection.${name}.title.tooltip"}
 					width={800}
+					type={'text'}
+					ghost
 				>
 					<${name}SourceControlProvider>
 						<SelectionProvider type={"single"} {...selectionProps}>
