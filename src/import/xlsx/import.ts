@@ -1,8 +1,8 @@
-import {IImportEvents, IImportHandlers, IImportMeta, IImportTabs, IImportTranslations, IJob} from "@leight-core/api";
+import {IImportHandlers, IImportMeta, IImportTabs, IImportTranslations, IJob, IJobProgress} from "@leight-core/api";
+import {Logger} from "@leight-core/server";
 import {measureTime} from "measure-time";
 import {Readable} from "node:stream";
 import xlsx from "xlsx";
-import {Logger} from "../../logger";
 
 export const toTabs = (workbook: xlsx.WorkBook): IImportTabs[] => {
 	const tabs = workbook.Sheets["tabs"];
@@ -28,7 +28,14 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 	translations: toTranslations(workbook),
 });
 
-export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.WorkBook, handlers: IImportHandlers, events?: IImportEvents): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
+export interface IToImportRequest {
+	job: IJob<{ fileId: string }>;
+	workbook: xlsx.WorkBook;
+	handlers: IImportHandlers;
+	jobProgress: IJobProgress;
+}
+
+export const toImport = async ({jobProgress, job, handlers, workbook}: IToImportRequest): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
 	const logger = Logger("import");
 	const jobLabels = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
 	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
@@ -36,7 +43,6 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 	logger.info("Meta", {labels: jobLabels, meta});
 
 	let total = 0;
-	let processed = 0;
 	let success = 0;
 	let failure = 0;
 	let skip = 0;
@@ -54,7 +60,7 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 	}));
 
 	logger.debug("Total", {labels: jobLabels, total});
-	await events?.onTotal?.(total);
+	await jobProgress.total(total);
 
 	for (const tab of meta.tabs) {
 		const workSheet = workbook.Sheets[tab.tab];
@@ -71,25 +77,23 @@ export const toImport = async (job: IJob<{ fileId: string }>, workbook: xlsx.Wor
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				for await (const _ of stream) {
 					skip++;
-					processed++;
-					await events?.onSkip?.(skip, total, processed);
+					await jobProgress.onSkip();
 				}
 				continue;
 			}
 			await handler.begin?.({});
 			const getElapsed = measureTime();
 			for await (const item of stream) {
-				processed++;
 				try {
 					await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
 						obj[meta.translations[key] || key] = item[key];
 						return obj;
 					}, {}));
 					success++;
-					await events?.onSuccess?.(success, total, processed);
+					await jobProgress.onSuccess();
 				} catch (e) {
 					failure++;
-					await events?.onFailure?.(e as Error, failure, total, processed);
+					await jobProgress.onFailure();
 					let error = "Error on item";
 					const meta = {labels: serviceLabels, tab: tab.tab, service, item};
 					if (e instanceof Error) {
