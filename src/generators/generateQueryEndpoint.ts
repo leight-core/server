@@ -203,6 +203,13 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 	</Input.Group>;
 };
 
+export interface I${name}SelectionProviderProps extends Partial<ISelectionProviderProps<${response}>> {
+}
+
+export const ${name}SelectionProvider: FC<I${name}SelectionProviderProps> = props => {
+	return <SelectionProvider<${response}> {...props}/>
+}
+
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
