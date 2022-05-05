@@ -15,10 +15,14 @@ import {
 	IRequestEndpoint
 } from "@leight-core/api";
 import {Logger, withMetrics} from "@leight-core/server";
+import LRUCache from "lru-cache";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
-export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
 	return withMetrics(async (req, res) => {
 		const token = await getToken({req});
@@ -26,7 +30,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		const labels = {url: req.url, userId: token?.sub};
 		logger.info("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
-			const response = await handler({
+			const run = async () => await handler({
 				req,
 				res,
 				request: req.body,
@@ -41,6 +45,11 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				},
 				toMaybeUserId: () => token?.sub,
 			});
+			const key = cache ? `${req.url}-${token?.sub}-${JSON.stringify(req.body)}-${JSON.stringify(req.query)}` : "null";
+			if (cache && !cache.has(key)) {
+				cache.set(key, await run());
+			}
+			const response = (cache && cache.get(key)) || await run();
 			logger.debug("Endpoint Call Response", {labels, url: req.url, response});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
