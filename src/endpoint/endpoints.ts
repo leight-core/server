@@ -50,7 +50,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				cache.set(key, await run());
 			}
 			const response = (cache && cache.get(key)) || await run();
-			logger.debug("Endpoint Call Response", {labels, url: req.url, response});
+			logger.debug("Endpoint Call Response", {labels, url: req.url});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			logger.error("Endpoint Exception", {labels, url: req.url, body: req.body});
