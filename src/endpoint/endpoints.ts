@@ -72,38 +72,65 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 	});
 };
 
-export const FetchEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IFetchEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
-	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
+export const FetchEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IFetchEndpoint<TName, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler, cache);
 };
 
-export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IListEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
-	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
+export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IListEndpoint<TName, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler, cache);
 };
 
-export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IMutationEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
+export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IMutationEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler, cache);
 };
 
-export const CreateEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: ICreateEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
+export const CreateEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: ICreateEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler, cache);
 };
 
-export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IPatchEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
+export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IPatchEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler, cache);
 };
 
-export const QueryEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IQueryEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQueryParams> => {
-	return Endpoint<TName, TRequest, IQueryResult<TResponse>, TQueryParams>(handler);
+export const QueryEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IQueryEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQueryParams> => {
+	return Endpoint<TName, TRequest, IQueryResult<TResponse>, TQueryParams>(handler, cache);
 };
 
-export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IEntityEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
+export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IEntityEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler, cache);
 };
 
-export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IDeleteEndpoint<TName, TResponse, TQueryParams>): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
-	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
+export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IDeleteEndpoint<TName, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
+	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler, cache);
 };
 
-export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(handler: IRequestEndpoint<TName, TRequest, TResponse, TQueryParams>): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
-	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
+export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IRequestEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	cache?: LRUCache<string, any>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler, cache);
 };
