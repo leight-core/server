@@ -60,7 +60,7 @@ export const toImport = async ({jobProgress, job, handlers, workbook}: IToImport
 	}));
 
 	logger.debug("Total", {labels: jobLabels, total});
-	await jobProgress.total(total);
+	await jobProgress.setTotal(total);
 
 	for (const tab of meta.tabs) {
 		const workSheet = workbook.Sheets[tab.tab];
