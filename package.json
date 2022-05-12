@@ -1,5 +1,5 @@
 {
-	"version": "0.5.161",
+	"version": "0.5.162",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -21,7 +21,7 @@
 		"build": "npm run lint && tsc -p tsconfig.json && tsc -p tsconfig.json -m es6 --outDir lib/esm"
 	},
 	"dependencies": {
-		"@leight-core/api": "^0.5.171",
+		"@leight-core/api": "^0.5.173",
 		"filesize": "^8.0.7",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.0.1",
