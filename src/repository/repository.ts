@@ -1,4 +1,5 @@
 import {
+	IMapOf,
 	IMapperResult,
 	IQuery,
 	IQueryFilter,
@@ -143,3 +144,5 @@ export const handleUniqueException = async <T>(e: any, callback: (e: Error) => P
 	}
 	throw e;
 };
+
+export const mapOf: IMapOf = async <T, R, U>(source: Promise<T[]>, map: (item: T) => R, mapper: (item: R) => Promise<U>): Promise<U[]> => Promise.all((await source).map(async item => await mapper(map(item))));
