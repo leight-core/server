@@ -145,3 +145,12 @@ export const handleUniqueException = async <T>(e: any, callback: (e: Error) => P
 };
 
 export const mapOf = async <T, R, U>(source: Promise<T[]>, map: (item: T) => R, mapper: (item: R) => Promise<U>): Promise<U[]> => Promise.all((await source).map(async item => await mapper(map(item))));
+
+export const itemsOf = async <T, R, U>(source: Promise<T[]>, map: (item: T) => R, mapper: (item: R) => Promise<U>): Promise<IQueryResult<U>> => {
+	const items = await mapOf(source, map, mapper);
+	return {
+		items,
+		count: items.length,
+		total: items.length,
+	};
+};
