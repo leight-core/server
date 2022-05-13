@@ -28,7 +28,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		const token = await getToken({req});
 		const timer = logger.startTimer();
 		const labels = {url: req.url, userId: token?.sub};
-		logger.info("Endpoint Call", {labels, url: req.url, body: req.body});
+		logger.debug("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
 			const run = async () => await handler({
 				req,
@@ -64,6 +64,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			res.status(500).end("A request failed with Internal Server Error.");
 		} finally {
 			timer.done({
+				level: "debug",
 				message: "Endpoint Call Done",
 				labels,
 				url: req.url,
