@@ -95,7 +95,7 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 	})) as IRepositoryEntity<TRepositoryService>;
 	const toMap: TRepositoryService["toMap"] = async id => mapper(await fetch(id));
 	const handleQuery: TRepositoryService["handleQuery"] = ({request}) => query(request);
-	const _create: TRepositoryService["create"] = async request => {
+	const $create: TRepositoryService["create"] = async request => {
 		try {
 			return await create(request);
 		} catch (e) {
@@ -110,10 +110,10 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		map: mapper,
 		list,
 		toMap,
-		create: _create,
-		handleCreate: async ({request}) => mapper(await _create(request)),
+		create: $create,
+		handleCreate: async ({request}) => mapper(await $create(request)),
 		importers: () => ({
-			[name]: () => ({handler: _create}),
+			[name]: () => ({handler: $create}),
 		}),
 		pageFetch: (key, query) => async (ctx: GetServerSidePropsContext<any>): Promise<any> => {
 			if (!ctx.params?.[query]) {
