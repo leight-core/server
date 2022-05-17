@@ -5,6 +5,8 @@ import TransportStream from "winston-transport";
 const {transports} = winston;
 const {format} = winston;
 
+export type ILogLevel = "info" | "error" | "debug" | "silly";
+
 interface LokiTransportOptions extends TransportStream.TransportStreamOptions {
 	host: string;
 	basicAuth?: string;
@@ -47,19 +49,33 @@ const createDefaultMeta = (version: string) => ({
 	},
 });
 
-const createDefaultLogger = (service: string, version: string) => ({
-	level: "silly",
+const createDefaultLogger = (service: string, version: string, level: ILogLevel, withLoki: boolean) => ({
+	level,
 	format: winston.format.json(),
 	defaultMeta: createDefaultMeta(version),
 	transports: [
 		createConsole(),
-		createLoki({
+		withLoki ? createLoki({
 			labels: {
 				version,
 				service,
 			},
-		}),
-	],
+			level,
+		}) : null,
+	].filter(i => i) as TransportStream[],
 });
 
-export const BootstrapLogger = (loggers: string[], version: string = process.env.NEXT_PUBLIC_BUILD || "edge") => loggers.map(name => winston.loggers.add(name, createDefaultLogger(name, version)));
+export interface IBootstrapLoggerRequest {
+	loggers: string[];
+	version?: string;
+	level?: ILogLevel;
+	withLoki?: boolean;
+}
+
+export const BootstrapLogger = (
+	{
+		loggers,
+		version = process.env.NEXT_PUBLIC_BUILD || "edge",
+		level = "info",
+		withLoki = true,
+	}: IBootstrapLoggerRequest) => loggers.map(name => winston.loggers.add(name, createDefaultLogger(name, version, level, withLoki)));
