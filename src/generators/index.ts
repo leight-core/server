@@ -1,4 +1,5 @@
 export * from "./generateCreateEndpoint";
+export * from "./generateDeleteEndpoint";
 export * from "./generateEndpoint";
 export * from "./generateEntityEndpoint";
 export * from "./generateFetchEndpoint";

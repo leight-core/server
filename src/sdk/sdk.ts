@@ -1,6 +1,7 @@
 import {IEndpointReflection, IGenerators, IImportReflection, IInterfaceReflection, ISdk} from "@leight-core/api";
 import {
 	generateCreateEndpoint,
+	generateDeleteEndpoint,
 	generateEndpoint,
 	generateEntityEndpoint,
 	generateFetchEndpoint,
@@ -26,6 +27,7 @@ const defaultGenerators = {
 	"QueryEndpoint": generateQueryEndpoint,
 	"EntityEndpoint": generateEntityEndpoint,
 	"RequestEndpoint": generateRequestEndpoint,
+	"DeleteEndpoint": generateDeleteEndpoint,
 };
 
 export function isExport(node: ts.Node, sourceFile: ts.SourceFile): boolean {

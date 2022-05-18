@@ -1,6 +1,7 @@
 import {
 	ICreateEndpoint,
 	IDeleteEndpoint,
+	IDeleteRequest,
 	IEndpoint,
 	IEndpointCallback,
 	IEntityEndpoint,
@@ -109,10 +110,10 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const DeleteEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
-	handler: IDeleteEndpoint<TName, TResponse, TQueryParams>,
-): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => {
-	return Endpoint<TName, undefined, TResponse, TQueryParams>(handler);
+export const DeleteEndpoint = <TName extends string, TRequest extends IDeleteRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+	handler: IDeleteEndpoint<TName, TRequest, TResponse, TQueryParams>,
+): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
 export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
