@@ -14,6 +14,7 @@ import {
 	ISourceMapper,
 	IToQuery
 } from "@leight-core/api";
+import memoizee from "memoizee";
 import {GetServerSidePropsContext} from "next";
 
 export async function toResult<TResult>(size: number | undefined, total: Promise<number>, items: Promise<TResult[]>): Promise<IQueryResult<TResult>> {
@@ -93,7 +94,7 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 		where: {id},
 		rejectOnNotFound: true,
 	})) as IRepositoryEntity<TRepositoryService>;
-	const toMap: TRepositoryService["toMap"] = async id => mapper(await fetch(id));
+	const toMap: TRepositoryService["toMap"] = memoizee(async id => mapper(await fetch(id)), {maxAge: 10 * 1000});
 	const handleQuery: TRepositoryService["handleQuery"] = ({request}) => query(request);
 	const $create: TRepositoryService["create"] = async request => {
 		try {
