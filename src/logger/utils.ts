@@ -5,7 +5,7 @@ import TransportStream from "winston-transport";
 const {transports} = winston;
 const {format} = winston;
 
-export type ILogLevel = "info" | "error" | "debug" | "silly";
+export type ILogLevel = "info" | "error" | "warning" | "debug" | "silly";
 
 interface LokiTransportOptions extends TransportStream.TransportStreamOptions {
 	host: string;
