@@ -138,8 +138,10 @@ export const RepositoryService = <TRepositoryService extends IRepositoryService<
 };
 
 export const handleUniqueException = async <T>(e: any, callback: (e: Error) => Promise<T>): Promise<T> => {
-	if ((e as Error).message?.includes("Unique constraint failed on the fields")) {
-		return callback(e);
+	if (e instanceof Error) {
+		if (e.message.includes("Unique constraint failed on the fields") || e.message.includes("Unique constraint failed on the constraint")) {
+			return callback(e);
+		}
 	}
 	throw e;
 };
