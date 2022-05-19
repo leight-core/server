@@ -12,7 +12,6 @@ import {
 	IQuery,
 	IQueryEndpoint,
 	IQueryParams,
-	IQueryResult,
 	IRequestEndpoint
 } from "@leight-core/api";
 import {Logger, withMetrics} from "@leight-core/server";
@@ -100,8 +99,8 @@ export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryP
 
 export const QueryEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
 	handler: IQueryEndpoint<TName, TRequest, TResponse, TQueryParams>,
-): IEndpointCallback<TName, TRequest, IQueryResult<TResponse>, TQueryParams> => {
-	return Endpoint<TName, TRequest, IQueryResult<TResponse>, TQueryParams>(handler);
+): IEndpointCallback<TName, TRequest, TResponse[], TQueryParams> => {
+	return Endpoint<TName, TRequest, TResponse[], TQueryParams>(handler);
 };
 
 export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(

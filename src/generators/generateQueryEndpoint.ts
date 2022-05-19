@@ -32,7 +32,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			imports: [
 				"ISourceContext",
 				"IQueryParams",
-				"IQueryResult",
 				"IToOptionMapper",
 				"IQueryFilter",
 				"IQueryOrderBy",
@@ -97,7 +96,7 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
 
-export const use${name}Query = createQueryHook<${request}, IQueryResult<${response}>, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Query = createQueryHook<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
 
 export const use${name}Source = () => useSourceContext<${response}>()
 
