@@ -1,49 +1,38 @@
-import {IQueryFilter, IRepository, IRepositoryCreate, IRepositoryEntity, IRepositoryFetchProps, IRepositoryFetchQuery, IRepositoryQuery, IRepositoryResponse, ISource} from "@leight-core/api";
-import {toQuery} from "@leight-core/server";
+import {IRepository, IRepositoryCreate, IRepositoryEntity, IRepositoryFetchProps, IRepositoryFetchQuery, IRepositoryQuery, IRepositoryResponse, ISourceCount, ISourceEntity, ISourceFetch, ISourceFind, ISourceQuery} from "@leight-core/api";
 import {GetServerSidePropsContext} from "next";
 
 export interface IRepositoryRequest<TRepositoryService extends IRepository<any, any, any, any, any, any>> {
-	name: string;
-
-	source: ISource<IRepositoryEntity<TRepositoryService>, IRepositoryQuery<TRepositoryService>>;
+	readonly name: string;
+	readonly query: ISourceQuery<IRepositoryQuery<TRepositoryService>, IRepositoryEntity<TRepositoryService>>;
+	readonly fetch: ISourceFetch<IRepositoryQuery<TRepositoryService>, IRepositoryEntity<TRepositoryService>>;
+	readonly find: ISourceFind<IRepositoryQuery<TRepositoryService>, IRepositoryEntity<TRepositoryService>>;
+	readonly entity: ISourceEntity<IRepositoryEntity<TRepositoryService>>;
+	readonly count: ISourceCount<IRepositoryQuery<TRepositoryService>>;
 
 	create(create: IRepositoryCreate<TRepositoryService>): Promise<IRepositoryEntity<TRepositoryService>>;
 
 	mapper(entity: IRepositoryEntity<TRepositoryService>): Promise<IRepositoryResponse<TRepositoryService>>;
-
-	toFilter?(filter?: IQueryFilter<IRepositoryQuery<TRepositoryService>>): IQueryFilter<IRepositoryQuery<TRepositoryService>> | undefined;
 }
 
 export const Repository = <TRepository extends IRepository<any, any, any, any, any, any>>(
 	{
 		name,
-		source,
+		query,
+		fetch,
+		find,
+		count,
+		entity,
 		mapper,
 		create,
-		toFilter,
-	}: IRepositoryRequest<TRepository>): IRepository<IRepositoryCreate<TRepository>, IRepositoryEntity<TRepository>, IRepositoryResponse<TRepository>, IRepositoryQuery<TRepository>, IRepositoryFetchProps<TRepository>, IRepositoryFetchQuery<TRepository>> => {
-	const list: TRepository["list"] = async entities => Promise.all((await entities).map(mapper));
-	const query: TRepository["query"] = query => toQuery<(entities: Promise<IRepositoryEntity<TRepository>[]>) => Promise<IRepositoryResponse<TRepository>[]>, IRepositoryQuery<TRepository>>({
-		query,
-		source,
-		mapper: list,
-		toFilter,
-	});
-	const fetch: TRepository["fetch"] = async id => (await source.findUnique({
-		where: {id},
-		rejectOnNotFound: true,
-	})) as IRepositoryEntity<TRepository>;
-	const toMap: TRepository["toMap"] = async id => mapper(await fetch(id));
+	}: IRepositoryRequest<TRepository>):
+	Omit<IRepository<IRepositoryCreate<TRepository>, IRepositoryEntity<TRepository>, IRepositoryResponse<TRepository>, IRepositoryQuery<TRepository>, IRepositoryFetchProps<TRepository>, IRepositoryFetchQuery<TRepository>>,
+		"fetch" | "create" | "query"> => {
 	const handleQuery: TRepository["handleQuery"] = ({request}) => query(request);
-
 	return {
-		fetch,
-		query,
 		handleQuery,
 		map: mapper,
-		list,
-		toMap,
-		create,
+		list: async entities => Promise.all((await entities).map(mapper)),
+		toMap: async id => mapper(await entity(id)),
 		handleCreate: async ({request}) => mapper(await create(request)),
 		importers: () => ({
 			[name]: () => ({handler: create}),
@@ -54,7 +43,7 @@ export const Repository = <TRepository extends IRepository<any, any, any, any, a
 					notFound: true,
 				};
 			}
-			const item = await fetch(ctx.params[query] as string);
+			const item = await entity(ctx.params[query] as string);
 			if (!item) {
 				return {
 					notFound: true,
@@ -66,6 +55,5 @@ export const Repository = <TRepository extends IRepository<any, any, any, any, a
 				}
 			};
 		},
-		toFilter: toFilter || (filter => filter),
 	};
 };
