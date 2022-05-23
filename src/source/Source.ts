@@ -1,11 +1,10 @@
 import {IPrismaTransaction, IPromiseMapper, IQuery, IQueryFilter, ISource, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
-import {IOfPrismaRequest, ofPrisma, User} from "@leight-core/server";
+import {User} from "@leight-core/server";
 import {merge} from "@leight-core/utils";
 
-export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>> {
+export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>> extends Pick<ISource<TEntity, any, TQuery>, "count" | "query" | "get" | "find"> {
 	name: string;
 	prisma: IPrismaTransaction;
-	native: IOfPrismaRequest<TQuery, TEntity>;
 	source?: Partial<ISource<TEntity, TItem, TQuery>>;
 
 	filter?(filter: IQueryFilter<TQuery>): IQueryFilter<TQuery>;
@@ -17,7 +16,6 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 	{
 		name,
 		prisma,
-		native,
 		source,
 		map,
 		filter: $filter,
@@ -30,8 +28,6 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 	let $prisma = prisma;
 	let $mapper = defaultMapper;
 	let $user = User();
-
-	const $ofPrisma = ofPrisma(native);
 
 	const $source: ISource<ISourceEntity<T>, any, ISourceQuery<T>> = {
 		name,
@@ -46,7 +42,7 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 		},
 		fetch: async query => {
 			try {
-				return await $ofPrisma.find(query);
+				return await $source.find(query);
 			} catch (e) {
 				console.warn(e);
 				return null;
@@ -73,9 +69,8 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 			$prisma = prisma;
 			return $source;
 		},
-		...$ofPrisma,
-		...source,
 		...request,
+		...source,
 	};
 
 	return $source as ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T;
