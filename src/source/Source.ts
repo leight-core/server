@@ -61,6 +61,10 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 			$user = user;
 			return source;
 		},
+		withUserId: id => {
+			$user = User(id);
+			return source;
+		},
 		withPrisma: prisma => {
 			$prisma = prisma;
 			return source;
