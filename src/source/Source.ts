@@ -69,6 +69,10 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 			$prisma = prisma;
 			return $source;
 		},
+		extend: extend => ({
+			...$source,
+			...extend,
+		}),
 		...request,
 		...source,
 	};
