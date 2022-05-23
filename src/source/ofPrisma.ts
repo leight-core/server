@@ -11,7 +11,7 @@ export interface IOfPrismaRequest<TQuery extends IQuery<any, any>, TEntity> {
 	findFirst: IFindOfCallback<TQuery, TEntity>;
 }
 
-export const ofPrisma = <TQuery extends IQuery<any, any>, TEntity>({count, findMany, findUnique, findFirst}: IOfPrismaRequest<TQuery, TEntity>): Pick<ISource<any, TEntity, any, TQuery>, "count" | "query" | "get" | "find"> => ({
+export const ofPrisma = <TQuery extends IQuery<any, any>, TEntity>({count, findMany, findUnique, findFirst}: IOfPrismaRequest<TQuery, TEntity>): Pick<ISource<TEntity, any, TQuery>, "count" | "query" | "get" | "find"> => ({
 	count: countOf(count),
 	query: manyOf(findMany),
 	get: getOf(findUnique),

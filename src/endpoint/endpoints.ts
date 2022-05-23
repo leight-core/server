@@ -1,4 +1,22 @@
-import {IDeleteEndpoint, IDeleteRequest, IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IQuery, IQueryParams, IRequestEndpoint, ISource, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {
+	IDeleteEndpoint,
+	IDeleteRequest,
+	IEndpoint,
+	IEndpointCallback,
+	IEntityEndpoint,
+	IFetchEndpoint,
+	IListEndpoint,
+	IMutationEndpoint,
+	IQuery,
+	IQueryParams,
+	IRepository,
+	IRepositoryItem,
+	IRepositoryQuery,
+	IRequestEndpoint,
+	ISource,
+	ISourceItem,
+	ISourceQuery
+} from "@leight-core/api";
 import {Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
@@ -64,16 +82,16 @@ export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQue
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any, any>>(
-	source: TSource,
-): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>> => {
-	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
-		source.withUser(user);
-		return source.mapper.map(source.create(request));
+export const CreateEndpoint = <TName extends string, TRepository extends IRepository<any, any, any, any>>(
+	repository: TRepository,
+): IEndpointCallback<TName, IRepositoryQuery<TRepository>, IRepositoryItem<TRepository>> => {
+	return Endpoint<TName, IRepositoryQuery<TRepository>, IRepositoryItem<TRepository>>(async ({request, user}) => {
+		repository.source.withUser(user);
+		return repository.source.mapper.map(repository.create(request));
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any, any>>(
+export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]>(async ({request, user}) => {

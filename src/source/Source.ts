@@ -2,18 +2,16 @@ import {IPrismaTransaction, IPromiseMapper, IQuery, ISource} from "@leight-core/
 import {User} from "@leight-core/server";
 import {IOfPrismaRequest, ofPrisma} from "./ofPrisma";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> {
+export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>> {
 	name: string;
 	prisma: IPrismaTransaction;
 	source: IOfPrismaRequest<TQuery, TEntity>;
-	create: ISource<TCreate, TEntity, TItem, TQuery>["create"];
-	delete?: ISource<TCreate, TEntity, TItem, TQuery>["delete"];
 
 	map(source: TEntity): Promise<TItem>;
 }
 
-export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>(request: ISourceRequest<TCreate, TEntity, TItem, TQuery>): ISource<TCreate, TEntity, TItem, TQuery> => {
-	const defaultMapper: ISource<TCreate, TEntity, any, TQuery>["mapper"] = {
+export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>>(request: ISourceRequest<TEntity, TItem, TQuery>): ISource<TEntity, TItem, TQuery> => {
+	const defaultMapper: ISource<TEntity, any, TQuery>["mapper"] = {
 		map: request.map,
 		list: async source => Promise.all((await source).map(async item => await request.map(item))),
 	};
@@ -23,7 +21,7 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 
 	const $ofPrisma = ofPrisma(request.source);
 
-	const source: ISource<TCreate, TEntity, any, TQuery> = {
+	const source: ISource<TEntity, any, TQuery> = {
 		name: request.name,
 		get prisma() {
 			return $prisma;
@@ -33,13 +31,6 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 		},
 		get user() {
 			return $user;
-		},
-		create: request.create,
-		delete: ids => {
-			if (!request.delete) {
-				throw new Error(`Delete is not supported on [${request.name}] source.`);
-			}
-			return request.delete(ids);
 		},
 		fetch: async query => {
 			try {
@@ -53,7 +44,7 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 			$mapper = defaultMapper;
 			return source;
 		},
-		withMapper: <T>(mapper: IPromiseMapper<TEntity, T>): ISource<TCreate, TEntity, T, TQuery> => {
+		withMapper: <T>(mapper: IPromiseMapper<TEntity, T>): ISource<TEntity, T, TQuery> => {
 			$mapper = mapper;
 			return source;
 		},
