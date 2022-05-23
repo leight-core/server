@@ -1,4 +1,4 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, IQueryFilter, ISource} from "@leight-core/api";
+import {IPrismaTransaction, IPromiseMapper, IQuery, IQueryFilter, ISource, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {IOfPrismaRequest, ofPrisma, User} from "@leight-core/server";
 import {merge} from "@leight-core/utils";
 
@@ -13,7 +13,7 @@ export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>>
 	map(source: TEntity): Promise<TItem>;
 }
 
-export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>, T extends ISource<TEntity, TItem, TQuery>>(
+export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 	{
 		name,
 		prisma,
@@ -22,8 +22,8 @@ export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>, T extend
 		map,
 		filter: $filter,
 		...request
-	}: ISourceRequest<TEntity, TItem, TQuery> & Omit<T, keyof ISource<TEntity, TItem, TQuery>>): ISource<TEntity, TItem, TQuery> & T => {
-	const defaultMapper: ISource<TEntity, any, TQuery>["mapper"] = {
+	}: ISourceRequest<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T => {
+	const defaultMapper: ISource<ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
 		map,
 		list: async source => Promise.all((await source).map(map)),
 	};
@@ -33,7 +33,7 @@ export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>, T extend
 
 	const $ofPrisma = ofPrisma(native);
 
-	const $source: ISource<TEntity, any, TQuery> = {
+	const $source: ISource<ISourceEntity<T>, any, ISourceQuery<T>> = {
 		name,
 		get prisma() {
 			return $prisma;
@@ -52,12 +52,12 @@ export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>, T extend
 				return null;
 			}
 		},
-		filter: filter => merge<IQueryFilter<TQuery>, IQueryFilter<TQuery>>(filter || {}, $filter?.(filter) || filter || {}),
+		filter: filter => merge<IQueryFilter<ISourceQuery<T>>, IQueryFilter<ISourceQuery<T>>>(filter || {}, $filter?.(filter) || filter || {}),
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
 			return $source;
 		},
-		withMapper: <T>(mapper: IPromiseMapper<TEntity, T>): ISource<TEntity, T, TQuery> => {
+		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceEntity<T>, U, ISourceQuery<T>> => {
 			$mapper = mapper;
 			return $source;
 		},
@@ -78,5 +78,5 @@ export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>, T extend
 		...request,
 	};
 
-	return $source as ISource<TEntity, TItem, TQuery> & T;
+	return $source as ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T;
 };

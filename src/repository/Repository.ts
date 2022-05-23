@@ -1,4 +1,4 @@
-import {IQuery, IRepository, ISource} from "@leight-core/api";
+import {IQuery, IRepository, IRepositoryCreate, IRepositorySource, ISource} from "@leight-core/api";
 
 export interface IRepositoryRequest<TCreate, TSource extends ISource<any, any, IQuery<any, any>>> {
 	source: TSource;
@@ -6,14 +6,14 @@ export interface IRepositoryRequest<TCreate, TSource extends ISource<any, any, I
 	delete?: IRepository<TCreate, TSource>["delete"];
 }
 
-export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends IRepository<TCreate, TSource>>(
+export const Repository = <T extends IRepository<any, ISource<any, any, IQuery<any, any>>>>(
 	{
 		source,
 		create,
 		delete: $delete,
 		...request
-	}: IRepositoryRequest<TCreate, TSource> & Omit<T, keyof IRepository<TCreate, TSource>>): IRepository<TCreate, TSource> & T => {
-	const repository: IRepository<TCreate, TSource> = {
+	}: IRepositoryRequest<IRepositoryCreate<T>, IRepositorySource<T>> & Omit<T, keyof IRepository<IRepositoryCreate<T>, IRepositorySource<T>>>): IRepository<IRepositoryCreate<T>, IRepositorySource<T>> & T => {
+	const repository: IRepository<IRepositoryCreate<T>, IRepositorySource<T>> = {
 		source,
 		create,
 		delete: ids => {
@@ -29,5 +29,5 @@ export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any
 		...request,
 	};
 
-	return repository as IRepository<TCreate, TSource> & T;
+	return repository as IRepository<IRepositoryCreate<T>, IRepositorySource<T>> & T;
 };
