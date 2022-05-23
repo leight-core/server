@@ -1,4 +1,4 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, ISource} from "@leight-core/api";
+import {IPrismaTransaction, IPromiseMapper, IQuery, IQueryFilter, ISource} from "@leight-core/api";
 import {User} from "@leight-core/server";
 import {IOfPrismaRequest, ofPrisma} from "./ofPrisma";
 
@@ -6,6 +6,8 @@ export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>>
 	name: string;
 	prisma: IPrismaTransaction;
 	source: IOfPrismaRequest<TQuery, TEntity>;
+
+	filter?(filter: IQueryFilter<TQuery>): IQueryFilter<TQuery>;
 
 	map(source: TEntity): Promise<TItem>;
 }
@@ -40,6 +42,7 @@ export const Source = <TEntity, TItem, TQuery extends IQuery<any, any>>(request:
 				return null;
 			}
 		},
+		filter: request.filter || (filter => filter),
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
 			return source;
