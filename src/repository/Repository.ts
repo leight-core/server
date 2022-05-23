@@ -6,13 +6,13 @@ export interface IRepositoryRequest<TCreate, TSource extends ISource<any, any, I
 	delete?: IRepository<TCreate, TSource>["delete"];
 }
 
-export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends Omit<T, keyof IRepository<TCreate, TSource>>>(
+export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends IRepository<TCreate, TSource>>(
 	{
 		source,
 		create,
 		delete: $delete,
 		...request
-	}: IRepositoryRequest<TCreate, TSource> & T): IRepository<TCreate, TSource> & Omit<T, keyof IRepository<TCreate, TSource>> => {
+	}: IRepositoryRequest<TCreate, TSource> & Omit<T, keyof IRepository<TCreate, TSource>>): IRepository<TCreate, TSource> & T => {
 	const repository: IRepository<TCreate, TSource> = {
 		source,
 		create,
@@ -29,5 +29,5 @@ export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any
 		...request,
 	};
 
-	return repository as IRepository<TCreate, TSource> & Exclude<T, keyof IRepositoryRequest<TCreate, TSource>>;
+	return repository as IRepository<TCreate, TSource> & T;
 };
