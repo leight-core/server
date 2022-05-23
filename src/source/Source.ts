@@ -10,11 +10,13 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 		map: request.map,
 		list: async source => Promise.all((await source).map(async item => await request.map(item))),
 	};
+	let $prisma = request.prisma;
 	let $mapper = defaultMapper;
 	let $user = User();
 
 	const source: ISource<TCreate, TEntity, any, TQuery> = {
 		name: request.name,
+		prisma: $prisma,
 		mapper: $mapper,
 		user: $user,
 		create: create => request.create.call(source, create),
@@ -43,6 +45,10 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 			$user = user;
 			return source;
 		},
+		withPrisma: prisma => {
+			$prisma = prisma;
+			return source;
+		}
 	};
 
 	return source;
