@@ -14,6 +14,7 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 	let $user = User();
 
 	const source: ISource<TCreate, TEntity, any, TQuery> = {
+		name: request.name,
 		mapper: $mapper,
 		user: $user,
 		create: create => request.create.call(source, create),
