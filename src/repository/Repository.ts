@@ -6,7 +6,7 @@ export interface IRepositoryRequest<TCreate, TSource extends ISource<any, any, I
 	delete?: IRepository<TCreate, TSource>["delete"];
 }
 
-export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends object>(request: IRepositoryRequest<TCreate, TSource>, extension?: T): IRepository<TCreate, TSource> & T => {
+export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T>(request: IRepositoryRequest<TCreate, TSource>, extension?: T): IRepository<TCreate, TSource> & T => {
 	const repository: IRepository<TCreate, TSource> = {
 		source: request.source,
 		create: request.create,
