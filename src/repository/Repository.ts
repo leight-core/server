@@ -6,21 +6,27 @@ export interface IRepositoryRequest<TCreate, TSource extends ISource<any, any, I
 	delete?: IRepository<TCreate, TSource>["delete"];
 }
 
-export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends IRepositoryRequest<TCreate, TSource>>(request: T, extension?: T): IRepository<TCreate, TSource> & Exclude<T, keyof IRepositoryRequest<TCreate, TSource>> => {
+export const Repository = <TCreate, TSource extends ISource<any, any, IQuery<any, any>>, T extends IRepositoryRequest<TCreate, TSource>>(
+	{
+		source,
+		create,
+		delete: $delete,
+		...request
+	}: T): IRepository<TCreate, TSource> & Omit<T, keyof IRepositoryRequest<TCreate, TSource>> => {
 	const repository: IRepository<TCreate, TSource> = {
-		source: request.source,
-		create: request.create,
+		source,
+		create,
 		delete: ids => {
-			if (!request.delete) {
-				throw new Error(`Delete is not supported on [${request.source.name}] repository.`);
+			if (!$delete) {
+				throw new Error(`Delete is not supported on [${source.name}] repository.`);
 			}
-			return request.delete(ids);
+			return $delete(ids);
 		},
 		withUserId: id => {
 			repository.source.withUserId(id);
 			return repository;
 		},
-		...extension,
+		...request,
 	};
 
 	return repository as IRepository<TCreate, TSource> & Exclude<T, keyof IRepositoryRequest<TCreate, TSource>>;
