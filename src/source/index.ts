@@ -1,3 +1,3 @@
-export * from "./itemsOf";
+export * from "./Source";
 export * from "./uniqueOf";
 export * from "./toFulltext";
