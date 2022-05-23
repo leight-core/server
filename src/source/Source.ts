@@ -1,7 +1,9 @@
 import {IPromiseMapper, IQuery, ISource} from "@leight-core/api";
 import {User} from "@leight-core/server";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> extends Omit<ISource<TCreate, TEntity, TItem, TQuery>, "fetch" | "mapper" | "user" | "withUser" | "withMapper" | "withDefaultMapper" | "withPrisma"> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> extends Omit<ISource<TCreate, TEntity, TItem, TQuery>, "fetch" | "mapper" | "user" | "withUser" | "delete" | "withMapper" | "withDefaultMapper" | "withPrisma"> {
+	delete?: ISource<TCreate, TEntity, TItem, TQuery>["delete"];
+
 	map(source: TEntity): Promise<TItem>;
 }
 
@@ -20,7 +22,12 @@ export const Source = <TCreate, TEntity, TItem, TQuery extends IQuery<any, any>>
 		mapper: $mapper,
 		user: $user,
 		create: create => request.create.call(source, create),
-		delete: ids => request.delete.call(source, ids),
+		delete: ids => {
+			if (!request.delete) {
+				throw new Error(`Delete is not supported on [${request.name}] source.`);
+			}
+			return request.delete.call(source, ids);
+		},
 		query: query => request.query.call(source, query),
 		fetch: async query => {
 			try {
