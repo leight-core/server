@@ -82,7 +82,7 @@ export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQue
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const CreateEndpoint = <TName extends string, TRepository extends IRepository<any, any, any, any>>(
+export const CreateEndpoint = <TName extends string, TRepository extends IRepository<any, ISource<any, any, IQuery<any, any>>>>(
 	repository: TRepository,
 ): IEndpointCallback<TName, IRepositoryQuery<TRepository>, IRepositoryItem<TRepository>> => {
 	return Endpoint<TName, IRepositoryQuery<TRepository>, IRepositoryItem<TRepository>>(async ({request, user}) => {
@@ -91,7 +91,7 @@ export const CreateEndpoint = <TName extends string, TRepository extends IReposi
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
+export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, IQuery<any, any>>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]>(async ({request, user}) => {
