@@ -7,7 +7,7 @@ export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>>
 	prisma: IPrismaTransaction;
 	source?: Partial<ISource<TEntity, TItem, TQuery>>;
 
-	filter?(filter: IQueryFilter<TQuery>): IQueryFilter<TQuery>;
+	filter?(filter?: IQueryFilter<TQuery>): IQueryFilter<TQuery>;
 
 	map(source: TEntity): Promise<TItem>;
 }
@@ -48,7 +48,7 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 				return null;
 			}
 		},
-		filter: filter => merge<IQueryFilter<ISourceQuery<T>>, IQueryFilter<ISourceQuery<T>>>(filter || {}, $filter?.(filter) || filter || {}),
+		filter: filter => filter ? merge<IQueryFilter<ISourceQuery<T>>, IQueryFilter<ISourceQuery<T>>>(filter, $filter?.(filter) || filter) : undefined,
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
 			return $source;
