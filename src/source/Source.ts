@@ -1,7 +1,7 @@
 import {IPromiseMapper, IQuery, ISource} from "@leight-core/api";
 import {User} from "@leight-core/server";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> extends Omit<ISource<TCreate, TEntity, TItem, TQuery>, "fetch" | "mapper" | "user"> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> extends Omit<ISource<TCreate, TEntity, TItem, TQuery>, "fetch" | "mapper" | "user" | "withUser" | "withMapper" | "withDefaultMapper" | "withPrisma"> {
 	map(source: TEntity): Promise<TItem>;
 }
 
