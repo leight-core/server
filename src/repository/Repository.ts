@@ -12,7 +12,7 @@ export const Repository = <T extends IRepository<any, ISource<any, any, IQuery<a
 		create,
 		delete: $delete,
 		...request
-	}: IRepositoryRequest<IRepositoryCreate<T>, IRepositorySource<T>> & Omit<T, keyof IRepository<IRepositoryCreate<T>, IRepositorySource<T>>>): IRepository<IRepositoryCreate<T>, IRepositorySource<T>> & T => {
+	}: IRepositoryRequest<IRepositoryCreate<T>, IRepositorySource<T>> & Omit<T, keyof IRepository<IRepositoryCreate<T>, IRepositorySource<T>>>): T => {
 	const repository: IRepository<IRepositoryCreate<T>, IRepositorySource<T>> = {
 		source,
 		create,

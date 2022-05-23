@@ -22,7 +22,7 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 		map,
 		filter: $filter,
 		...request
-	}: ISourceRequest<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T => {
+	}: ISourceRequest<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
 	const defaultMapper: ISource<ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
 		map,
 		list: async source => Promise.all((await source).map(map)),
