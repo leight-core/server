@@ -1,20 +1,5 @@
-import {
-	ICreateEndpoint,
-	IDeleteEndpoint,
-	IDeleteRequest,
-	IEndpoint,
-	IEndpointCallback,
-	IEntityEndpoint,
-	IFetchEndpoint,
-	IListEndpoint,
-	IMutationEndpoint,
-	IPatchEndpoint,
-	IQuery,
-	IQueryEndpoint,
-	IQueryParams,
-	IRequestEndpoint
-} from "@leight-core/api";
-import {Logger, withMetrics} from "@leight-core/server";
+import {ICreateEndpoint, IDeleteEndpoint, IDeleteRequest, IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IQuery, IQueryEndpoint, IQueryParams, IRequestEndpoint} from "@leight-core/api";
+import {Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
@@ -35,13 +20,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				query: req.query,
 				toBody: () => getRawBody(req),
 				end: res.end,
-				toUserId: () => {
-					if (!token?.sub) {
-						throw new Error("Unknown user; missing token.");
-					}
-					return token.sub;
-				},
-				toMaybeUserId: () => token?.sub,
+				user: User(token?.sub),
 			});
 			const response = await run();
 			logger.debug("Endpoint Call Response", {labels, url: req.url});
@@ -91,11 +70,11 @@ export const CreateEndpoint = <TName extends string, TRequest, TResponse, TQuery
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+/*export const PatchEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
 	handler: IPatchEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
-};
+};*/
 
 export const QueryEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
 	handler: IQueryEndpoint<TName, TRequest, TResponse, TQueryParams>,

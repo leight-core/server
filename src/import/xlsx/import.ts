@@ -1,4 +1,4 @@
-import {IImportHandlers, IImportMeta, IImportTabs, IImportTranslations, IJob, IJobProgress} from "@leight-core/api";
+import {IImportMeta, IImportTabs, IImportTranslations, IJob, IJobProgress, IWithImporters} from "@leight-core/api";
 import {Logger} from "@leight-core/server";
 import {measureTime} from "measure-time";
 import {Readable} from "node:stream";
@@ -28,14 +28,13 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 	translations: toTranslations(workbook),
 });
 
-export interface IToImportRequest {
+export interface IToImportRequest extends IWithImporters {
 	job: IJob<{ fileId: string }>;
 	workbook: xlsx.WorkBook;
-	handlers: IImportHandlers;
 	jobProgress: IJobProgress;
 }
 
-export const toImport = async ({jobProgress, job, handlers, workbook}: IToImportRequest): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
+export const toImport = async ({jobProgress, job, importers, workbook}: IToImportRequest): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
 	const logger = Logger("import");
 	const jobLabels = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
 	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
@@ -71,7 +70,7 @@ export const toImport = async ({jobProgress, job, handlers, workbook}: IToImport
 			const serviceLabels = {...jobLabels, service, tab: tab.tab};
 			logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
 			const stream: Readable = xlsx.stream.to_json(workSheet);
-			const handler = handlers[service]?.();
+			const handler = importers[service]?.();
 			if (!handler) {
 				logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
