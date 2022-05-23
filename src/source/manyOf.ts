@@ -7,11 +7,9 @@ export interface IManyOfRequest<TQuery extends IQuery<any, any>> {
 	skip?: number;
 }
 
-export interface IManyOfCallback<TQuery extends IQuery<any, any>, TEntity> {
-	findMany(manyOf?: IManyOfRequest<TQuery>): Promise<TEntity[]>;
-}
+export type IManyOfCallback<TQuery extends IQuery<any, any>, TEntity> = (manyOf?: IManyOfRequest<TQuery>) => Promise<TEntity[]>;
 
-export const manyOf = <TQuery extends IQuery<any, any>, TEntity>(manyOfCallback: IManyOfCallback<TQuery, TEntity>) => async (query: TQuery): Promise<TEntity[]> => manyOfCallback.findMany({
+export const manyOf = <TQuery extends IQuery<any, any>, TEntity>(manyOfCallback: IManyOfCallback<TQuery, TEntity>) => async (query: TQuery): Promise<TEntity[]> => manyOfCallback({
 	where: query.filter,
 	take: query.size,
 	skip: query.page && query.size && query.page * query.size,

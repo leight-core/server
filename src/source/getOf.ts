@@ -3,11 +3,9 @@ export interface IGetOfRequest {
 	rejectOnNotFound?: boolean;
 }
 
-export interface IGetOfCallback<TEntity> {
-	findUnique(getOf: IGetOfRequest): Promise<TEntity>;
-}
+export type IGetOfCallback<TEntity> = (getOf: IGetOfRequest) => Promise<TEntity>;
 
-export const getOf = <TEntity>(getOfCallback: IGetOfCallback<TEntity>) => async (id: string): Promise<TEntity> => getOfCallback.findUnique({
+export const getOf = <TEntity>(getOfCallback: IGetOfCallback<TEntity>) => async (id: string): Promise<TEntity> => getOfCallback({
 	where: {id},
 	rejectOnNotFound: true,
 });

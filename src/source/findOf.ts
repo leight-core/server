@@ -5,11 +5,9 @@ export interface IFindOfRequest<TQuery extends IQuery<any, any>> {
 	rejectOnNotFound?: boolean;
 }
 
-export interface IFindOfCallback<TQuery extends IQuery<any, any>, TEntity> {
-	findFirst(findOf: IFindOfRequest<TQuery>): Promise<TEntity>;
-}
+export type IFindOfCallback<TQuery extends IQuery<any, any>, TEntity> = (findOf: IFindOfRequest<TQuery>) => Promise<TEntity>;
 
-export const findOf = <TQuery extends IQuery<any, any>, TEntity>(findOfCallback: IFindOfCallback<TQuery, TEntity>) => async (query: TQuery): Promise<TEntity> => findOfCallback.findFirst({
+export const findOf = <TQuery extends IQuery<any, any>, TEntity>(findOfCallback: IFindOfCallback<TQuery, TEntity>) => async (query: TQuery): Promise<TEntity> => findOfCallback({
 	where: query.filter,
 	rejectOnNotFound: true,
 });
