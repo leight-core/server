@@ -5,7 +5,6 @@ export * from "./generators";
 export * from "./import";
 export * from "./logger";
 export * from "./next.js";
-export * from "./repository";
 export * from "./response";
 export * from "./sdk";
 export * from "./source";

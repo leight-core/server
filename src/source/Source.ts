@@ -1,25 +1,23 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {User} from "@leight-core/server";
 
-export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>> extends Pick<ISource<TEntity, any, TQuery>, "count" | "query" | "get" | "find"> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> {
 	name: string;
 	prisma: IPrismaTransaction;
-	source?: Partial<ISource<TEntity, TItem, TQuery>>;
-
-	map(source: TEntity): Promise<TItem>;
+	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery>>, "name" | "prisma">;
 
 	map(source: TEntity): Promise<TItem>;
 }
 
-export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
+export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 	{
 		name,
 		prisma,
 		source,
 		map,
 		...request
-	}: ISourceRequest<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
-	const defaultMapper: ISource<ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
+	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
+	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
 		map,
 		list: async source => Promise.all((await source).map(map)),
 	};
@@ -27,7 +25,7 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 	let $mapper = defaultMapper;
 	let $user = User();
 
-	const $source: ISource<ISourceEntity<T>, any, ISourceQuery<T>> = {
+	const $source: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>> = {
 		name,
 		get prisma() {
 			return $prisma;
@@ -37,6 +35,24 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 		},
 		get user() {
 			return $user;
+		},
+		create: async () => {
+			throw new Error(`Source [${name}] does not support item creation.`);
+		},
+		delete: async () => {
+			throw new Error(`Source [${name}] does not support item deletion.`);
+		},
+		get: async () => {
+			throw new Error(`Source [${name}] does not support getting an item by an id.`);
+		},
+		find: async () => {
+			throw new Error(`Source [${name}] does not support finding an item by a query.`);
+		},
+		query: async () => {
+			throw new Error(`Source [${name}] does not support querying items.`);
+		},
+		count: async () => {
+			throw new Error(`Source [${name}] does not support counting items by a query.`);
 		},
 		fetch: async query => {
 			try {
@@ -50,7 +66,7 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 			$mapper = defaultMapper;
 			return $source;
 		},
-		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceEntity<T>, U, ISourceQuery<T>> => {
+		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceCreate<T>, ISourceEntity<T>, U, ISourceQuery<T>> => {
 			$mapper = mapper;
 			return $source;
 		},
@@ -70,5 +86,5 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 		...source,
 	};
 
-	return $source as ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T;
+	return $source as ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T;
 };
