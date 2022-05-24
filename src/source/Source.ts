@@ -6,7 +6,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<a
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery>>, "name" | "prisma">;
 
-	map(source: TEntity): Promise<TItem>;
+	map(source: TEntity | null): Promise<TItem | null>;
 }
 
 export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
@@ -19,7 +19,7 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
 	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
 		map,
-		list: async source => Promise.all((await source).map(map)),
+		list: async source => (await Promise.all((await source).map(map))).filter(i => i),
 	};
 	let $prisma = prisma;
 	let $mapper = defaultMapper;
