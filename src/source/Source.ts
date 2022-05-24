@@ -82,6 +82,7 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 			$prisma = prisma;
 			return $source;
 		},
+		map: $mapper.map,
 		...request,
 		...source,
 	};
