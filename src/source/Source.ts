@@ -6,7 +6,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<a
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery>>, "name" | "prisma">;
 
-	map(source: TEntity | null): Promise<TItem | null>;
+	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
 
 export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
