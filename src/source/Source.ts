@@ -1,13 +1,12 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, IQueryFilter, ISource, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {User} from "@leight-core/server";
-import {merge} from "@leight-core/utils";
 
 export interface ISourceRequest<TEntity, TItem, TQuery extends IQuery<any, any>> extends Pick<ISource<TEntity, any, TQuery>, "count" | "query" | "get" | "find"> {
 	name: string;
 	prisma: IPrismaTransaction;
 	source?: Partial<ISource<TEntity, TItem, TQuery>>;
 
-	filter?(filter?: IQueryFilter<TQuery>): IQueryFilter<TQuery>;
+	map(source: TEntity): Promise<TItem>;
 
 	map(source: TEntity): Promise<TItem>;
 }
@@ -18,7 +17,6 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 		prisma,
 		source,
 		map,
-		filter: $filter,
 		...request
 	}: ISourceRequest<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
 	const defaultMapper: ISource<ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
@@ -48,7 +46,6 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 				return null;
 			}
 		},
-		filter: filter => filter ? merge<IQueryFilter<ISourceQuery<T>>, IQueryFilter<ISourceQuery<T>>>(filter, $filter?.(filter) || filter) : undefined,
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
 			return $source;
@@ -69,10 +66,6 @@ export const Source = <T extends ISource<any, any, IQuery<any, any>>>(
 			$prisma = prisma;
 			return $source;
 		},
-		extend: extend => ({
-			...$source,
-			...extend,
-		}),
 		...request,
 		...source,
 	};
