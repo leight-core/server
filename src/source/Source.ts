@@ -1,23 +1,24 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceItem, ISourceQuery} from "@leight-core/api";
-import {User} from "@leight-core/server";
+import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {User, withFetch} from "@leight-core/server";
+import {ParsedUrlQuery} from "querystring";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>, TFetch, TFetchParams extends ParsedUrlQuery> {
 	name: string;
 	prisma: IPrismaTransaction;
-	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery>>, "name" | "prisma">;
+	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery, TFetch, TFetchParams>>, "name" | "prisma">;
 
 	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
 
-export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
+export const Source = <T extends ISource<any, any, any, IQuery<any, any>, any, any>>(
 	{
 		name,
 		prisma,
 		source,
 		map,
 		...request
-	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>>>): T => {
-	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>>["mapper"] = {
+	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>): T => {
+	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>["mapper"] = {
 		map,
 		list: async source => (await Promise.all((await source).map(map))).filter(i => i),
 	};
@@ -25,7 +26,7 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 	let $mapper = defaultMapper;
 	let $user = User();
 
-	const $source: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>> = {
+	const $source: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> = {
 		name,
 		get prisma() {
 			return $prisma;
@@ -66,7 +67,7 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 			$mapper = defaultMapper;
 			return $source;
 		},
-		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceCreate<T>, ISourceEntity<T>, U, ISourceQuery<T>> => {
+		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceCreate<T>, ISourceEntity<T>, U, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> => {
 			$mapper = mapper;
 			return $source;
 		},
@@ -82,10 +83,11 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 			$prisma = prisma;
 			return $source;
 		},
+		withFetch: () => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source),
 		map: $mapper.map,
 		...request,
 		...source,
 	};
 
-	return $source as ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>> & T;
+	return $source as ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> & T;
 };
