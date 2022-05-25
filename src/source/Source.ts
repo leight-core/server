@@ -2,7 +2,7 @@ import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISou
 import {User, withFetch} from "@leight-core/server";
 import {ParsedUrlQuery} from "querystring";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>, TFetch, TFetchParams extends ParsedUrlQuery> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery<any, any>, TFetch = never, TFetchParams extends ParsedUrlQuery = never> {
 	name: string;
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery, TFetch, TFetchParams>>, "name" | "prisma">;
