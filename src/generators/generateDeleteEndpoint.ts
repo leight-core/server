@@ -25,8 +25,7 @@ export function generateDeleteEndpoint(sdk: ISdk): string {
 	]);
 
 	const name = generatorCommons.name;
-	const generics = generatorCommons.generics.join(", ");
-	const source = generics[0];
+	const source = generatorCommons.generics[0];
 	const queryParams = `I${name}QueryParams`;
 
 	// language=text
@@ -48,8 +47,8 @@ export const use${name}Mutation = createMutationHook<string[], ISourceItem<${sou
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
 
-export const ${name}Promise = createPromise<${generics}>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
 `);
 }
