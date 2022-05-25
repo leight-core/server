@@ -31,17 +31,16 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		{
 			imports: [
 				"ISourceContext",
-				"IQueryParams",
 				"IToOptionMapper",
 				"IQueryFilter",
 				"IQueryOrderBy",
+				"ISourceQuery",
+				"ISourceItem",
 			],
 			from: "\"@leight-core/api\"",
 		},
 		{
 			imports: [
-				"Form",
-				"IFormProps",
 				"useSourceContext",
 				"ISourceProviderProps",
 				"createQueryHook",
@@ -67,7 +66,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"IQuerySourceSelectProps",
 				"QuerySourceSelect",
 				"DrawerButton",
-				"MenuIcon",
 				"SelectionProvider",
 				"ISelectionProviderProps",
 				"useOptionalSelectionContext",
@@ -79,8 +77,9 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 
 	const queryParams = `I${generatorCommons.name}QueryParams`;
 	const name = generatorCommons.name;
-	const request = generatorCommons.generics[0];
-	const response = generatorCommons.generics[1];
+	const source = generatorCommons.generics[0];
+	const request = `ISourceQuery<${source}>`;
+	const response = `ISourceItem<${source}>`;
 
 	// language=text
 	return cleanup(`
