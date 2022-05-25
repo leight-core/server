@@ -1,4 +1,55 @@
 import {ISdk} from "@leight-core/api";
-import {generateMutationEndpoint} from "@leight-core/server";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 
-export const generateDeleteEndpoint = (sdk: ISdk) => generateMutationEndpoint(sdk);
+export function generateDeleteEndpoint(sdk: ISdk): string {
+	const generatorCommons = toGeneratorCommons(sdk);
+
+	sdk.imports.push(...[
+		{imports: ["FC"], from: "\"react\""},
+		{
+			imports: [
+				"ISourceItem",
+			],
+			from: "\"@leight-core/api\""
+		},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
+		{
+			imports: [
+				"createPromiseHook",
+				"createPromise",
+				"toLink",
+				"createMutationHook",
+			],
+			from: "\"@leight-core/client\"",
+		},
+	]);
+
+	const name = generatorCommons.name;
+	const generics = generatorCommons.generics.join(", ");
+	const source = generics[0];
+	const queryParams = `I${name}QueryParams`;
+
+	// language=text
+	return cleanup(`
+/**
+ * Generated file; DO NOT modify as it could be overridden by a generator.
+ */
+
+${generateImports(sdk.imports)}
+
+${sdk.interfaces.map(item => item.source).join("\n")}
+
+export const ${name}ApiLink = "${generatorCommons.api}";
+
+export type ${queryParams} = ${generatorCommons.generics[2] || "undefined"};
+
+export const use${name}Mutation = createMutationHook<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
+
+export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = () => to${name}Link;
+
+export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
+
+export const ${name}Promise = createPromise<${generics}>(${name}ApiLink, "post");
+`);
+}

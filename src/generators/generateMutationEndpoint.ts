@@ -6,7 +6,14 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 
 	sdk.imports.push(...[
 		{imports: ["FC"], from: "\"react\""},
-		{imports: ["IQueryParams"], from: "\"@leight-core/api\""},
+		{
+			imports: [
+				"IQueryParams",
+				"ISourceCreate",
+				"ISourceItem",
+			],
+			from: "\"@leight-core/api\""
+		},
 		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
