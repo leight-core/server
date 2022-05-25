@@ -83,7 +83,7 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>, any, a
 			$prisma = prisma;
 			return $source;
 		},
-		withFetch: () => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source),
+		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
 		map: $mapper.map,
 		...request,
 		...source,
