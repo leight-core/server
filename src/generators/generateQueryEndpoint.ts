@@ -92,10 +92,12 @@ ${generateImports(sdk.imports)}
 ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
+export const ${name}CountApiLink = "${generatorCommons.api}/count";
 
 export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
 
 export const use${name}Query = createQueryHook<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
+export const use${name}CountQuery = createQueryHook<${request}, number, ${queryParams}>(${name}CountApiLink, "post");
 
 export const use${name}Source = () => useSourceContext<${response}>()
 
@@ -114,6 +116,7 @@ export const ${name}Provider: FC<I${name}ProviderProps> = props => {
 	return <SourceProvider<${response}>
 		name={"${name}"}
 		useQuery={use${name}Query}
+		useCountQuery={use${name}CountQuery}
 		{...props}
 	/>;
 };
@@ -213,6 +216,11 @@ export const ${name}SelectionProvider: FC<I${name}SelectionProviderProps> = prop
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}ApiLink]);
+};
+
+export const use${name}CountQueryInvalidate = () => {
+	const queryClient = useQueryClient();
+	return () => queryClient.invalidateQueries([${name}CountApiLink]);
 };
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
