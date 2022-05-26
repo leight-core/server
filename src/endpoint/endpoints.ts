@@ -64,7 +64,7 @@ export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQue
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>, any, any>>(
+export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
@@ -73,7 +73,16 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>, any, any>>(
+export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
+	source: TSource,
+): IEndpointCallback<TName, ISourceQuery<TSource>, number> => {
+	return Endpoint<TName, ISourceQuery<TSource>, number>(async ({request, user}) => {
+		source.withUser(user);
+		return source.count(request);
+	});
+};
+
+export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]>(async ({request, user}) => {
@@ -88,7 +97,7 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>, any, any>>(
+export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
 	source: TSource,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[]> => {
 	return Endpoint<TName, string[], ISourceItem<TSource>[]>(async ({request}) => source.delete(request));

@@ -1,4 +1,71 @@
 import {ISdk} from "@leight-core/api";
-import {generateMutationEndpoint} from "@leight-core/server";
+import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
 
-export const generateCreateEndpoint = (sdk: ISdk) => generateMutationEndpoint(sdk);
+export function generateCreateEndpoint(sdk: ISdk): string {
+	const generatorCommons = toGeneratorCommons(sdk);
+
+	sdk.imports.push(...[
+		{imports: ["FC"], from: "\"react\""},
+		{
+			imports: [
+				"ISourceCreate",
+				"ISourceItem",
+			],
+			from: "\"@leight-core/api\""
+		},
+		{imports: ["useQueryClient"], from: "\"react-query\""},
+		{
+			imports: [
+				"Form",
+				"IFormProps",
+				"createPromiseHook",
+				"createPromise",
+				"toLink",
+				"createMutationHook",
+			],
+			from: "\"@leight-core/client\"",
+		},
+	]);
+
+	const name = generatorCommons.name;
+	const source = generatorCommons.generics[0];
+	const queryParams = `I${name}QueryParams`;
+
+	// language=text
+	return cleanup(`
+/**
+ * Generated file; DO NOT modify as it could be overridden by a generator.
+ */
+
+${generateImports(sdk.imports)}
+
+${sdk.interfaces.map(item => item.source).join("\n")}
+
+export const ${name}ApiLink = "${generatorCommons.api}";
+
+export type ${queryParams} = ${generatorCommons.generics[2] || "undefined"};
+
+export const use${name}Mutation = createMutationHook<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+
+export const use${name}QueryInvalidate = () => {
+	const queryClient = useQueryClient();
+	return () => queryClient.invalidateQueries([${name}ApiLink]);
+}
+
+export interface I${name}DefaultFormProps extends Partial<IFormProps<ISourceCreate<${source}>, ISourceItem<${source}>>> {
+}
+
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<ISourceCreate<${source}>, ISourceItem<${source}>>
+	useMutation={use${name}Mutation}
+	{...props}
+/>
+
+export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
+export const use${name}Link = () => to${name}Link;
+
+export const use${name}Promise = createPromiseHook<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+
+export const ${name}Promise = createPromise<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+`);
+}
+

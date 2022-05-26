@@ -107,10 +107,10 @@ export interface I${name}SourceConsumerProps extends ConsumerProps<ISourceContex
 
 export const ${name}SourceConsumer: FC<I${name}SourceConsumerProps> = props => <SourceContext.Consumer {...props}/>;
 
-export interface I${name}SourceProps extends Partial<ISourceProviderProps<${response}>> {
+export interface I${name}ProviderProps extends Partial<ISourceProviderProps<${response}>> {
 }
 
-export const ${name}Source: FC<I${name}SourceProps> = props => {
+export const ${name}Provider: FC<I${name}ProviderProps> = props => {
 	return <SourceProvider<${response}>
 		name={"${name}"}
 		useQuery={use${name}Query}
@@ -132,10 +132,10 @@ export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <
 export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
 export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
 
-export interface I${name}SourceFilterProps extends IFilterWithoutTranslationProps<IQueryFilter<${request}>> {
+export interface I${name}ProviderFilterProps extends IFilterWithoutTranslationProps<IQueryFilter<${request}>> {
 }
 
-export const ${name}SourceFilter: FC<I${name}SourceFilterProps> = props => <Filter
+export const ${name}ProviderFilter: FC<I${name}ProviderFilterProps> = props => <Filter
 	{...props}
 	translation={'common.filter.${name}'}
 />;
@@ -148,39 +148,39 @@ export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props =>
 export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryOrderBy<${request}>>()
 export const use${name}OrderByContext = () => useOrderByContext<IQueryOrderBy<${request}>>()
 
+export interface I${name}ProviderControlProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
+}
+
+export const ${name}ProviderControl: FC<I${name}ProviderControlProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
+
 export interface I${name}ListSourceProps extends Partial<IListProps<${response}>> {
-	sourceProps?: Partial<I${name}SourceProps>;
+	providerProps?: Partial<I${name}ProviderProps>;
 }
 
-export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
-}
-
-export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
-
-export const ${name}ListSource: FC<I${name}ListSourceProps> = ({sourceProps, ...props}) => {
-	return <${name}Source
-		{...sourceProps}
+export const ${name}ListSource: FC<I${name}ListSourceProps> = ({providerProps, ...props}) => {
+	return <${name}Provider
+		{...providerProps}
 	>
 		<List<${response}>
 			{...props}		
 		/>
-	</${name}Source>;
+	</${name}Provider>;
 }
 
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
-	sourceProps?: I${name}SourceProps;
+	providerProps?: Partial<I${name}ProviderProps>;
 	selectionList?: () => ReactNode;
 	selectionProps?: Partial<ISelectionProviderProps>;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps, selectionList, selectionProps, ...props}) => {
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, ...props}) => {
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
-				<${name}Source {...sourceProps}>
+				<${name}Provider {...providerProps}>
 					<QuerySourceSelect<${response}> {...props}/>
-				</${name}Source>
+				</${name}Provider>
 			</Col>
 			<Col push={0}>
 				{selectionList && <DrawerButton
@@ -192,11 +192,11 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({sourceProps,
 					type={'text'}
 					ghost
 				>
-					<${name}SourceControlProvider>
+					<${name}ProviderControl>
 						<SelectionProvider type={"single"} {...selectionProps}>
 							{selectionList()}
 						</SelectionProvider>
-					</${name}SourceControlProvider>
+					</${name}ProviderControl>
 				</DrawerButton>}
 			</Col>
 		</Row>
