@@ -70,7 +70,7 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
 		source.withUser(user);
-		return source.mapper.map(source.create(request));
+		return source.mapper.map(await source.create(request));
 	});
 };
 
