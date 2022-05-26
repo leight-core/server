@@ -63,6 +63,9 @@ export const Source = <T extends ISource<any, any, any, IQuery<any, any>>>(
 				return null;
 			}
 		},
+		importers: () => ({
+			[name]: () => ({handler: $source.create}),
+		}),
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
 			return $source;
