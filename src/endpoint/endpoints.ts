@@ -33,8 +33,8 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				e.stack && logger.error(e.stack, {labels, url: req.url, body: req.body});
 				if (e.message.includes("Unknown user; missing token.")) {
 					res.status(403).end("Nope.");
+					return;
 				}
-				return;
 			}
 			res.status(500).end("A request failed with Internal Server Error.");
 		} finally {
