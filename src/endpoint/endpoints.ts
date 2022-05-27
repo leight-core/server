@@ -26,6 +26,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			logger.debug("Endpoint Call Response", {labels, url: req.url});
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
+			console.log(e);
 			logger.error("Endpoint Exception", {labels, url: req.url, body: req.body});
 			if (e instanceof Error) {
 				logger.error(e.message, {labels, url: req.url, body: req.body});
