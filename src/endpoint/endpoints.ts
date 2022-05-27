@@ -102,7 +102,10 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any
 export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
 	source: TSource,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[]> => {
-	return Endpoint<TName, string[], ISourceItem<TSource>[]>(async ({request}) => source.delete(request));
+	return Endpoint<TName, string[], ISourceItem<TSource>[]>(async ({request, user}) => {
+		source.withUser(user);
+		return source.delete(request);
+	});
 };
 
 export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
