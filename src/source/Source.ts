@@ -1,6 +1,9 @@
 import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {User, withFetch} from "@leight-core/server";
+import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
+
+const sha256 = crypto.createHash("sha256");
 
 export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery, TFetch = any, TFetchParams extends ParsedUrlQuery = any> {
 	name: string;
@@ -93,6 +96,11 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 		},
 		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
 		map: $mapper.map,
+		hashOf: (query, type) => sha256.update(JSON.stringify({
+			query,
+			type,
+			userId: $source.user.optional(),
+		})).digest("hex"),
 		...request,
 		...source,
 	};
