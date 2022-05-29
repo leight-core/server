@@ -21,19 +21,23 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 		name,
 		prisma,
 		source: {
+			create: $create = async () => {
+				throw new Error(`Source [${name}] does not support item creation.`);
+			},
+			delete: $delete = async () => {
+				throw new Error(`Source [${name}] does not support item deletion.`);
+			},
 			query: $query = async () => {
 				throw new Error(`Source [${name}] does not support querying items.`);
 			},
 			count: $count = async () => {
 				throw new Error(`Source [${name}] does not support counting items by a query.`);
 			},
+			clearCache: $clearCache,
 			...source
 		} = {},
 		map,
-		cache = {
-			query: new LRUCache({max: 128}),
-			count: new LRUCache({max: 1024}),
-		},
+		cache,
 		...request
 	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>): T => {
 	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>["mapper"] = {
@@ -55,11 +59,15 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 		get user() {
 			return $user;
 		},
-		create: async () => {
-			throw new Error(`Source [${name}] does not support item creation.`);
+		create: async create => {
+			const result = await $create(create);
+			await $source.clearCache();
+			return result;
 		},
-		delete: async () => {
-			throw new Error(`Source [${name}] does not support item deletion.`);
+		delete: async ids => {
+			const result = await $delete(ids);
+			await $source.clearCache();
+			return result;
 		},
 		get: async () => {
 			throw new Error(`Source [${name}] does not support getting an item by an id.`);
@@ -124,6 +132,11 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 			type,
 			userId: $source.user.optional(),
 		})).digest("hex"),
+		clearCache: async () => {
+			cache?.query?.clear();
+			cache?.count?.clear();
+			return $clearCache?.();
+		},
 		...request,
 		...source,
 	};
