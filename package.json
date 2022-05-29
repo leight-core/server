@@ -1,5 +1,5 @@
 {
-	"version": "0.6.67",
+	"version": "0.6.68",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -36,7 +36,8 @@
 		"xlsx": "^0.18.5",
 		"isobject": "^4.0.0",
 		"prom-client": "^14.0.1",
-		"memoizee": "^0.4.15"
+		"memoizee": "^0.4.15",
+		"lru-cache": "^7.10.1"
 	},
 	"peerDependencies": {
 		"next": "^12.1.6",

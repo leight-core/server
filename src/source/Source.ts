@@ -1,5 +1,6 @@
 import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {User, withFetch} from "@leight-core/server";
+import LRUCache from "lru-cache";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
 
@@ -9,6 +10,10 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery, 
 	name: string;
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery, TFetch, TFetchParams>>, "name" | "prisma">;
+	cache?: {
+		count?: LRUCache<string, number>;
+		query?: LRUCache<string, TEntity[]>;
+	};
 
 	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
@@ -17,8 +22,20 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 	{
 		name,
 		prisma,
-		source,
+		source: {
+			query: $query = async () => {
+				throw new Error(`Source [${name}] does not support querying items.`);
+			},
+			count: $count = async () => {
+				throw new Error(`Source [${name}] does not support counting items by a query.`);
+			},
+			...source
+		} = {},
 		map,
+		cache = {
+			query: new LRUCache({max: 128}),
+			count: new LRUCache({max: 1024}),
+		},
 		...request
 	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>): T => {
 	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>["mapper"] = {
@@ -52,11 +69,19 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 		find: async () => {
 			throw new Error(`Source [${name}] does not support finding an item by a query.`);
 		},
-		query: async () => {
-			throw new Error(`Source [${name}] does not support querying items.`);
+		query: async query => {
+			const hash = $source.hashOf(query, "query");
+			if (!cache?.query?.has(hash)) {
+				cache?.query?.set(hash, await $query(query));
+			}
+			return cache?.query?.get(hash) || $query(query);
 		},
-		count: async () => {
-			throw new Error(`Source [${name}] does not support counting items by a query.`);
+		count: async query => {
+			const hash = $source.hashOf(query, "count");
+			if (!cache?.count?.has(hash)) {
+				cache?.count?.set(hash, await $count(query));
+			}
+			return cache?.count?.get(hash) || $count(query);
 		},
 		fetch: async query => {
 			try {
