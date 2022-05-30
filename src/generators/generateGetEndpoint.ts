@@ -3,19 +3,14 @@ import {cleanup, generateImports} from "@leight-core/server";
 
 export function generateGetEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
+	const query = (sdk.endpoint.generics?.[1] || "undefined");
 	const response = (sdk.endpoint.generics?.[0] || "void");
 	const queryParams = `I${name}QueryParams`;
 	const api = sdk.endpoint.api;
 
 	sdk.imports.push(...[
 		{imports: ["FC", "createContext"], from: "\"react\""},
-		{
-			imports: [
-				"IEntityContext",
-				"IWithIdentity",
-			],
-			from: "\"@leight-core/api\""
-		},
+		{imports: ["IQueryParams", "IEntityContext"], from: "\"@leight-core/api\""},
 		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
@@ -47,7 +42,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${api}";
 
-export type ${queryParams} = IWithIdentity;
+export type ${queryParams} = ${query};
 
 export const ${name}Context = createContext(null as unknown as IEntityContext<${response}>);
 
