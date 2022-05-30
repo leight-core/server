@@ -3,7 +3,7 @@ import {cleanup, generateImports} from "@leight-core/server";
 
 export function generateFetchEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
-	const response = (sdk.endpoint.generics?.[0] || "void");
+	const response = `ISourceItem<${(sdk.endpoint.generics?.[0] || "void")}>`;
 	const queryParams = `I${name}QueryParams`;
 	const api = sdk.endpoint.api;
 
@@ -12,6 +12,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 		{
 			imports: [
 				"IEntityContext",
+				"ISourceItem",
 				"IWithIdentity",
 			],
 			from: "\"@leight-core/api\""
