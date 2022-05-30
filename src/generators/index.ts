@@ -3,6 +3,7 @@ export * from "./generateDeleteEndpoint";
 export * from "./generateEndpoint";
 export * from "./generateEntityEndpoint";
 export * from "./generateFetchEndpoint";
+export * from "./generateGetEndpoint";
 export * from "./generateImports";
 export * from "./generateListEndpoint";
 export * from "./generateMutationEndpoint";
