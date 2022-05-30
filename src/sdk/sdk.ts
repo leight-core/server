@@ -7,6 +7,7 @@ import {
 	generateFetchEndpoint,
 	generateListEndpoint,
 	generateMutationEndpoint,
+	generatePatchEndpoint,
 	generateQueryEndpoint,
 	generateRequestEndpoint,
 	pickNode,
@@ -21,6 +22,7 @@ import ts from "typescript";
 const defaultGenerators = {
 	"Endpoint": generateEndpoint,
 	"CreateEndpoint": generateCreateEndpoint,
+	"PatchEndpoint": generatePatchEndpoint,
 	"FetchEndpoint": generateFetchEndpoint,
 	"ListEndpoint": generateListEndpoint,
 	"MutationEndpoint": generateMutationEndpoint,
