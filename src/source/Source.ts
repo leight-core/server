@@ -4,7 +4,7 @@ import LRUCache from "lru-cache";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery, TFetch = any, TFetchParams extends ParsedUrlQuery = any> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TFetch = any, TFetchParams extends ParsedUrlQuery = any> {
 	name: string;
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery, TFetch, TFetchParams>>, "name" | "prisma">;
@@ -16,13 +16,16 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery, 
 	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
 
-export const Source = <T extends ISource<any, any, any, IQuery>>(
+export const Source = <T extends ISource<any, any, any>>(
 	{
 		name,
 		prisma,
 		source: {
 			create: $create = async () => {
 				throw new Error(`Source [${name}] does not support item creation.`);
+			},
+			patch: $patch = async () => {
+				throw new Error(`Source [${name}] does not support item patching.`);
 			},
 			delete: $delete = async () => {
 				throw new Error(`Source [${name}] does not support item deletion.`);
@@ -61,6 +64,11 @@ export const Source = <T extends ISource<any, any, any, IQuery>>(
 		},
 		create: async create => {
 			const result = await $create(create);
+			await $source.clearCache();
+			return result;
+		},
+		patch: async patch => {
+			const result = await $patch(patch);
 			await $source.clearCache();
 			return result;
 		},

@@ -1,4 +1,4 @@
-import {IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IQuery, IQueryParams, IRequestEndpoint, ISource, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {IEndpoint, IEndpointCallback, IEntityEndpoint, IFetchEndpoint, IListEndpoint, IMutationEndpoint, IQuery, IQueryParams, IRequestEndpoint, ISource, ISourceCreate, ISourceItem, ISourcePatch, ISourceQuery} from "@leight-core/api";
 import {Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
@@ -66,16 +66,25 @@ export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQue
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
+export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
-): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>> => {
-	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
+): IEndpointCallback<TName, ISourceCreate<TSource>, ISourceItem<TSource>> => {
+	return Endpoint<TName, ISourceCreate<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
 		source.withUser(user);
 		return source.mapper.map(await source.create(request));
 	});
 };
 
-export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
+export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
+	source: TSource,
+): IEndpointCallback<TName, ISourcePatch<TSource>, ISourceItem<TSource>> => {
+	return Endpoint<TName, ISourcePatch<TSource>, ISourceItem<TSource>>(async ({request, user}) => {
+		source.withUser(user);
+		return source.mapper.map(await source.patch(request));
+	});
+};
+
+export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, number> => {
 	return Endpoint<TName, ISourceQuery<TSource>, number>(async ({request, user}) => {
@@ -84,7 +93,7 @@ export const CountEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
+export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]> => {
 	return Endpoint<TName, ISourceQuery<TSource>, ISourceItem<TSource>[]>(async ({request, user}) => {
@@ -93,13 +102,13 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const EntityEndpoint = <TName extends string, TRequest extends IQuery<any, any>, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
 	handler: IEntityEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	return Endpoint<TName, TRequest, TResponse, TQueryParams>(handler);
 };
 
-export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any, IQuery<any, any>>>(
+export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[]> => {
 	return Endpoint<TName, string[], ISourceItem<TSource>[]>(async ({request, user}) => {
