@@ -13,7 +13,7 @@ import {
 	ISourceItem,
 	ISourcePatch,
 	ISourceQuery,
-	IWithIdentity
+	IWithIdentityQuery
 } from "@leight-core/api";
 import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
 import {Logger, User, withMetrics} from "@leight-core/server";
@@ -21,7 +21,7 @@ import {isCallable} from "@leight-core/utils";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
-export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
@@ -66,28 +66,28 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 	});
 };
 
-export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IListEndpoint<TName, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => Endpoint(handler);
 
-export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IMutationEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
 
-export const GetEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const GetEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IGetEndpoint<TName, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => Endpoint(handler);
 
 export const FetchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: TSource,
-): IEndpointCallback<TName, undefined, ISourceItem<TSource>, IWithIdentity> => {
+): IEndpointCallback<TName, undefined, ISourceItem<TSource>, IWithIdentityQuery> => {
 	return Endpoint(async ({user, query: {id}}) => {
 		source.withUser(user);
 		return source.mapper.map(await source.get(id));
 	});
 };
 
-export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams | undefined = undefined>(
+export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourceCreate<TSource>, ISourceItem<TSource>, TQueryParams> => {
 	return Endpoint(async ({request, user}) => {
@@ -96,7 +96,7 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 	});
 };
 
-export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams | undefined = undefined>(
+export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: TSource,
 ): IEndpointCallback<TName, ISourcePatch<TSource>, ISourceItem<TSource>, TQueryParams> => {
 	return Endpoint(async ({request, user}) => {
@@ -105,7 +105,7 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams | undefined = undefined>(
+export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: TSource | ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource),
 ): IEndpointCallback<TName, ISourceQuery<TSource>, number, TQueryParams> => {
 	return Endpoint(async params => {
@@ -115,7 +115,7 @@ export const CountEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams | undefined = undefined>(
+export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: TSource | ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource),
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[], TQueryParams> => {
 	return Endpoint(async params => {
@@ -125,11 +125,11 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IEntityEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
 
-export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams | undefined = undefined>(
+export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: TSource,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[], TQueryParams> => {
 	return Endpoint(async ({request, user}) => {
@@ -138,6 +138,6 @@ export const DeleteEndpoint = <TName extends string, TSource extends ISource<any
 	});
 };
 
-export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams | undefined = undefined>(
+export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IRequestEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);

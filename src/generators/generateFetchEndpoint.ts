@@ -13,7 +13,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 			imports: [
 				"IEntityContext",
 				"ISourceItem",
-				"IWithIdentity",
+				"IWithIdentityQuery",
 			],
 			from: "\"@leight-core/api\""
 		},
@@ -48,7 +48,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${api}";
 
-export type ${queryParams} = IWithIdentity;
+export type ${queryParams} = IWithIdentityQuery;
 
 export const ${name}Context = createContext(null as unknown as IEntityContext<${response}>);
 
