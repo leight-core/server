@@ -14,7 +14,7 @@ export const sqlParse = (source: string): string[] => {
 
 export const sqlRead = (file: string): string[] => sqlParse(fs.readFileSync(file).toString());
 
-export const sqlExecute = async <T>(file: string, executor: (query: string) => Promise<T>): Promise<T[]> => {
+export const sqlFile = async <T>(file: string, executor: (query: string) => Promise<T>): Promise<T[]> => {
 	const queries = sqlRead(file);
 	const results: T[] = [];
 	for (const query of queries) {
@@ -23,8 +23,26 @@ export const sqlExecute = async <T>(file: string, executor: (query: string) => P
 	return results;
 };
 
-export const runSql = (source: string, prisma: PrismaClient, timeout: number = 1000 * 60) => {
-	return prisma.$transaction(async prisma => sqlExecute(source, sql => {
+export const sqlSource = async <T>(source: string, executor: (query: string) => Promise<T>): Promise<T[]> => {
+	const queries = sqlParse(source);
+	const results: T[] = [];
+	for (const query of queries) {
+		results.push(await executor(query));
+	}
+	return results;
+};
+
+export const runSql = (file: string, prisma: PrismaClient, timeout: number = 1000 * 60) => {
+	return prisma.$transaction(async prisma => sqlFile(file, sql => {
+		console.log(`Executing: ${sql}`);
+		return prisma.$executeRawUnsafe(sql);
+	}), {
+		timeout,
+	});
+};
+
+export const executeSql = (source: string, prisma: PrismaClient, timeout: number = 1000 * 60) => {
+	return prisma.$transaction(async prisma => sqlSource(source, sql => {
 		console.log(`Executing: ${sql}`);
 		return prisma.$executeRawUnsafe(sql);
 	}), {
