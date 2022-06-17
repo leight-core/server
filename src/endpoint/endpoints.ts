@@ -1,4 +1,5 @@
 import {
+	ClientError,
 	IEndpoint,
 	IEndpointCallback,
 	IEntityEndpoint,
@@ -49,6 +50,10 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			console.log(e);
+			if (e instanceof ClientError) {
+				res.status(e.code).end(e.message);
+				return;
+			}
 			logger.error("Endpoint Exception", {labels, url: req.url, body: req.body});
 			if (e instanceof Error) {
 				logger.error(e.message, {labels, url: req.url, body: req.body});
