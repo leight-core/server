@@ -21,6 +21,13 @@ import {isCallable} from "@leight-core/utils";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
+type IEndpointSource<TSource, TQueryParams extends IQueryParams = any> = TSource | ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource);
+const resolveSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(source: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
+	const $source = (isCallable(source) ? (source as (params: any) => TSource)(params) : source) as TSource;
+	$source.withUser(params.user);
+	return $source;
+};
+
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
 	handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
@@ -79,48 +86,43 @@ export const GetEndpoint = <TName extends string, TResponse, TQueryParams extend
 ): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => Endpoint(handler);
 
 export const FetchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
-	source: TSource,
+	source: IEndpointSource<TSource>,
 ): IEndpointCallback<TName, undefined, ISourceItem<TSource>, IWithIdentityQuery> => {
-	return Endpoint(async ({user, query: {id}}) => {
-		source.withUser(user);
-		return source.mapper.map(await source.get(id));
+	return Endpoint(async params => {
+		const $source = resolveSource(source, params);
+		return $source.mapper.map(await $source.get(params.query.id));
 	});
 };
 
 export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: TSource,
+	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceCreate<TSource>, ISourceItem<TSource>, TQueryParams> => {
-	return Endpoint(async ({request, user}) => {
-		source.withUser(user);
-		return source.mapper.map(await source.create(request));
+	return Endpoint(async params => {
+		const $source = resolveSource(source, params);
+		return $source.mapper.map(await $source.create(params.request));
 	});
 };
 
 export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: TSource,
+	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourcePatch<TSource>, ISourceItem<TSource>, TQueryParams> => {
-	return Endpoint(async ({request, user}) => {
-		source.withUser(user);
-		return source.mapper.map(await source.patch(request));
+	return Endpoint(async params => {
+		const $source = resolveSource(source, params);
+		return $source.mapper.map(await $source.patch(params.request));
 	});
 };
 
 export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: TSource | ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource),
+	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, number, TQueryParams> => {
-	return Endpoint(async params => {
-		const $source = (isCallable(source) ? (source as (params: any) => TSource)(params) : source) as TSource;
-		$source.withUser(params.user);
-		return $source.count(params.request);
-	});
+	return Endpoint(async params => resolveSource(source, params).count(params.request));
 };
 
 export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: TSource | ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource),
+	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[], TQueryParams> => {
 	return Endpoint(async params => {
-		const $source = (isCallable(source) ? (source as (params: any) => TSource)(params) : source) as TSource;
-		$source.withUser(params.user);
+		const $source = resolveSource(source, params);
 		return $source.mapper.list($source.query(params.request));
 	});
 };
@@ -130,12 +132,9 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TR
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
 
 export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: TSource,
+	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[], TQueryParams> => {
-	return Endpoint(async ({request, user}) => {
-		source.withUser(user);
-		return source.delete(request);
-	});
+	return Endpoint(async params => resolveSource(source, params).delete(params.request));
 };
 
 export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
