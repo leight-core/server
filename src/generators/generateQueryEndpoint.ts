@@ -94,7 +94,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 export const ${name}ApiLink = "${generatorCommons.api}";
 export const ${name}CountApiLink = "${generatorCommons.api}/count";
 
-export type ${queryParams} = ${generatorCommons.generics[2] ?? "undefined"};
+export type ${queryParams} = ${generatorCommons.generics[2] ?? "any"};
 
 export const use${name}Query = createQueryHook<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
 export const use${name}CountQuery = createQueryHook<${request}, number, ${queryParams}>(${name}CountApiLink, "post");

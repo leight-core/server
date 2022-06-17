@@ -34,7 +34,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type ${queryParams} = ${generatorCommons.generics[4] ?? "undefined"};
+export type ${queryParams} = ${generatorCommons.generics[4] ?? "any"};
 
 export const use${name}Query = createQueryHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 

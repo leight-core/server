@@ -3,7 +3,7 @@ import {cleanup, generateImports} from "@leight-core/server";
 
 export function generateGetEndpoint(sdk: ISdk): string {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
-	const query = (sdk.endpoint.generics?.[1] || "undefined");
+	const query = (sdk.endpoint.generics?.[1] || "any");
 	const response = (sdk.endpoint.generics?.[0] || "void");
 	const queryParams = `I${name}QueryParams`;
 	const api = sdk.endpoint.api;

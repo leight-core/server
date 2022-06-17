@@ -40,7 +40,7 @@ ${sdk.interfaces.map(item => item.source).join("\n")}
 
 export const ${name}ApiLink = "${generatorCommons.api}";
 
-export type ${queryParams} = ${generatorCommons.generics[2] || "undefined"};
+export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
 export const use${name}Mutation = createMutationHook<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
 
