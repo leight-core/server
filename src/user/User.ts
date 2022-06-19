@@ -3,6 +3,7 @@ import {diffOf, intersectOf} from "@leight-core/utils";
 
 export const User = (userId?: string | null, tokens: string[] = []): IUser => {
 	const $user: IUser = ({
+		tokens,
 		required: () => {
 			if (!userId) {
 				throw new UndefinedUserError("User not available");
