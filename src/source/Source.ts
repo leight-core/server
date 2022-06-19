@@ -12,6 +12,17 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery =
 		count?: LRUCache<string, number>;
 		query?: LRUCache<string, TEntity[]>;
 	};
+	acl?: {
+		count?: string[];
+		query?: string[];
+		get?: string[];
+		find?: string[];
+		fetch?: string[];
+		create?: string[];
+		patch?: string[];
+		delete?: string[];
+		mapper?: string[];
+	};
 
 	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
@@ -30,6 +41,12 @@ export const Source = <T extends ISource<any, any, any>>(
 			delete: $delete = async () => {
 				throw new Error(`Source [${name}] does not support item deletion.`);
 			},
+			get: $get = async () => {
+				throw new Error(`Source [${name}] does not support getting an item by an id.`);
+			},
+			find: $find = async () => {
+				throw new Error(`Source [${name}] does not support finding an item by a query.`);
+			},
 			query: $query = async () => {
 				throw new Error(`Source [${name}] does not support querying items.`);
 			},
@@ -39,6 +56,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			clearCache: $clearCache,
 			...source
 		} = {},
+		acl,
 		map,
 		cache,
 		...request
@@ -57,33 +75,40 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $prisma;
 		},
 		get mapper() {
+			$source.user.checkAny(acl?.mapper);
 			return $mapper;
 		},
 		get user() {
 			return $user;
 		},
 		create: async create => {
+			$source.user.checkAny(acl?.create);
 			const result = await $create(create);
 			await $source.clearCache();
 			return result;
 		},
 		patch: async patch => {
+			$source.user.checkAny(acl?.patch);
 			const result = await $patch(patch);
 			await $source.clearCache();
 			return result;
 		},
 		delete: async ids => {
+			$source.user.checkAny(acl?.delete);
 			const result = await $delete(ids);
 			await $source.clearCache();
 			return result;
 		},
-		get: async () => {
-			throw new Error(`Source [${name}] does not support getting an item by an id.`);
+		get: async id => {
+			$source.user.checkAny(acl?.get);
+			return $get(id);
 		},
-		find: async () => {
-			throw new Error(`Source [${name}] does not support finding an item by a query.`);
+		find: async query => {
+			$source.user.checkAny(acl?.find);
+			return $find(query);
 		},
 		query: async query => {
+			$source.user.checkAny(acl?.query);
 			const hash = $source.hashOf(query, "query");
 			if (!cache?.query?.has(hash)) {
 				cache?.query?.set(hash, await $query(query));
@@ -91,6 +116,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.query?.get(hash) || $query(query);
 		},
 		count: async query => {
+			$source.user.checkAny(acl?.count);
 			const hash = $source.hashOf(query, "count");
 			if (!cache?.count?.has(hash)) {
 				cache?.count?.set(hash, await $count(query));
@@ -98,6 +124,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.count?.get(hash) || $count(query);
 		},
 		fetch: async query => {
+			$source.user.checkAny(acl?.fetch);
 			try {
 				return await $source.find(query);
 			} catch (e) {
@@ -133,7 +160,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $source;
 		},
 		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
-		map: $mapper.map,
+		map: source => $source.mapper.map(source as ISourceEntity<any>),
 		hashOf: (query, type) => crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,

@@ -10,13 +10,13 @@ export const User = (userId?: string | null, tokens: string[] = []): IUser => {
 			return userId;
 		},
 		optional: () => userId || undefined,
-		hasAny: $tokens => intersectOf(tokens, $tokens).length > 0,
+		hasAny: $tokens => $tokens ? intersectOf(tokens, $tokens).length > 0 : true,
 		checkAny: tokens => {
 			if (!$user.hasAny(tokens)) {
 				throw new ClientError("User does not have required tokens.", 403);
 			}
 		},
-		hasTokens: $tokens => diffOf($tokens, tokens).length === $tokens.length,
+		hasTokens: $tokens => $tokens ? diffOf($tokens, tokens).length === $tokens.length : true,
 		checkTokens: tokens => {
 			if (!$user.hasTokens(tokens)) {
 				throw new ClientError("User does not have required tokens.", 403);
