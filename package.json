@@ -1,5 +1,5 @@
 {
-	"version": "0.6.103",
+	"version": "0.6.104",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
