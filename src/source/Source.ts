@@ -106,47 +106,40 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $prisma;
 		},
 		get mapper() {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.mapper);
+			$source.user.checkAny((acl?.default || []).concat(acl?.mapper || []));
 			return $mapper;
 		},
 		get user() {
 			return $user;
 		},
 		create: async create => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.create);
+			$source.user.checkAny((acl?.default || []).concat(acl?.create || []));
 			const result = await $create(create);
 			await $source.clearCache();
 			return result;
 		},
 		patch: async patch => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.patch);
+			$source.user.checkAny((acl?.default || []).concat(acl?.patch || []));
 			const result = await $patch(patch);
 			await $source.clearCache();
 			return result;
 		},
 		delete: async ids => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.delete);
+			$source.user.checkAny((acl?.default || []).concat(acl?.delete || []));
 			const result = await $delete(ids);
 			await $source.clearCache();
 			return result;
 		},
 		get: async id => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.get);
+			$source.user.checkAny((acl?.default || []).concat(acl?.get || []));
 			return $get(id);
 		},
 		find: async query => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.find);
+			$source.user.checkAny((acl?.default || []).concat(acl?.find || []));
 			return $find(query);
 		},
 		query: async query => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.query);
+			$source.user.checkAny((acl?.default || []).concat(acl?.query || []));
 			const hash = $source.hashOf(query, "query");
 			if (!cache?.query?.has(hash)) {
 				cache?.query?.set(hash, await $query(query));
@@ -154,8 +147,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.query?.get(hash) || $query(query);
 		},
 		count: async query => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.count);
+			$source.user.checkAny((acl?.default || []).concat(acl?.count || []));
 			const hash = $source.hashOf(query, "count");
 			if (!cache?.count?.has(hash)) {
 				cache?.count?.set(hash, await $count(query));
@@ -163,8 +155,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.count?.get(hash) || $count(query);
 		},
 		fetch: async query => {
-			$source.user.checkAny(acl?.default);
-			$source.user.checkAny(acl?.fetch);
+			$source.user.checkAny((acl?.default || []).concat(acl?.fetch || []));
 			try {
 				return await $source.find(query);
 			} catch (e) {
