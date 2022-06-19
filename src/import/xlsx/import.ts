@@ -29,7 +29,7 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 });
 
 export interface IToImportRequest extends IWithImporters {
-	user?: IUser;
+	user: IUser;
 	job: IJob<{ fileId: string }>;
 	workbook: xlsx.WorkBook;
 	jobProgress: IJobProgress;
@@ -88,7 +88,16 @@ export const toImport = async (
 				}
 				continue;
 			}
-			user && handler.withUser(user);
+			if (!user.hasAny(["*", `import.${service}`])) {
+				logger.error("User does not have proper import token.", {labels: serviceLabels, tab: tab.tab, service});
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				for await (const _ of stream) {
+					skip++;
+					await jobProgress.onSkip();
+				}
+				continue;
+			}
+			handler.withUser(user);
 			await handler.begin?.({});
 			const getElapsed = measureTime();
 			for await (const item of stream) {
