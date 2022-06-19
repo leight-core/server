@@ -16,7 +16,7 @@ export const User = (userId?: string | null, tokens: string[] = []): IUser => {
 				throw new ClientError("User does not have required tokens.", 403);
 			}
 		},
-		hasTokens: $tokens => diffOf(tokens, $tokens).length === $tokens.length,
+		hasTokens: $tokens => diffOf($tokens, tokens).length === $tokens.length,
 		checkTokens: tokens => {
 			if (!$user.hasTokens(tokens)) {
 				throw new ClientError("User does not have required tokens.", 403);
