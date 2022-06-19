@@ -43,7 +43,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				query: req.query,
 				toBody: () => getRawBody(req),
 				end: res.end,
-				user: User(token?.sub),
+				user: User(token?.sub, (token as any)?.tokens),
 			});
 			const response = await run();
 			logger.debug("Endpoint Call Response", {labels, url: req.url});
