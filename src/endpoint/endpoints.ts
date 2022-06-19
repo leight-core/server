@@ -17,7 +17,7 @@ import {
 	IWithIdentityQuery
 } from "@leight-core/api";
 import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
-import {Logger, User, withMetrics} from "@leight-core/server";
+import {AclError, Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
@@ -50,7 +50,11 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			response !== undefined && res.status(200).json(response);
 		} catch (e) {
 			console.log(e);
-			if (e instanceof ClientError) {
+			if (e instanceof AclError) {
+				console.log("ACL Exception: Tokens", e.tokens, "Requested tokens", e.requested);
+				res.status(e.code).end(e.message);
+				return;
+			} else if (e instanceof ClientError) {
 				res.status(e.code).end(e.message);
 				return;
 			}
