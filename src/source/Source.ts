@@ -1,4 +1,4 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceAcl, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
 import {User, withFetch} from "@leight-core/server";
 import LRUCache from "lru-cache";
 import crypto from "node:crypto";
@@ -12,18 +12,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery =
 		count?: LRUCache<string, number>;
 		query?: LRUCache<string, TEntity[]>;
 	};
-	acl?: {
-		default?: string[];
-		count?: string[];
-		query?: string[];
-		get?: string[];
-		find?: string[];
-		fetch?: string[];
-		create?: string[];
-		patch?: string[];
-		delete?: string[];
-		mapper?: string[];
-	};
+	acl?: ISourceAcl;
 
 	map(source?: TEntity | null): Promise<TItem | null | undefined>;
 }
@@ -69,6 +58,47 @@ export const Source = <T extends ISource<any, any, any>>(
 	let $prisma = prisma;
 	let $mapper = defaultMapper;
 	let $user = User();
+
+	if (acl?.lock) {
+		(acl.default = (acl.default || [])).push(
+			`*`,
+		);
+		(acl.create = (acl.create || [])).push(
+			`${name}.create`,
+			`${name}.write`,
+		);
+		(acl.mapper = (acl.mapper || [])).push(
+			`${name}.mapper`,
+			`${name}.read`,
+		);
+		(acl.patch = (acl.patch || [])).push(
+			`${name}.patch`,
+			`${name}.write`,
+		);
+		(acl.delete = (acl.delete || [])).push(
+			`${name}.delete`,
+		);
+		(acl.get = (acl.get || [])).push(
+			`${name}.get`,
+			`${name}.read`,
+		);
+		(acl.find = (acl.find || [])).push(
+			`${name}.find`,
+			`${name}.read`,
+		);
+		(acl.query = (acl.query || [])).push(
+			`${name}.query`,
+			`${name}.read`,
+		);
+		(acl.count = (acl.count || [])).push(
+			`${name}.count`,
+			`${name}.read`,
+		);
+		(acl.fetch = (acl.fetch || [])).push(
+			`${name}.fetch`,
+			`${name}.read`,
+		);
+	}
 
 	const $source: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> = {
 		name,
