@@ -13,6 +13,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery =
 		query?: LRUCache<string, TEntity[]>;
 	};
 	acl?: {
+		default?: string[];
 		count?: string[];
 		query?: string[];
 		get?: string[];
@@ -75,6 +76,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $prisma;
 		},
 		get mapper() {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.mapper);
 			return $mapper;
 		},
@@ -82,32 +84,38 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $user;
 		},
 		create: async create => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.create);
 			const result = await $create(create);
 			await $source.clearCache();
 			return result;
 		},
 		patch: async patch => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.patch);
 			const result = await $patch(patch);
 			await $source.clearCache();
 			return result;
 		},
 		delete: async ids => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.delete);
 			const result = await $delete(ids);
 			await $source.clearCache();
 			return result;
 		},
 		get: async id => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.get);
 			return $get(id);
 		},
 		find: async query => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.find);
 			return $find(query);
 		},
 		query: async query => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.query);
 			const hash = $source.hashOf(query, "query");
 			if (!cache?.query?.has(hash)) {
@@ -116,6 +124,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.query?.get(hash) || $query(query);
 		},
 		count: async query => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.count);
 			const hash = $source.hashOf(query, "count");
 			if (!cache?.count?.has(hash)) {
@@ -124,6 +133,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return cache?.count?.get(hash) || $count(query);
 		},
 		fetch: async query => {
+			$source.user.checkAny(acl?.default);
 			$source.user.checkAny(acl?.fetch);
 			try {
 				return await $source.find(query);
