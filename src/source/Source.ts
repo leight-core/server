@@ -106,7 +106,10 @@ export const Source = <T extends ISource<any, any, any>>(
 			}
 		},
 		importers: () => ({
-			[name]: () => ({handler: $source.create}),
+			[name]: () => ({
+				withUser: $source.withUser,
+				handler: $source.create,
+			}),
 		}),
 		withDefaultMapper: () => {
 			$mapper = defaultMapper;
