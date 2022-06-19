@@ -55,7 +55,6 @@ model VerificationToken {
 model Token {
   id    String    @id @default(cuid())
   name  String    @unique
-  until DateTime?
 
   UserToken UserToken[]
 }
