@@ -5,7 +5,6 @@ export function generateRequestEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
 
 	sdk.imports.push(...[
-		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
 				"createQueryHook",
@@ -43,10 +42,5 @@ export const use${name}Link = () => to${name}Link;
 
 export const use${name}Promise = createPromiseHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 export const ${name}Promise = createPromise<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
-
-export const use${name}QueryInvalidate = () => {
-	const queryClient = useQueryClient();
-	return () => queryClient.invalidateQueries([${name}ApiLink]);
-}
 `);
 }

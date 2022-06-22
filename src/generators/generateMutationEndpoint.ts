@@ -14,7 +14,6 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 			],
 			from: "\"@leight-core/api\""
 		},
-		{imports: ["useQueryClient"], from: "\"react-query\""},
 		{
 			imports: [
 				"Form",
@@ -50,11 +49,6 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
 export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
-
-export const use${name}QueryInvalidate = () => {
-	const queryClient = useQueryClient();
-	return () => queryClient.invalidateQueries([${name}ApiLink]);
-}
 
 export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
 }

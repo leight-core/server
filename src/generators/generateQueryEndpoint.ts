@@ -214,14 +214,18 @@ export const ${name}SelectionProvider: FC<I${name}SelectionProviderProps> = prop
 	return <SelectionProvider<${response}> {...props}/>
 }
 
-export const use${name}QueryInvalidate = () => {
-	const queryClient = useQueryClient();
-	return () => queryClient.invalidateQueries([${name}ApiLink]);
-};
-
 export const use${name}CountQueryInvalidate = () => {
 	const queryClient = useQueryClient();
 	return () => queryClient.invalidateQueries([${name}CountApiLink]);
+};
+
+export const use${name}QueryInvalidate = (withCount: bool = true) => {
+	const queryClient = useQueryClient();
+	const countInvalidate = use${name}CountQueryInvalidate();
+	return () => {
+		queryClient.invalidateQueries([${name}ApiLink]);
+		withCount && countInvalidate();
+	};
 };
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
