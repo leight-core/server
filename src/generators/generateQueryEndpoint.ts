@@ -219,7 +219,7 @@ export const use${name}CountQueryInvalidate = () => {
 	return () => queryClient.invalidateQueries([${name}CountApiLink]);
 };
 
-export const use${name}QueryInvalidate = (withCount: bool = true) => {
+export const use${name}QueryInvalidate = (withCount: boolean = true) => {
 	const queryClient = useQueryClient();
 	const countInvalidate = use${name}CountQueryInvalidate();
 	return () => {
