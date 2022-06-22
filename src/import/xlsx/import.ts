@@ -77,7 +77,9 @@ export const toImport = async (
 		for (const service of tab.services) {
 			const serviceLabels = {...jobLabels, service, tab: tab.tab};
 			logger.info("Executing import", {labels: serviceLabels, tab: tab.tab, service});
-			const stream: Readable = xlsx.stream.to_json(workSheet);
+			const stream: Readable = xlsx.stream.to_json(workSheet, {
+				defval: null,
+			});
 			const handler = importers[service]?.();
 			if (!handler) {
 				logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
