@@ -1,5 +1,5 @@
-import {IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceAcl, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
-import {User, withFetch} from "@leight-core/server";
+import {ClientError, IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceAcl, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {onUnique, User, withFetch} from "@leight-core/server";
 import LRUCache from "lru-cache";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
@@ -114,9 +114,15 @@ export const Source = <T extends ISource<any, any, any>>(
 		},
 		create: async create => {
 			$source.user.checkAny((acl?.default || []).concat(acl?.create || []));
-			const result = await $create(create);
-			await $source.clearCache();
-			return result;
+			try {
+				const result = await $create(create);
+				await $source.clearCache();
+				return result;
+			} catch (e) {
+				return onUnique(e, async () => {
+					throw new ClientError(`Unique error on [${name}].`, 409);
+				});
+			}
 		},
 		patch: async patch => {
 			$source.user.checkAny((acl?.default || []).concat(acl?.patch || []));
