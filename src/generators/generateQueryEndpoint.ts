@@ -221,11 +221,10 @@ export const use${name}CountQueryInvalidate = () => {
 
 export const use${name}QueryInvalidate = (withCount: boolean = true) => {
 	const queryClient = useQueryClient();
-	const countInvalidate = use${name}CountQueryInvalidate();
-	return () => {
-		queryClient.invalidateQueries([${name}ApiLink]);
-		withCount && countInvalidate();
-	};
+	return () => Promise.all([
+		queryClient.invalidateQueries([${name}ApiLink]),
+		withCount && queryClient.invalidateQueries([${name}CountApiLink]),
+	]);
 };
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
