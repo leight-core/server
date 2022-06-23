@@ -1,12 +1,10 @@
 import {ISource, IWithFetch} from "@leight-core/api";
-import {User} from "@leight-core/server";
+import {getTokenUser} from "@leight-core/server";
 import {GetServerSidePropsContext} from "next";
-import {getToken} from "next-auth/jwt";
 import {ParsedUrlQuery} from "querystring";
 
 export const withFetch = <TWithFetch, TWithFetchParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource): IWithFetch<TWithFetch, TWithFetchParams> => (key, query) => async (context: GetServerSidePropsContext<TWithFetchParams>): Promise<any> => {
-	const token: any = await getToken(context);
-	source.withUser(User(token?.sub, token?.tokens));
+	source.withUser(await getTokenUser(context));
 	if (!context.params?.[query]) {
 		return {
 			notFound: true,

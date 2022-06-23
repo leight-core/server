@@ -1,4 +1,5 @@
 import {
+	AclError,
 	ClientError,
 	IEndpoint,
 	IEndpointCallback,
@@ -17,7 +18,7 @@ import {
 	IWithIdentityQuery
 } from "@leight-core/api";
 import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
-import {AclError, Logger, User, withMetrics} from "@leight-core/server";
+import {Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
@@ -41,7 +42,10 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		const labels = {url: req.url, userId: token?.sub};
 		logger.debug("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
-			const user = User(token?.sub, (token as any)?.tokens);
+			const user = User({
+				userId: token?.sub,
+				tokens: (token as any)?.tokens,
+			});
 			user.checkAny(acl);
 			const run = async () => await handler({
 				req,

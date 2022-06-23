@@ -1,7 +1,12 @@
-import {ClientError, IUser} from "@leight-core/api";
+import {AclError, IUser, UndefinedUserError} from "@leight-core/api";
 import {diffOf, intersectOf} from "@leight-core/utils";
 
-export const User = (userId?: string | null, tokens: string[] = []): IUser => {
+export interface IUserRequest {
+	userId?: string | null;
+	tokens?: string[];
+}
+
+export const User = ({userId, tokens = []}: IUserRequest | undefined = {}): IUser => {
 	const $user: IUser = ({
 		tokens,
 		required: () => {
@@ -27,20 +32,3 @@ export const User = (userId?: string | null, tokens: string[] = []): IUser => {
 
 	return $user;
 };
-
-export class UndefinedUserError extends ClientError {
-	constructor(message: string) {
-		super(message, 403);
-	}
-}
-
-export class AclError extends ClientError {
-	readonly tokens: string[];
-	readonly requested?: string[];
-
-	constructor(message: string, tokens: string[], requested?: string[]) {
-		super(message, 403);
-		this.tokens = tokens;
-		this.requested = requested;
-	}
-}
