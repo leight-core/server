@@ -21,13 +21,18 @@ import {AclError, Logger, User, withMetrics} from "@leight-core/server";
 import {getToken} from "next-auth/jwt";
 import getRawBody from "raw-body";
 
-export type IEndpointSource<TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any> = ((params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>) => TSource);
-const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(source: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
+export interface IEndpointSource<TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any> {
+	source(params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>): TSource;
+
+	acl?: string[];
+}
+
+const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>({source}: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
 	return source(params).withUser(params.user);
 };
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	{handler, acl}: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
 	return withMetrics(async (req, res) => {
@@ -36,6 +41,8 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 		const labels = {url: req.url, userId: token?.sub};
 		logger.debug("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
+			const user = User(token?.sub, (token as any)?.tokens);
+			user.checkAny(acl);
 			const run = async () => await handler({
 				req,
 				res,
@@ -43,7 +50,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				query: req.query,
 				toBody: () => getRawBody(req),
 				end: res.end,
-				user: User(token?.sub, (token as any)?.tokens),
+				user,
 			});
 			const response = await run();
 			logger.debug("Endpoint Call Response", {labels, url: req.url});
@@ -94,42 +101,57 @@ export const GetEndpoint = <TName extends string, TResponse, TQueryParams extend
 export const FetchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: IEndpointSource<TSource>,
 ): IEndpointCallback<TName, undefined, ISourceItem<TSource>, IWithIdentityQuery> => {
-	return Endpoint(async params => {
-		const $source = withSource(source, params);
-		return $source.mapper.map(await $source.get(params.query.id));
+	return Endpoint({
+		handler: async params => {
+			const $source = withSource(source, params);
+			return $source.mapper.map(await $source.get(params.query.id));
+		},
+		acl: source.acl,
 	});
 };
 
 export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceCreate<TSource>, ISourceItem<TSource>, TQueryParams> => {
-	return Endpoint(async params => {
-		const $source = withSource(source, params);
-		return $source.mapper.map(await $source.create(params.request));
+	return Endpoint({
+		handler: async params => {
+			const $source = withSource(source, params);
+			return $source.mapper.map(await $source.create(params.request));
+		},
+		acl: source.acl,
 	});
 };
 
 export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourcePatch<TSource>, ISourceItem<TSource>, TQueryParams> => {
-	return Endpoint(async params => {
-		const $source = withSource(source, params);
-		return $source.mapper.map(await $source.patch(params.request));
+	return Endpoint({
+		handler: async params => {
+			const $source = withSource(source, params);
+			return $source.mapper.map(await $source.patch(params.request));
+		},
+		acl: source.acl,
 	});
 };
 
 export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, number, TQueryParams> => {
-	return Endpoint(async params => withSource(source, params).count(params.request));
+	return Endpoint({
+		handler: async params => withSource(source, params).count(params.request),
+		acl: source.acl,
+	});
 };
 
 export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, ISourceItem<TSource>[], TQueryParams> => {
-	return Endpoint(async params => {
-		const $source = withSource(source, params);
-		return $source.mapper.list($source.query(params.request));
+	return Endpoint({
+		handler: async params => {
+			const $source = withSource(source, params);
+			return $source.mapper.list($source.query(params.request));
+		},
+		acl: source.acl,
 	});
 };
 
@@ -140,7 +162,10 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TR
 export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[], TQueryParams> => {
-	return Endpoint(async params => withSource(source, params).delete(params.request));
+	return Endpoint({
+		handler: async params => withSource(source, params).delete(params.request),
+		acl: source.acl,
+	});
 };
 
 export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
