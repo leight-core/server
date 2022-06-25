@@ -119,6 +119,7 @@ export const toImport = async (
 						error = e.message;
 					}
 					logger.error(error, meta);
+					e instanceof Error && console.error(e.message, e.stack);
 				}
 			}
 			await handler.end?.({});
