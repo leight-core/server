@@ -14,7 +14,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery =
 	};
 	acl?: ISourceAcl;
 
-	map(source?: TEntity | null): Promise<TItem | null | undefined>;
+	map(source?: TEntity | null): Promise<TItem | null>;
 }
 
 export const Source = <T extends ISource<any, any, any>>(
