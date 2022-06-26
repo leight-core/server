@@ -197,7 +197,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $source;
 		},
 		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
-		map: source => $source.mapper.map(source as ISourceEntity<any>),
+		map: source => $source.mapper.map(source as ISourceEntity<any>) || null,
 		hashOf: (query, type) => crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,
