@@ -162,7 +162,7 @@ export interface I${name}ListSourceProps extends Partial<IListProps<${response}>
 
 export const ${name}ListSource: FC<I${name}ListSourceProps> = ({providerProps, ...props}) => {
 	return <${name}Provider
-		withPagination
+		withCount
 		{...providerProps}
 	>
 		<List<${response}>
