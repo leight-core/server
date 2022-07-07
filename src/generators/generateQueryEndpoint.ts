@@ -51,6 +51,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"SourceContext",
 				"List",
 				"IListProps",
+				"InfiniteList",
+				"IInfiniteListProps",
 				"IFilterProviderProps",
 				"FilterProvider",
 				"useOptionalFilterContext",
@@ -166,6 +168,21 @@ export const ${name}ListSource: FC<I${name}ListSourceProps> = ({providerProps, .
 		{...providerProps}
 	>
 		<List<${response}>
+			{...props}					
+		/>
+	</${name}Provider>;
+}
+
+export interface I${name}InfiniteListSourceProps extends Partial<IInfiniteListProps<${response}>> {
+	providerProps?: Partial<I${name}ProviderProps>;
+}
+
+export const ${name}InfiniteListSource: FC<I${name}InfiniteListSourceProps> = ({providerProps, ...props}) => {
+	return <${name}Provider
+		withCount
+		{...providerProps}
+	>
+		<InfiniteList<${response}>
 			{...props}					
 		/>
 	</${name}Provider>;
