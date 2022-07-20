@@ -17,7 +17,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 			],
 			from: "\"@leight-core/api\""
 		},
-		{imports: ["useQueryClient"], from: "\"react-query\""},
+		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
 			imports: [
 				"toLink",

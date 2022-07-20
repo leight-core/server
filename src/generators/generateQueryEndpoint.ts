@@ -27,7 +27,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			],
 			from: "\"@ant-design/icons\"",
 		},
-		{imports: ["useQueryClient"], from: "\"react-query\""},
+		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
 			imports: [
 				"ISourceContext",

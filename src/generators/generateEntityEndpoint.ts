@@ -11,7 +11,7 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 			],
 			from: "\"react\"",
 		},
-		{imports: ["useQueryClient"], from: "\"react-query\""},
+		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
 			imports: [
 				"IQueryFilter",
