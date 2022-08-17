@@ -72,6 +72,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"ISelectionProviderProps",
 				"useOptionalSelectionContext",
 				"useSelectionContext",
+				"Table",
+				"ITableProps",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -157,6 +159,21 @@ export interface I${name}ProviderControlProps extends Partial<ISourceControlProv
 }
 
 export const ${name}ProviderControl: FC<I${name}ProviderControlProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
+
+export interface I${name}TableSourceProps extends Partial<ITableProps<{response}>> {
+	providerProps?: Partial<I${name}ProviderProps>;
+}
+
+export const ${name}TableSource: FC<I${name}TableSourceProps> = ({providerProps, ...props}) => {
+	return <${name}Provider
+		withCount
+		{...providerProps}
+	>
+		<Table<{response}>
+			{...props}					
+		/>
+	</${name}Provider>;
+}
 
 export interface I${name}ListSourceProps extends Partial<IListProps<${response}>> {
 	providerProps?: Partial<I${name}ProviderProps>;
