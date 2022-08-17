@@ -160,7 +160,7 @@ export interface I${name}ProviderControlProps extends Partial<ISourceControlProv
 
 export const ${name}ProviderControl: FC<I${name}ProviderControlProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
 
-export interface I${name}TableSourceProps extends Partial<ITableProps<{response}>> {
+export interface I${name}TableSourceProps extends Partial<ITableProps<${response}>> {
 	providerProps?: Partial<I${name}ProviderProps>;
 }
 
@@ -169,7 +169,7 @@ export const ${name}TableSource: FC<I${name}TableSourceProps> = ({providerProps,
 		withCount
 		{...providerProps}
 	>
-		<Table<{response}>
+		<Table<${response}>
 			{...props}					
 		/>
 	</${name}Provider>;
