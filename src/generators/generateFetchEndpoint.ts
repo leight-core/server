@@ -136,11 +136,38 @@ export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, brea
 				{...props}
 			>
 				<Fetch${name}
+					context={entityContext}
 					id={id}
 				>
 					{client => isCallable(children) ? (children as any)(client) : children}
 				</Fetch${name}>
 			</BrowserPage>}
+		</${name}Context.Consumer>
+	</${name}Provider>;
+};
+
+export interface I${name}MobilePageProps extends Omit<IMobilePageProps, "children" | "breadcrumbProps" | "extra"> {
+	children?: ReactNode | ((data: ${response}) => ReactNode);
+	breadcrumbProps?: I${name}PageBreadcrumb;
+	extra?: I${name}PageExtra;
+}
+
+export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, breadcrumbProps, extra, ...props}) => {
+	const {id} = useParams();
+	return <${name}Provider>
+		<${name}Context.Consumer>
+			{entityContext => <MobilePage
+				breadcrumbProps={breadcrumbProps ? isCallable(breadcrumbProps) ? (breadcrumbProps as any)(entityContext) : breadcrumbProps : undefined}
+				extra={extra ? (isCallable(extra) ? (extra as any)(entityContext) : extra) : undefined}
+				{...props}
+			>
+				<Fetch${name}
+					context={entityContext}
+					id={id}
+				>
+					{client => isCallable(children) ? (children as any)(client) : children}
+				</Fetch${name}>
+			</MobilePage>}
 		</${name}Context.Consumer>
 	</${name}Provider>;
 };
