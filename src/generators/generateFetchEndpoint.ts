@@ -150,7 +150,7 @@ export interface I${name}MobilePageProps extends Omit<IMobilePageProps, "childre
 	children?: ReactNode | ((data: ${response}) => ReactNode);
 }
 
-export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, breadcrumbProps, extra, ...props}) => {
+export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, ...props}) => {
 	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
