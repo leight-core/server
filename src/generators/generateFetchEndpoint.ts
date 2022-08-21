@@ -80,12 +80,14 @@ export const use${name}Promise = createPromiseHook<void, ${response}, ${queryPar
 export const ${name}Promise = createPromise<void, ${response}, ${queryParams}>(${name}ApiLink, "get");
 
 export interface IFetch${name}Props extends Partial<IQueryProps<void, ${response}, ${queryParams}>> {
+	id: string;
 }
 
-export const Fetch${name}: FC<IFetch${name}Props> = props => <Query<void, ${response}, ${queryParams}>
+export const Fetch${name}: FC<IFetch${name}Props> = ({id, ...props}) => <Query<void, ${response}, ${queryParams}>
 	useQuery={use${name}Query}
 	request={undefined}
 	context={useOptional${name}Context()}
+	queryParams={{id}}
 	{...props}
 />;
 `);
