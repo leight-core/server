@@ -118,21 +118,24 @@ export const Fetch${name}: FC<IFetch${name}Props> = ({id, ...props}) => <Query<v
 />;
 
 export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<${response}>) => ReactElement);
+export type I${name}PageFooter = ReactElement | ((entityContext: IEntityContext<${response}>) => ReactElement);
 export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<${response}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
 
-export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra"> {
+export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra" | "footer"> {
 	children?: ReactNode | ((data: ${response}) => ReactNode);
 	breadcrumbProps?: I${name}PageBreadcrumb;
 	extra?: I${name}PageExtra;
+	footer?: I${name}PageFooter;
 }
 
-export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, extra, ...props}) => {
+export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, extra, footer, ...props}) => {
 	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
 			{entityContext => <BrowserPage
 				breadcrumbProps={breadcrumbProps ? isCallable(breadcrumbProps) ? (breadcrumbProps as any)(entityContext) : breadcrumbProps : undefined}
 				extra={extra ? (isCallable(extra) ? (extra as any)(entityContext) : extra) : undefined}
+				footer={footer ? (isCallable(footer) ? (footer as any)(entityContext) : footer) : undefined}
 				{...props}
 			>
 				<Fetch${name}
