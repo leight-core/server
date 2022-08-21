@@ -8,7 +8,20 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 	const api = sdk.endpoint.api;
 
 	sdk.imports.push(...[
-		{imports: ["FC", "createContext"], from: "\"react\""},
+		{
+			imports: [
+				"FC",
+				"createContext",
+				"ReactElement",
+			],
+			from: "\"react\""
+		},
+		{
+			imports: [
+				"BreadcrumbProps",
+			],
+			from: "\"antd\""
+		},
 		{
 			imports: [
 				"IEntityContext",
@@ -31,6 +44,10 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"EntityProvider",
 				"IQueryProps",
 				"Query",
+				"BrowserPage",
+				"IBrowserPage",
+				"MobilePage",
+				"IMobilePage",
 			],
 			from: "\"@leight-core/client\""
 		},
@@ -91,30 +108,30 @@ export const Fetch${name}: FC<IFetch${name}Props> = ({id, ...props}) => <Query<v
 	{...props}
 />;
 
-export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<{$response}>) => ReactElement);
-export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<{$response}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
+export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<{${response}}>) => ReactElement);
+export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<{${response}}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
 
-export interface I${name}PageProps extends Omit<IPageProps, "children" | "breadcrumbProps" | "extra"> {
-	children?: ReactNode | ((data: {$response}) => ReactNode);
+export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra"> {
+	children?: ReactNode | ((data: {${response}}) => ReactNode);
 	breadcrumbProps?: I${name}PageBreadcrumb;
 	extra?: I${name}PageExtra;
 }
 
-export const ${name}Page: FC<I${name}PageProps> = ({children, breadcrumbProps, extra, ...props}) => {
-	const {{$param}} = useParams();
+export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, extra, ...props}) => {
+	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
-			{entityContext => <Page
+			{entityContext => <BrowserPage
 				breadcrumbProps={breadcrumbProps ? isCallable(breadcrumbProps) ? (breadcrumbProps as any)(entityContext) : breadcrumbProps : undefined}
 				extra={extra ? (isCallable(extra) ? (extra as any)(entityContext) : extra) : undefined}
 				{...props}
 			>
 				<Fetch${name}
-					id={$param}
+					id={id}
 				>
 					{client => isCallable(children) ? (children as any)(client) : children}
 				</Fetch${name}>
-			</Page>}
+			</BrowserPage>}
 		</${name}Context.Consumer>
 	</${name}Provider>;
 };
