@@ -13,12 +13,14 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"FC",
 				"createContext",
 				"ReactElement",
+				"ReactNode",
 			],
 			from: "\"react\""
 		},
 		{
 			imports: [
 				"BreadcrumbProps",
+				"Breadcrumb",
 			],
 			from: "\"antd\""
 		},
@@ -29,6 +31,12 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"IWithIdentityQuery",
 			],
 			from: "\"@leight-core/api\""
+		},
+		{
+			imports: [
+				"isCallable",
+			],
+			from: "\"@leight-core/utils\""
 		},
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
@@ -45,9 +53,10 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"IQueryProps",
 				"Query",
 				"BrowserPage",
-				"IBrowserPage",
+				"IBrowserPageProps",
 				"MobilePage",
-				"IMobilePage",
+				"IMobilePageProps",
+				"useParams",
 			],
 			from: "\"@leight-core/client\""
 		},
@@ -108,11 +117,11 @@ export const Fetch${name}: FC<IFetch${name}Props> = ({id, ...props}) => <Query<v
 	{...props}
 />;
 
-export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<{${response}}>) => ReactElement);
-export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<{${response}}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
+export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<${response}>) => ReactElement);
+export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<${response}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
 
 export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra"> {
-	children?: ReactNode | ((data: {${response}}) => ReactNode);
+	children?: ReactNode | ((data: ${response}) => ReactNode);
 	breadcrumbProps?: I${name}PageBreadcrumb;
 	extra?: I${name}PageExtra;
 }
