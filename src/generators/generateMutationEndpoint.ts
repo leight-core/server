@@ -25,6 +25,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 				"createPromise",
 				"toLink",
 				"createMutationHook",
+				"createPromise",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -49,6 +50,7 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
 export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
+export const create${name}Promise = createPromise<${generics}>(${name}ApiLink, "post");
 
 export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
 }
