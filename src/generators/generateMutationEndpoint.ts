@@ -51,10 +51,10 @@ export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
 export const use${name}Mutation = createMutationHook<${generics}, ${queryParams}>(${name}ApiLink, "post");
 
-export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
+export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}, ${queryParams}>> {
 }
 
-export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}>
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}, ${queryParams}>
 	useMutation={use${name}Mutation}
 	{...props}
 />
