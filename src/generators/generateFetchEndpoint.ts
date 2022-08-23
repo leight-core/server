@@ -128,11 +128,12 @@ export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "child
 	footer?: I${name}PageFooter;
 }
 
-export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, extra, footer, values, ...props}) => {
+export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, title, extra, footer, values, ...props}) => {
 	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
 			{entityContext => <BrowserPage
+				title={entityContext.entity ? title : undefined}
 				breadcrumbProps={breadcrumbProps ? isCallable(breadcrumbProps) ? (breadcrumbProps as any)(entityContext) : breadcrumbProps : undefined}
 				extra={extra ? (isCallable(extra) ? (extra as any)(entityContext) : extra) : undefined}
 				footer={footer ? (isCallable(footer) ? (footer as any)(entityContext) : footer) : undefined}
@@ -157,11 +158,12 @@ export interface I${name}MobilePageProps extends Omit<IMobilePageProps, "childre
 	children?: ReactNode | ((data: ${response}) => ReactNode);
 }
 
-export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, values, ...props}) => {
+export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, title, values, ...props}) => {
 	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
 			{entityContext => <MobilePage
+				title={entityContext.entity ? title : undefined}
 				values={{
 					entity: entityContext.entity,
 					...values,
