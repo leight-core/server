@@ -167,7 +167,7 @@ export const DeleteEndpoint = <TName extends string, TSource extends ISource<any
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[], TQueryParams> => {
 	return Endpoint({
-		handler: async params => withSource(source, params).delete(params.request),
+		handler: async params => withSource(source, params).remove(params.request),
 		acl: source.acl,
 	});
 };

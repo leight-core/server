@@ -4,7 +4,7 @@ import LRUCache from "lru-cache";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
 
-export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TFetch = any, TFetchParams extends ParsedUrlQuery = any> {
+export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TFetch extends Record<string, any> = any, TFetchParams extends ParsedUrlQuery = any> {
 	name: string;
 	prisma: IPrismaTransaction;
 	source?: Omit<Partial<ISource<TCreate, TEntity, TItem, TQuery, TFetch, TFetchParams>>, "name" | "prisma">;
@@ -28,7 +28,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			patch: $patch = async () => {
 				throw new Error(`Source [${name}] does not support item patching.`);
 			},
-			delete: $delete = async () => {
+			remove: $delete = async () => {
 				throw new Error(`Source [${name}] does not support item deletion.`);
 			},
 			get: $get = async () => {
@@ -75,8 +75,8 @@ export const Source = <T extends ISource<any, any, any>>(
 			`${name}.patch`,
 			`${name}.write`,
 		);
-		(acl.delete = (acl.delete || [])).push(
-			`${name}.delete`,
+		(acl.remove = (acl.remove || [])).push(
+			`${name}.remove`,
 		);
 		(acl.get = (acl.get || [])).push(
 			`${name}.get`,
@@ -130,8 +130,8 @@ export const Source = <T extends ISource<any, any, any>>(
 			await $source.clearCache();
 			return result;
 		},
-		delete: async ids => {
-			$source.user.checkAny((acl?.default || []).concat(acl?.delete || []));
+		remove: async ids => {
+			$source.user.checkAny((acl?.default || []).concat(acl?.remove || []));
 			const result = await $delete(ids);
 			await $source.clearCache();
 			return result;

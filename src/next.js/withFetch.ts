@@ -3,7 +3,7 @@ import {getTokenUser} from "@leight-core/server";
 import {GetServerSidePropsContext} from "next";
 import {ParsedUrlQuery} from "querystring";
 
-export const withFetch = <TWithFetch, TWithFetchParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource): IWithFetch<TWithFetch, TWithFetchParams> => (key, query) => async (context: GetServerSidePropsContext<TWithFetchParams>): Promise<any> => {
+export const withFetch = <TWithFetch extends Record<string, any>, TWithFetchParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource): IWithFetch<TWithFetch, TWithFetchParams> => (key, query) => async (context: GetServerSidePropsContext<TWithFetchParams>): Promise<any> => {
 	source.withUser(await getTokenUser(context));
 	if (!context.params?.[query]) {
 		return {
