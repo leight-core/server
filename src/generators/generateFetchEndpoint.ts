@@ -29,6 +29,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"IEntityContext",
 				"ISourceItem",
 				"IWithIdentityQuery",
+				"INavigate",
 			],
 			from: "\"@leight-core/api\""
 		},
@@ -121,7 +122,8 @@ export type I${name}PageExtra = ReactElement | ((entityContext: IEntityContext<$
 export type I${name}PageFooter = ReactElement | ((entityContext: IEntityContext<${response}>) => ReactElement);
 export type I${name}PageBreadcrumb = BreadcrumbProps | ReactElement<typeof Breadcrumb> | ((entityContext: IEntityContext<${response}>) => BreadcrumbProps | ReactElement<typeof Breadcrumb>);
 
-export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra" | "footer"> {
+export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "children" | "breadcrumbProps" | "extra" | "footer" | "onBack"> {
+	onBack?: (navigate: INavigate, entityContext: IEntityContext<${response}>) => void;
 	children?: ReactNode | ((data: ${response}) => ReactNode);
 	breadcrumbProps?: I${name}PageBreadcrumb;
 	extra?: I${name}PageExtra;
