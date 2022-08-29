@@ -130,7 +130,7 @@ export interface I${name}BrowserPageProps extends Omit<IBrowserPageProps, "child
 	footer?: I${name}PageFooter;
 }
 
-export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, title, extra, footer, values, ...props}) => {
+export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, breadcrumbProps, title, extra, footer, values, onBack, ...props}) => {
 	const {id} = useParams();
 	return <${name}Provider>
 		<${name}Context.Consumer>
@@ -143,6 +143,7 @@ export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, brea
 					entity: entityContext.entity,
 					...values,
 				}}
+				onBack={navigate => onBack?.(navigate, entityContext)}
 				{...props}
 			>
 				<Fetch${name}
