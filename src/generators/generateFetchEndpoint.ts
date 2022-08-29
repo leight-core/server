@@ -143,7 +143,7 @@ export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, brea
 					entity: entityContext.entity,
 					...values,
 				}}
-				onBack={navigate => onBack?.(navigate, entityContext)}
+				onBack={onBack ? navigate => onBack?.(navigate, entityContext) : undefined}
 				{...props}
 			>
 				<Fetch${name}
