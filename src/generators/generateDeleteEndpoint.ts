@@ -41,13 +41,13 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
-export const use${name}Mutation = createMutationHook<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
 
-export const ${name}Promise = createPromise<string[], ISourceItem<${source}>>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
 `);
 }
