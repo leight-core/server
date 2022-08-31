@@ -170,6 +170,7 @@ export const ${name}TableSource: FC<I${name}TableSourceProps> = ({providerProps,
 		{...providerProps}
 	>
 		<Table<${response}>
+			translation={${name}ApiLink}
 			{...props}					
 		/>
 	</${name}Provider>;
