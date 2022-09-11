@@ -43,6 +43,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			count: $count = async () => {
 				throw new Error(`Source [${name}] does not support counting items by a query.`);
 			},
+			withFilter: $withFilter = ({filter}: ISourceQuery<T>) => filter,
 			clearCache: $clearCache,
 			...source
 		} = {},
@@ -160,6 +161,7 @@ export const Source = <T extends ISource<any, any, any>>(
 			}
 			return cache?.count?.get(hash) || $count(query);
 		},
+		withFilter: $withFilter,
 		fetch: async query => {
 			$source.user.checkAny((acl?.default || []).concat(acl?.fetch || []));
 			try {
