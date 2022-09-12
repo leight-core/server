@@ -19,7 +19,7 @@ export const withFetch = <TWithFetch extends Record<string, any>, TWithFetchPara
 		}
 		return {
 			props: {
-				[key]: await source.mapper.map(item),
+				[key]: await source.map(item),
 			}
 		};
 	} catch (e) {

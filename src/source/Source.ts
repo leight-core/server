@@ -1,8 +1,195 @@
-import {ClientError, IPrismaTransaction, IPromiseMapper, IQuery, ISource, ISourceAcl, ISourceCreate, ISourceEntity, ISourceFetch, ISourceFetchParams, ISourceItem, ISourceQuery} from "@leight-core/api";
+import {
+	ClientError,
+	IImportHandlers,
+	IPrismaTransaction,
+	IPromiseMapper,
+	IQuery,
+	IQueryFilter,
+	ISource,
+	ISourceAcl,
+	ISourceCreate,
+	ISourceEntity,
+	ISourceFetch,
+	ISourceFetchParams,
+	ISourceItem,
+	ISourceQuery,
+	IUser,
+	IWithIdentity,
+	UndefinableOptional
+} from "@leight-core/api";
 import {onUnique, User, withFetch} from "@leight-core/server";
+import {PromiseMapper} from "@leight-core/utils";
 import LRUCache from "lru-cache";
+import {GetServerSideProps} from "next";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
+
+export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TWithFetch extends Record<string, any> = any, TWithFetchParams extends ParsedUrlQuery = any> implements ISource<TCreate, TEntity, TItem, TQuery, TWithFetch, TWithFetchParams> {
+	readonly mapper: IPromiseMapper<TEntity, TItem>;
+	readonly name: string;
+	prisma: IPrismaTransaction;
+	user: IUser;
+	readonly cache?: {
+		count?: LRUCache<string, number>;
+		query?: LRUCache<string, TEntity[]>;
+	};
+
+	constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
+		this.name = name;
+		this.prisma = prisma;
+		this.user = user;
+		this.mapper = PromiseMapper(this.map);
+		this.cache = undefined;
+	}
+
+	async create(create: TCreate): Promise<TEntity> {
+		try {
+			const result = await this.$create(create);
+			await this.clearCache();
+			return result;
+		} catch (e) {
+			return onUnique(e, async () => {
+				throw new ClientError(`Unique error on [${name}].`, 409);
+			});
+		}
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $create(create: TCreate): Promise<TEntity> {
+		throw new Error(`Source [${this.name}] does not support item creation.`);
+	}
+
+	async patch(patch: UndefinableOptional<TCreate> & IWithIdentity): Promise<TEntity> {
+		const result = await this.$patch(patch);
+		await this.clearCache();
+		return result;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $patch(patch: UndefinableOptional<TCreate> & IWithIdentity): Promise<TEntity> {
+		throw new Error(`Source [${this.name}] does not support item patching.`);
+	}
+
+	async remove(ids: string[]): Promise<TEntity[]> {
+		const result = await this.$remove(ids);
+		await this.clearCache();
+		return result;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $remove(ids: string[]): Promise<TEntity[]> {
+		throw new Error(`Source [${this.name}] does not support item deletion.`);
+	}
+
+	async get(id: string): Promise<TEntity> {
+		return this.$get(id);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $get(id: string): Promise<TEntity> {
+		throw new Error(`Source [${this.name}] does not support getting an item by an id.`);
+	}
+
+	async fetch(query: TQuery): Promise<TEntity | null> {
+		try {
+			return await this.find(query);
+		} catch (e) {
+			console.warn(e);
+			return null;
+		}
+	}
+
+	async find(query: TQuery): Promise<TEntity> {
+		return this.$find(query);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $find(query: TQuery): Promise<TEntity> {
+		throw new Error(`Source [${this.name}] does not support finding an item by a query.`);
+	}
+
+	async query(query: TQuery): Promise<TEntity[]> {
+		const hash = this.hashOf(query, "query");
+		if (this.cache?.query && !this.cache?.query?.has(hash)) {
+			this.cache?.query?.set(hash, await this.$query(query));
+		}
+		return this.cache?.query?.get(hash) || this.$query(query);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $query(query: TQuery): Promise<TEntity[]> {
+		throw new Error(`Source [${this.name}] does not support querying items.`);
+	}
+
+	async count(query: TQuery): Promise<number> {
+		const hash = this.hashOf(query, "count");
+		if (this.cache?.count && !this.cache?.count?.has(hash)) {
+			this.cache?.count?.set(hash, await this.$count(query));
+		}
+		return this.cache?.count?.get(hash) || this.$count(query);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async $count(query: TQuery): Promise<number> {
+		throw new Error(`Source [${this.name}] does not support counting items by a query.`);
+	}
+
+	withFilter({filter}: TQuery): IQueryFilter<TQuery> | undefined {
+		return filter;
+	}
+
+	importers(): IImportHandlers {
+		return {
+			[this.name]: () => ({
+				withUser: this.withUser,
+				handler: this.create,
+			}),
+		};
+	}
+
+	withPrisma(prisma: IPrismaTransaction): this {
+		this.prisma = prisma;
+		return this;
+	}
+
+	withUser(user: IUser): this {
+		this.user = user;
+		return this;
+	}
+
+	ofSource(source: ISource<any, any, any>): this {
+		this.withPrisma(source.prisma);
+		this.withUser(source.user);
+		return this;
+	}
+
+	withFetch(key: keyof TWithFetch, query: keyof TWithFetchParams): GetServerSideProps<TWithFetch, TWithFetchParams> {
+		return withFetch<TWithFetch, TWithFetchParams, ISource<TCreate, TEntity, TItem, TQuery, TWithFetch, TWithFetchParams>>(this)(key, query);
+	}
+
+	hashOf(query: TQuery, type?: string): string {
+		return crypto.createHash("sha256").update(JSON.stringify({
+			query,
+			type,
+			userId: this.user.optional(),
+		})).digest("hex");
+	}
+
+	async clearCache(): Promise<any> {
+		this.cache?.query?.clear();
+		this.cache?.count?.clear();
+		await this.$clearCache();
+	}
+
+	async $clearCache(): Promise<any> {
+	}
+
+	async list(source: Promise<TEntity[]>): Promise<TItem[]> {
+		return this.mapper.list(source);
+	}
+
+	abstract map(source: TEntity): Promise<TItem>;
+}
 
 export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TFetch extends Record<string, any> = any, TFetchParams extends ParsedUrlQuery = any> {
 	name: string;
@@ -14,7 +201,7 @@ export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery =
 	};
 	acl?: ISourceAcl;
 
-	map(source?: TEntity | null): Promise<TItem | null>;
+	map(source: TEntity): Promise<TItem>;
 }
 
 export const Source = <T extends ISource<any, any, any>>(
@@ -52,12 +239,8 @@ export const Source = <T extends ISource<any, any, any>>(
 		cache,
 		...request
 	}: ISourceRequest<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> & Omit<T, keyof ISource<ISourceCreate<T>, ISourceEntity<T>, ISourceItem<T>, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>): T => {
-	const defaultMapper: ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>["mapper"] = {
-		map,
-		list: async source => (await Promise.all((await source).map(map))).filter(i => i),
-	};
+	const $mapper = PromiseMapper(map);
 	let $prisma = prisma;
-	let $mapper = defaultMapper;
 	let $user = User();
 
 	if (acl?.lock) {
@@ -177,14 +360,6 @@ export const Source = <T extends ISource<any, any, any>>(
 				handler: $source.create,
 			}),
 		}),
-		withDefaultMapper: () => {
-			$mapper = defaultMapper;
-			return $source;
-		},
-		withMapper: <U>(mapper: IPromiseMapper<ISourceEntity<T>, U>): ISource<ISourceCreate<T>, ISourceEntity<T>, U, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>> => {
-			$mapper = mapper;
-			return $source;
-		},
 		withUser: user => {
 			$user = user;
 			return $source;
@@ -199,7 +374,8 @@ export const Source = <T extends ISource<any, any, any>>(
 			return $source;
 		},
 		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
-		map: source => $source.mapper.map(source as ISourceEntity<any>) || null,
+		map,
+		list: $mapper.list,
 		hashOf: (query, type) => crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,

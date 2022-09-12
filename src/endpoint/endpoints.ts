@@ -108,7 +108,7 @@ export const FetchEndpoint = <TName extends string, TSource extends ISource<any,
 	return Endpoint({
 		handler: async params => {
 			const $source = withSource(source, params);
-			return $source.mapper.map(await $source.get(params.query.id));
+			return $source.map(await $source.get(params.query.id));
 		},
 		acl: source.acl,
 	});
@@ -120,7 +120,7 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 	return Endpoint({
 		handler: async params => {
 			const $source = withSource(source, params);
-			return $source.mapper.map(await $source.create(params.request));
+			return $source.map(await $source.create(params.request));
 		},
 		acl: source.acl,
 	});
@@ -132,7 +132,7 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 	return Endpoint({
 		handler: async params => {
 			const $source = withSource(source, params);
-			return $source.mapper.map(await $source.patch(params.request));
+			return $source.map(await $source.patch(params.request));
 		},
 		acl: source.acl,
 	});
@@ -153,7 +153,7 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 	return Endpoint({
 		handler: async params => {
 			const $source = withSource(source, params);
-			return $source.mapper.list($source.query(params.request));
+			return $source.list($source.query(params.request));
 		},
 		acl: source.acl,
 	});
