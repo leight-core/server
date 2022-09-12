@@ -24,14 +24,14 @@ import {GetServerSideProps} from "next";
 import crypto from "node:crypto";
 import {ParsedUrlQuery} from "querystring";
 
-export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TWithFetch extends Record<string, any> = any, TWithFetchParams extends ParsedUrlQuery = any> implements ISource<TCreate, TEntity, TItem, TQuery, TWithFetch, TWithFetchParams> {
-	readonly mapper: IPromiseMapper<TEntity, TItem>;
+export abstract class AbstractSource<TSource extends ISource<any, any, any>> implements ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
+	readonly mapper: IPromiseMapper<ISourceEntity<TSource>, ISourceItem<TSource>>;
 	readonly name: string;
 	prisma: IPrismaTransaction;
 	user: IUser;
 	readonly cache?: {
 		count?: LRUCache<string, number>;
-		query?: LRUCache<string, TEntity[]>;
+		query?: LRUCache<string, ISourceEntity<TSource>[]>;
 	};
 
 	constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
@@ -42,55 +42,55 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 		this.cache = undefined;
 	}
 
-	async create(create: TCreate): Promise<TEntity> {
+	async create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
 		try {
 			const result = await this.$create(create);
 			await this.clearCache();
 			return result;
 		} catch (e) {
 			return onUnique(e, async () => {
-				throw new ClientError(`Unique error on [${name}].`, 409);
+				throw new ClientError(`Unique error on [${this.name}].`, 409);
 			});
 		}
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $create(create: TCreate): Promise<TEntity> {
+	async $create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support item creation.`);
 	}
 
-	async patch(patch: UndefinableOptional<TCreate> & IWithIdentity): Promise<TEntity> {
+	async patch(patch: UndefinableOptional<ISourceCreate<TSource>> & IWithIdentity): Promise<ISourceEntity<TSource>> {
 		const result = await this.$patch(patch);
 		await this.clearCache();
 		return result;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $patch(patch: UndefinableOptional<TCreate> & IWithIdentity): Promise<TEntity> {
+	async $patch(patch: UndefinableOptional<ISourceCreate<TSource>> & IWithIdentity): Promise<ISourceEntity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support item patching.`);
 	}
 
-	async remove(ids: string[]): Promise<TEntity[]> {
+	async remove(ids: string[]): Promise<ISourceEntity<TSource>[]> {
 		const result = await this.$remove(ids);
 		await this.clearCache();
 		return result;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $remove(ids: string[]): Promise<TEntity[]> {
+	async $remove(ids: string[]): Promise<ISourceEntity<TSource>[]> {
 		throw new Error(`Source [${this.name}] does not support item deletion.`);
 	}
 
-	async get(id: string): Promise<TEntity> {
+	async get(id: string): Promise<ISourceEntity<TSource>> {
 		return this.$get(id);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $get(id: string): Promise<TEntity> {
+	async $get(id: string): Promise<ISourceEntity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support getting an item by an id.`);
 	}
 
-	async fetch(query: TQuery): Promise<TEntity | null> {
+	async fetch(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource> | null> {
 		try {
 			return await this.find(query);
 		} catch (e) {
@@ -99,16 +99,16 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 		}
 	}
 
-	async find(query: TQuery): Promise<TEntity> {
+	async find(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>> {
 		return this.$find(query);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $find(query: TQuery): Promise<TEntity> {
+	async $find(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support finding an item by a query.`);
 	}
 
-	async query(query: TQuery): Promise<TEntity[]> {
+	async query(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>[]> {
 		const hash = this.hashOf(query, "query");
 		if (this.cache?.query && !this.cache?.query?.has(hash)) {
 			this.cache?.query?.set(hash, await this.$query(query));
@@ -117,11 +117,11 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $query(query: TQuery): Promise<TEntity[]> {
+	async $query(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>[]> {
 		throw new Error(`Source [${this.name}] does not support querying items.`);
 	}
 
-	async count(query: TQuery): Promise<number> {
+	async count(query: ISourceQuery<TSource>): Promise<number> {
 		const hash = this.hashOf(query, "count");
 		if (this.cache?.count && !this.cache?.count?.has(hash)) {
 			this.cache?.count?.set(hash, await this.$count(query));
@@ -130,11 +130,11 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $count(query: TQuery): Promise<number> {
+	async $count(query: ISourceQuery<TSource>): Promise<number> {
 		throw new Error(`Source [${this.name}] does not support counting items by a query.`);
 	}
 
-	withFilter({filter}: TQuery): IQueryFilter<TQuery> | undefined {
+	withFilter({filter}: ISourceQuery<TSource>): IQueryFilter<ISourceQuery<TSource>> | undefined {
 		return filter;
 	}
 
@@ -163,11 +163,11 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 		return this;
 	}
 
-	withFetch(key: keyof TWithFetch, query: keyof TWithFetchParams): GetServerSideProps<TWithFetch, TWithFetchParams> {
-		return withFetch<TWithFetch, TWithFetchParams, ISource<TCreate, TEntity, TItem, TQuery, TWithFetch, TWithFetchParams>>(this)(key, query);
+	withFetch(key: keyof ISourceFetch<TSource>, query: keyof ISourceFetchParams<TSource>): GetServerSideProps<ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
+		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>>>(this)(key, query);
 	}
 
-	hashOf(query: TQuery, type?: string): string {
+	hashOf(query: ISourceQuery<TSource>, type?: string): string {
 		return crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,
@@ -184,11 +184,11 @@ export abstract class AbstractSource<TCreate, TEntity, TItem, TQuery extends IQu
 	async $clearCache(): Promise<any> {
 	}
 
-	async list(source: Promise<TEntity[]>): Promise<TItem[]> {
+	async list(source: Promise<ISourceEntity<TSource>[]>): Promise<ISourceItem<TSource>[]> {
 		return this.mapper.list(source);
 	}
 
-	abstract map(source: TEntity): Promise<TItem>;
+	abstract map(source: ISourceEntity<TSource>): Promise<ISourceItem<TSource>>;
 }
 
 export interface ISourceRequest<TCreate, TEntity, TItem, TQuery extends IQuery = IQuery, TFetch extends Record<string, any> = any, TFetchParams extends ParsedUrlQuery = any> {
