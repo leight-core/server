@@ -184,6 +184,10 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	async $clearCache(): Promise<any> {
 	}
 
+	async mapNull(source?: ISourceEntity<TSource> | null): Promise<ISourceItem<TSource> | undefined> {
+		return source ? this.map(source) : undefined;
+	}
+
 	async list(source: Promise<ISourceEntity<TSource>[]>): Promise<ISourceItem<TSource>[]> {
 		return this.mapper.list(source);
 	}
@@ -375,6 +379,7 @@ export const Source = <T extends ISource<any, any, any>>(
 		},
 		withFetch: (key, query) => withFetch<ISourceFetch<T>, ISourceFetchParams<T>, ISource<ISourceCreate<T>, ISourceEntity<T>, any, ISourceQuery<T>, ISourceFetch<T>, ISourceFetchParams<T>>>($source)(key, query),
 		map,
+		mapNull: async source => source ? map(source) : undefined,
 		list: $mapper.list,
 		hashOf: (query, type) => crypto.createHash("sha256").update(JSON.stringify({
 			query,
