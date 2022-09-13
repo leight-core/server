@@ -49,12 +49,12 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
-export const use${name}Mutation = createMutationHook<${generics}, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<${generics}>(${name}ApiLink, "post");
 
-export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}, ${queryParams}>> {
+export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}>> {
 }
 
-export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}, ${queryParams}>
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}>
 	useMutation={use${name}Mutation}
 	{...props}
 />
@@ -62,7 +62,7 @@ export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<$
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<${generics}, ${queryParams}>(${name}ApiLink, "post");
-export const create${name}Promise = createPromise<${generics}, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<${generics}>(${name}ApiLink, "post");
+export const create${name}Promise = createPromise<${generics}>(${name}ApiLink, "post");
 `);
 }
