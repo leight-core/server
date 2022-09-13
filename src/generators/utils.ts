@@ -8,10 +8,12 @@ export interface IGeneratorCommons {
 
 export const toGeneratorCommons = (sdk: ISdk): IGeneratorCommons => {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
+	const generics = sdk.endpoint.generics;
+	sdk.endpoint.generics.length === 3 && sdk.endpoint.generics.pop();
 	return {
 		name,
 		api: sdk.endpoint.api,
-		generics: sdk.endpoint.generics,
+		generics,
 	};
 };
 
