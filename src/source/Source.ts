@@ -71,15 +71,15 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 		try {
 			return this.$create(create);
 		} catch (e) {
-			return onUnique(e, () => this.$patch({
-				id: this.createToId(create),
+			return onUnique(e, async () => this.$patch({
+				id: (await this.createToId(create)).id,
 				...create,
 			}));
 		}
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async createToId(create: ISourceCreate<TSource>): Promise<string | undefined> {
+	async createToId(create: ISourceCreate<TSource>): Promise<{ id: string }> {
 		throw new Error(`Source [${this.name}] does not support mapping Create object to an ID.`);
 	}
 
