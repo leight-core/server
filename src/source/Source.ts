@@ -67,7 +67,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 		throw new Error(`Source [${this.name}] does not support item patching.`);
 	}
 
-	import(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
+	async import(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
 		try {
 			return this.$create(create);
 		} catch (e) {
@@ -79,7 +79,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	createToId(create: ISourceCreate<TSource>): string | undefined {
+	async createToId(create: ISourceCreate<TSource>): Promise<string | undefined> {
 		throw new Error(`Source [${this.name}] does not support mapping Create object to an ID.`);
 	}
 
