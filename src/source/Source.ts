@@ -35,7 +35,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 		this.name = name;
 		this.prisma = prisma;
 		this.user = user;
-		this.mapper = PromiseMapper(this.map);
+		this.mapper = PromiseMapper(this.map.bind(this));
 		this.cache = undefined;
 	}
 
