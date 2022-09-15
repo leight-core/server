@@ -153,10 +153,12 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 
 	importers(): IImportHandlers {
 		return {
-			[this.name]: () => ({
-				withUser: this.withUser,
-				handler: this.import,
-			}),
+			[this.name]: () => {
+				return {
+					withUser: this.withUser.bind(this),
+					handler: this.import.bind(this),
+				};
+			},
 		};
 	}
 
