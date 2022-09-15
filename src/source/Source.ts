@@ -40,15 +40,16 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	async create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
-		try {
-			const result = await this.$create(create);
-			await this.clearCache();
-			return result;
-		} catch (e) {
-			return onUnique(e, async () => {
+		return onUnique(
+			async () => {
+				const result = await this.$create(create);
+				await this.clearCache();
+				return result;
+			},
+			async () => {
 				throw new ClientError(`Unique error on [${this.name}].`, 409);
-			});
-		}
+			}
+		);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -68,14 +69,15 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	async import(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
-		try {
-			return this.$create(create);
-		} catch (e) {
-			return onUnique(e, async () => this.$patch({
-				id: (await this.createToId(create)).id,
-				...create,
-			}));
-		}
+		return onUnique(
+			() => this.$create(create),
+			async () => {
+				return this.$patch({
+					id: (await this.createToId(create)).id,
+					...create,
+				});
+			}
+		);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
