@@ -79,6 +79,11 @@ model Translation {
   @@unique([language, hash])
 }
 
+model Keyword {
+  id   String @id @default(cuid())
+  text String @unique @db.Text
+}
+
 model File {
   id       String    @id @default(cuid())
   path     String
