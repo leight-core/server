@@ -51,6 +51,7 @@ export interface I${name}DefaultFormProps extends Partial<IFormProps<ISourcePatc
 
 export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<ISourcePatch<${source}>, ISourceItem<${source}>>
 	useMutation={use${name}Mutation}
+	translation={${name}ApiLink}
 	{...props}
 />
 

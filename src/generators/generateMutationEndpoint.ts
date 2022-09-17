@@ -56,6 +56,7 @@ export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}
 
 export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}>
 	useMutation={use${name}Mutation}
+	translation={${name}ApiLink}
 	{...props}
 />
 
