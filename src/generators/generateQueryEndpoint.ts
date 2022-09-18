@@ -24,6 +24,12 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
+				"CheckOutline",
+			],
+			from: "\"antd-mobile-icons\"",
+		},
+		{
+			imports: [
 				"SelectOutlined",
 			],
 			from: "\"@ant-design/icons\"",
@@ -44,6 +50,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
+				"BubbleButton",
 				"useSourceContext",
 				"ISourceProviderProps",
 				"createQueryHook",
@@ -256,7 +263,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 							<SelectionProvider<${response}>
 								type={"single"}
 								applySelection={selection.current}
-								onSelection={({selected}) => {
+								onSelection={({selected, items}) => {
 									drawerContext.close();
 									formItem?.setValue(selected);
 									selection.current = items;
@@ -264,10 +271,16 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 								{...selectionProps}
 							>
 								<SelectionContext.Consumer>
-									{selectionContext => selectionList({
-										selectionContext,
-										drawerContext,
-									})}
+									{selectionContext => <>
+										<BubbleButton
+											icon={<CheckOutline fontSize={32}/>}
+											onClick={() => selectionContext.handleSelection()}
+										/>
+										{selectionList({
+											selectionContext,
+											drawerContext,
+										})}
+									</>}
 								</SelectionContext.Consumer>
 							</SelectionProvider>
 						</${name}ProviderControl>}
