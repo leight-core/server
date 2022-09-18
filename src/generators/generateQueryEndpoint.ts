@@ -79,6 +79,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"SelectionContext",
 				"IDrawerButtonProps",
 				"DrawerContext",
+				"useOptionalFormItemContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -226,6 +227,7 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 }
 
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, ...props}) => {
+	const formItem = useOptionalFormItemContext();
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
@@ -249,9 +251,12 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 							defaultSize={10}
 							{...selectionProvider}
 						>
-							<SelectionProvider
+							<SelectionProvider<${response}>
 								type={"single"}
-								onSelection={() => drawerContext.close()}
+								onSelection={({selected}) => {
+									drawerContext.close();
+									formItem?.setValue(selected);
+								}}
 								{...selectionProps}
 							>
 								<SelectionContext.Consumer>
