@@ -74,6 +74,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"useSelectionContext",
 				"Table",
 				"ITableProps",
+				"SelectionContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -206,14 +207,19 @@ export const ${name}InfiniteListSource: FC<I${name}InfiniteListSourceProps> = ({
 	</${name}Provider>;
 }
 
+export interface I${name}SourceSelection {
+	selectionContext: ISelectionContext<${response}>;
+}
+
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
 	providerProps?: Partial<I${name}ProviderProps>;
-	selectionList?: () => ReactNode;
+	selectionList?: (context: I${name}SourceSelection) => ReactNode;
 	selectionProps?: Partial<ISelectionProviderProps>;
+	selectionProvider?: I${name}ProviderControlProps;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, ...props}) => {
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, ...props}) => {
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
@@ -231,9 +237,16 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 					type={'text'}
 					ghost
 				>
-					<${name}ProviderControl>
+					<${name}ProviderControl
+						defaultSize={10}
+						{...selectionProvider}
+					>
 						<SelectionProvider type={"single"} {...selectionProps}>
-							{selectionList()}
+							<SelectionContext.Consumer>
+								{selectionContext => selectionList({
+									selectionContext,
+								})}
+							</SelectionContext.Consumer>
 						</SelectionProvider>
 					</${name}ProviderControl>
 				</DrawerButton>}
