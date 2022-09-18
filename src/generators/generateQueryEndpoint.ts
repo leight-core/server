@@ -37,6 +37,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"ISourceQuery",
 				"ISourceItem",
 				"ISelectionContext",
+				"IDrawerContext",
 			],
 			from: "\"@leight-core/api\"",
 		},
@@ -77,6 +78,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"ITableProps",
 				"SelectionContext",
 				"IDrawerButtonProps",
+				"DrawerContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -211,6 +213,7 @@ export const ${name}InfiniteListSource: FC<I${name}InfiniteListSourceProps> = ({
 
 export interface I${name}SourceSelection {
 	selectionContext: ISelectionContext<${response}>;
+	drawerContext: IDrawerContext;
 }
 
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
@@ -241,18 +244,24 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 					ghost
 					{...selectionDrawer}
 				>
-					<${name}ProviderControl
-						defaultSize={10}
-						{...selectionProvider}
-					>
-						<SelectionProvider type={"single"} {...selectionProps}>
-							<SelectionContext.Consumer>
-								{selectionContext => selectionList({
-									selectionContext,
-								})}
-							</SelectionContext.Consumer>
-						</SelectionProvider>
-					</${name}ProviderControl>
+					<DrawerContext.Consumer>
+						{drawerContext => <${name}ProviderControl
+							defaultSize={10}
+							{...selectionProvider}
+						>
+							<SelectionProvider
+								type={"single"}
+								{...selectionProps}
+							>
+								<SelectionContext.Consumer>
+									{selectionContext => selectionList({
+										selectionContext,
+										drawerContext,
+									})}
+								</SelectionContext.Consumer>
+							</SelectionProvider>
+						</${name}ProviderControl>}
+					</DrawerContext.Consumer>
 				</DrawerButton>}
 			</Col>
 		</Row>
