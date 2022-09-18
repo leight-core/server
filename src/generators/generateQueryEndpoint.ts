@@ -36,6 +36,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"IQueryOrderBy",
 				"ISourceQuery",
 				"ISourceItem",
+				"ISelectionContext",
 			],
 			from: "\"@leight-core/api\"",
 		},
