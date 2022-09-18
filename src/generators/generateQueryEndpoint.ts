@@ -10,6 +10,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"FC",
 				"ConsumerProps",
 				"ReactNode",
+				"useRef",
 			],
 			from: "\"react\"",
 		},
@@ -228,6 +229,7 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, ...props}) => {
 	const formItem = useOptionalFormItemContext();
+	const selection = useRef<Record<string, ${response}>>();
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
@@ -253,9 +255,11 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 						>
 							<SelectionProvider<${response}>
 								type={"single"}
+								applySelection={selection.current}
 								onSelection={({selected}) => {
 									drawerContext.close();
 									formItem?.setValue(selected);
+									selection.current = items;
 								}}
 								{...selectionProps}
 							>
