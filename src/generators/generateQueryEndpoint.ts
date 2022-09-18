@@ -236,12 +236,23 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, ...props}) => {
 	const formItem = useOptionalFormItemContext();
-	const selection = useRef<Record<string, ${response}>>();
+	const selection = useRef<Record<string, ${response}>>({});
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
 				<${name}Provider {...providerProps}>
-					<QuerySourceSelect<${response}> {...props}/>
+					<QuerySourceSelect<${response}>
+						onSelect={({entity}) => {
+							selection.current[entity.id] = entity;
+						}}
+						onDeselect={({entity}) => {
+							delete selection.current[entity.id];
+						}}
+						onClear={() => {
+							selection.current = {};
+						}}
+						{...props}
+					/>
 				</${name}Provider>
 			</Col>
 			<Col push={0}>
@@ -264,9 +275,9 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 								type={"single"}
 								applySelection={selection.current}
 								onSelection={({selected, items}) => {
-									drawerContext.close();
 									formItem?.setValue(selected);
 									selection.current = items;
+									drawerContext.close();
 								}}
 								{...selectionProps}
 							>
