@@ -251,6 +251,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 						>
 							<SelectionProvider
 								type={"single"}
+								onSelection={() => drawerContext.close()}
 								{...selectionProps}
 							>
 								<SelectionContext.Consumer>
