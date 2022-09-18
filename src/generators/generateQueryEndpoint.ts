@@ -76,6 +76,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"Table",
 				"ITableProps",
 				"SelectionContext",
+				"IDrawerButtonProps",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -218,9 +219,10 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 	selectionList?: (context: I${name}SourceSelection) => ReactNode;
 	selectionProps?: Partial<ISelectionProviderProps>;
 	selectionProvider?: I${name}ProviderControlProps;
+	selectionDrawer?: IDrawerButtonProps;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, ...props}) => {
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, ...props}) => {
 	return <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
@@ -237,6 +239,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 					width={800}
 					type={'text'}
 					ghost
+					{...selectionDrawer}
 				>
 					<${name}ProviderControl
 						defaultSize={10}
