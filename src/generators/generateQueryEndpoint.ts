@@ -237,7 +237,7 @@ export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${res
 export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, ...props}) => {
 	const formItem = useOptionalFormItemContext();
 	const selection = useRef<Record<string, ${response}>>({});
-	return <Input.Group>
+	return selectionList ? <Input.Group>
 		<Row>
 			<Col flex={"auto"}> 
 				<${name}Provider {...providerProps}>
@@ -256,7 +256,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 				</${name}Provider>
 			</Col>
 			<Col push={0}>
-				{selectionList && <DrawerButton
+				<DrawerButton
 					icon={<SelectOutlined/>}
 					title={"common.selection.${name}.title"}
 					size={props.size}
@@ -275,6 +275,7 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 								applySelection={selection.current}
 								onSelection={({selected, items}) => {
 									formItem?.setValue(selected);
+									formItem?.setErrors([]);
 									selection.current = items;
 									drawerContext.close();
 								}}
@@ -295,10 +296,23 @@ export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProp
 							</SelectionProvider>
 						</${name}ProviderControl>}
 					</DrawerContext.Consumer>
-				</DrawerButton>}
+				</DrawerButton>
 			</Col>
 		</Row>
-	</Input.Group>;
+	</Input.Group> : <${name}Provider {...providerProps}>
+		<QuerySourceSelect<${response}>
+			onSelect={({entity}) => {
+				selection.current[entity.id] = entity;
+			}}
+			onDeselect={({entity}) => {
+				delete selection.current[entity.id];
+			}}
+			onClear={() => {
+				selection.current = {};
+			}}
+			{...props}
+		/>
+	</${name}Provider>;
 };
 
 export interface I${name}SelectionProviderProps extends Partial<ISelectionProviderProps<${response}>> {
