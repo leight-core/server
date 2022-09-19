@@ -18,6 +18,8 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 			imports: [
 				"Form",
 				"IFormProps",
+				"MobileForm",
+				"IMobileFormProps",
 				"useSourceContext",
 				"ISourceProviderProps",
 				"createQueryHook",
@@ -55,6 +57,15 @@ export interface I${name}DefaultFormProps extends Partial<IFormProps<${generics}
 }
 
 export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<${generics}>
+	useMutation={use${name}Mutation}
+	translation={${name}ApiLink}
+	{...props}
+/>
+
+export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<${generics}>> {
+}
+
+export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<${generics}>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
