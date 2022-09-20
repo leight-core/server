@@ -44,7 +44,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"ISourceQuery",
 				"ISourceItem",
 				"ISelectionContext",
-				"IDrawerContext",
 			],
 			from: "\"@leight-core/api\"",
 		},
@@ -85,9 +84,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"Table",
 				"ITableProps",
 				"SelectionContext",
-				"IDrawerButtonProps",
-				"DrawerContext",
-				"useOptionalFormItemContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -220,81 +216,13 @@ export const ${name}InfiniteListSource: FC<I${name}InfiniteListSourceProps> = ({
 	</${name}Provider>;
 }
 
-export interface I${name}SourceSelection {
-	selectionContext: ISelectionContext<${response}>;
-	drawerContext: IDrawerContext;
-}
-
 export interface I${name}SourceSelectProps extends IQuerySourceSelectProps<${response}> {
 	toOption: IToOptionMapper<${response}>;
 	providerProps?: Partial<I${name}ProviderProps>;
-	selectionList?: (context: I${name}SourceSelection) => ReactNode;
-	selectionProps?: Partial<ISelectionProviderProps>;
-	selectionProvider?: I${name}ProviderControlProps;
-	selectionDrawer?: IDrawerButtonProps;
-	selectionDefault?: Record<string, ${response}>;
 }
 
-export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, selectionList, selectionProps, selectionProvider, selectionDrawer, selectionDefault, ...props}) => {
-	const formItem = useOptionalFormItemContext();
-		return selectionList ? <SelectionProvider<${response}>
-		type={"single"}
-		defaultSelection={selectionDefault}
-		onSelection={({selected}) => {
-			formItem?.setValue(selected);
-			formItem?.setErrors([]);
-		}}
-		{...selectionProps}
-	>
-		<SelectionContext.Consumer>
-			{selectionContext => <>
-				<Input.Group>
-					<Row>
-						<Col flex={"auto"}>
-							<${name}Provider {...providerProps}>
-								<QuerySourceSelect<${response}>
-									onSelect={({entity}) => selectionContext.item(entity)}
-									onDeselect={({entity}) => selectionContext.deItem(entity)}
-									onClear={() => selectionContext.clear()}
-									{...props}
-								/>
-							</${name}Provider>
-						</Col>
-						<Col push={0}>
-							<DrawerButton
-								icon={<SelectOutlined/>}
-								title={"common.selection.${name}.title"}
-								size={props.size}
-								tooltip={"common.selection.${name}.title.tooltip"}
-								width={800}
-								type={"text"}
-								{...selectionDrawer}
-							>
-								<DrawerContext.Consumer>
-									{drawerContext => <${name}ProviderControl
-										defaultSize={10}
-										{...selectionProvider}
-									>
-										<BubbleButton
-											icon={<CheckOutline fontSize={32}/>}
-											onClick={() => {
-												selectionContext.handleSelection();
-												drawerContext.close();
-											}}
-										/>
-										{selectionList({
-											selectionContext,
-											drawerContext,
-										})}
-									</${name}ProviderControl>}
-								</DrawerContext.Consumer>
-							</DrawerButton>
-						</Col>
-					</Row>
-				</Input.Group>
-			</>}
-		</SelectionContext.Consumer>
-	</SelectionProvider> : <${name}Provider {...providerProps}>
+export const ${name}SourceSelect: FC<I${name}SourceSelectProps> = ({providerProps, ...props}) => {
+	return <${name}Provider {...providerProps}>
 		<QuerySourceSelect<${response}> {...props}/>
 	</${name}Provider>;
 };
