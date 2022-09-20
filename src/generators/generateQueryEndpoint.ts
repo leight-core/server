@@ -112,8 +112,8 @@ export const ${name}Provider: FC<I${name}ProviderProps> = props => {
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
-export const ${name}Promise = createPromise<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
 
 export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<IQueryFilter<${request}>>> {
 }
