@@ -9,30 +9,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			imports: [
 				"FC",
 				"ConsumerProps",
-				"ReactNode",
-				"useRef",
 			],
 			from: "\"react\"",
-		},
-		{
-			imports: [
-				"Col",
-				"Input",
-				"Row",
-			],
-			from: "\"antd\"",
-		},
-		{
-			imports: [
-				"CheckOutline",
-			],
-			from: "\"antd-mobile-icons\"",
-		},
-		{
-			imports: [
-				"SelectOutlined",
-			],
-			from: "\"@ant-design/icons\"",
 		},
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
@@ -43,13 +21,11 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"IQueryOrderBy",
 				"ISourceQuery",
 				"ISourceItem",
-				"ISelectionContext",
 			],
 			from: "\"@leight-core/api\"",
 		},
 		{
 			imports: [
-				"BubbleButton",
 				"useSourceContext",
 				"ISourceProviderProps",
 				"createQueryHook",
@@ -76,14 +52,12 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"Filter",
 				"IQuerySourceSelectProps",
 				"QuerySourceSelect",
-				"DrawerButton",
 				"SelectionProvider",
 				"ISelectionProviderProps",
 				"useOptionalSelectionContext",
 				"useSelectionContext",
 				"Table",
 				"ITableProps",
-				"SelectionContext",
 			],
 			from: "\"@leight-core/client\"",
 		},
