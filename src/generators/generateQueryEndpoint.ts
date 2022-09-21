@@ -26,6 +26,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
+				"BlockContext",
+				"BlockProvider",
 				"useSourceContext",
 				"ISourceProviderProps",
 				"createQueryHook",
@@ -233,16 +235,26 @@ export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = props => {
 	return <${name}Provider
 		withCount
 	>
-		<DrawerSelectItem<${response}>
-			ofSelection={(values, selectionContext) => values ? ${name}Promise({filter: {id: values as any}}).then(items => selectionContext.items(items, true)) : undefined}
-			drawerSelectProps={{
-				translation: {
-					namespace: ${name}ApiLink, 
-					text: "select.title",
-				}
-			}}
-			{...props}
-		/>
+		<BlockProvider>
+			<BlockContext.Consumer>
+				{blockContext => <DrawerSelectItem<${response}>
+					ofSelection={({value, selectionContext}) => {
+						value && blockContext.block();
+						value ? ${name}Promise({filter: {id: value as any}}).then(items => {
+							selectionContext.items(items, true);
+							blockContext.unblock(true);
+						}) : undefined;
+					}}
+					drawerSelectProps={{
+						translation: {
+							namespace: ${name}ApiLink, 
+							text: "select.title",
+						}
+					}}
+					{...props}
+				/>}
+			</BlockContext.Consumer>
+		</BlockProvider>
 	</${name}Provider>
 }
 `);
