@@ -58,6 +58,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"useSelectionContext",
 				"Table",
 				"ITableProps",
+				"DrawerSelectItem",
+				"IDrawerSelectItemProps",
 			],
 			from: "\"@leight-core/client\"",
 		},
@@ -223,5 +225,25 @@ export const use${name}QueryInvalidate = (withCount: boolean = true) => {
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
 export const use${name}SelectionContext = () => useSelectionContext<${response}>();
+
+export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps, "ofSelection"> {
+}
+
+export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = props => {
+	return <${name}Provider
+		withCount
+	>
+		<DrawerSelectItem<${response}>
+			ofSelection={(values, selectionContext) => values ? ${name}Promise({filter: {id: values as any}}).then(items => selectionContext.items(items, true)) : undefined}
+			drawerSelectProps={{
+				translation: {
+					namespace: ${name}ApiLink, 
+					text: "select.title",
+				}
+			}}
+			{...props}
+		/>
+	</${name}Provider>
+}
 `);
 }
