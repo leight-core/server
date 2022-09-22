@@ -17,6 +17,7 @@ import {
 } from "@leight-core/api";
 import {onUnique, User, withFetch} from "@leight-core/server";
 import {PromiseMapper} from "@leight-core/utils";
+import {Prisma} from "@prisma/client";
 import LRUCache from "lru-cache";
 import {GetServerSideProps} from "next";
 import crypto from "node:crypto";
@@ -46,8 +47,11 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 				await this.clearCache();
 				return result;
 			},
-			async () => {
-				throw new ClientError(`Unique error on [${this.name}].`, 409);
+			async e => {
+				if (e instanceof Prisma.PrismaClientKnownRequestError && Array.isArray(e.meta?.target)) {
+					throw new ClientError(`Unique error on [${this.name}.${(e.meta?.target?.join(","))}]`);
+				}
+				throw new ClientError(e.message, 409);
 			}
 		);
 	}
