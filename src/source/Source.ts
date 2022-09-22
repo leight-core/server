@@ -62,9 +62,19 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	async patch(patch: UndefinableOptional<ISourceCreate<TSource>> & IWithIdentity): Promise<ISourceEntity<TSource>> {
-		const result = await this.$patch(patch);
-		await this.clearCache();
-		return result;
+		return onUnique(
+			async () => {
+				const result = await this.$patch(patch);
+				await this.clearCache();
+				return result;
+			},
+			async e => {
+				if (e instanceof Prisma.PrismaClientKnownRequestError && Array.isArray(e.meta?.target)) {
+					throw new ClientError(`Unique error on [${this.name}.${(e.meta?.target?.join(","))}]`);
+				}
+				throw new ClientError(e.message, 409);
+			}
+		);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
