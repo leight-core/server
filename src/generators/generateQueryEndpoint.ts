@@ -231,18 +231,20 @@ export const use${name}SelectionContext = () => useSelectionContext<${response}>
 export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps<${response}>, "ofSelection"> {
 }
 
-export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = props => {
+export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...props}) => {
 	return <${name}Provider
 		withCount
 	>
 		<BlockProvider>
 			<BlockContext.Consumer>
 				{blockContext => <DrawerSelectItem<${response}>
+					onSelection={onSelection}
 					ofSelection={({value, selectionContext}) => {
 						value && blockContext.block();
 						value ? ${name}Promise({filter: {id: value as any}}).then(items => {
 							selectionContext.items(items, true);
 							blockContext.unblock(true);
+							onSelection?.(selectionContext.selection());
 						}) : undefined;
 					}}
 					drawerSelectProps={{
