@@ -241,7 +241,6 @@ export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...
 					toClear={() => undefined}
 					onSelection={onSelection}
 					ofSelection={({value, selectionContext}) => {
-						selectionContext.clear();
 						if (value) {
 							blockContext.block();
 							AromaPromise({filter: {id: value as any}}).then(items => {
