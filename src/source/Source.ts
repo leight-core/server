@@ -27,7 +27,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	readonly name: string;
 	prisma: IPrismaTransaction;
 	user: IUser;
-	readonly cache?: {
+	cache?: {
 		count?: LRUCache<string, number>;
 		query?: LRUCache<string, ISourceEntity<TSource>[]>;
 	};
