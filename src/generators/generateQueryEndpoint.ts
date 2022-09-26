@@ -238,14 +238,18 @@ export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...
 		<BlockProvider>
 			<BlockContext.Consumer>
 				{blockContext => <DrawerSelectItem<${response}>
+					toClear={() => undefined}
 					onSelection={onSelection}
 					ofSelection={({value, selectionContext}) => {
-						value && blockContext.block();
-						value ? ${name}Promise({filter: {id: value as any}}).then(items => {
-							selectionContext.items(items, true);
-							blockContext.unblock(true);
-							onSelection?.(selectionContext.selection());
-						}) : undefined;
+						selectionContext.clear();
+						if (value) {
+							blockContext.block();
+							AromaPromise({filter: {id: value as any}}).then(items => {
+								selectionContext.items(items, true);
+								blockContext.unblock(true);
+								onSelection?.(selectionContext.selection());
+							});
+						}
 					}}
 					drawerSelectProps={{
 						translation: {
