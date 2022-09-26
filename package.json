@@ -1,5 +1,5 @@
 {
-	"version": "0.6.196",
+	"version": "0.6.197",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -23,8 +23,8 @@
 		"prisma format": "npx prisma format"
 	},
 	"dependencies": {
-		"@leight-core/api": "^0.6.156",
-		"@leight-core/utils": "^0.5.37",
+		"@leight-core/api": "^0.6.157",
+		"@leight-core/utils": "^0.5.38",
 		"filesize": "^9.0.11",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.0.3",
