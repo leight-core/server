@@ -26,7 +26,6 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 		},
 		{
 			imports: [
-				"BlockContext",
 				"BlockProvider",
 				"useSourceContext",
 				"ISourceProviderProps",
@@ -228,7 +227,7 @@ export const use${name}QueryInvalidate = (withCount: boolean = true) => {
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
 export const use${name}SelectionContext = () => useSelectionContext<${response}>();
 
-export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps<${response}>, "ofSelection"> {
+export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps<${response}>, "ofSelection" | "sourceProviderProps"> {
 }
 
 export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...props}) => {
@@ -236,29 +235,32 @@ export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...
 		withCount
 	>
 		<BlockProvider>
-			<BlockContext.Consumer>
-				{blockContext => <DrawerSelectItem<${response}>
-					toClear={() => undefined}
-					onSelection={onSelection}
-					ofSelection={({value, selectionContext}) => {
-						if (value) {
-							blockContext.block();
-							${name}Promise({filter: {id: value as any}}).then(items => {
-								selectionContext.items(items, true);
-								blockContext.unblock(true);
-								onSelection?.(selectionContext.selection());
-							});
-						}
-					}}
-					drawerSelectProps={{
-						translation: {
-							namespace: ${name}ApiLink, 
-							text: "select.title",
-						}
-					}}
-					{...props}
-				/>}
-			</BlockContext.Consumer>
+			{blockContext => <DrawerSelectItem<${response}>
+				sourceProviderProps={{
+					name: "${name}",
+					useQuery: use${name}Query,
+					useCountQuery: use${name}CountQuery,
+				}}			
+				toClear={() => undefined}
+				onSelection={onSelection}
+				ofSelection={({value, selectionContext}) => {
+					if (value) {
+						blockContext.block();
+						${name}Promise({filter: {id: value as any}}).then(items => {
+							selectionContext.items(items, true);
+							blockContext.unblock(true);
+							onSelection?.(selectionContext.selection());
+						});
+					}
+				}}
+				drawerSelectProps={{
+					translation: {
+						namespace: ${name}ApiLink, 
+						text: "select.title",
+					}
+				}}
+				{...props}
+			/>}
 		</BlockProvider>
 	</${name}Provider>
 }
