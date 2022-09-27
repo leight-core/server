@@ -231,38 +231,34 @@ export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps<${r
 }
 
 export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...props}) => {
-	return <${name}Provider
-		withCount
-	>
-		<BlockProvider>
-			{blockContext => <DrawerSelectItem<${response}>
-				sourceProviderProps={{
-					name: "${name}",
-					useQuery: use${name}Query,
-					useCountQuery: use${name}CountQuery,
-				}}			
-				toClear={() => undefined}
-				onSelection={onSelection}
-				ofSelection={({value, selectionContext}) => {
-					if (value) {
-						blockContext.block();
-						${name}Promise({filter: {id: value as any}}).then(items => {
-							selectionContext.items(items, true);
-							blockContext.unblock(true);
-							onSelection?.(selectionContext.selection());
-						});
-					}
-				}}
-				drawerSelectProps={{
-					translation: {
-						namespace: ${name}ApiLink, 
-						text: "select.title",
-					}
-				}}
-				{...props}
-			/>}
-		</BlockProvider>
-	</${name}Provider>
+	return <BlockProvider>
+		{blockContext => <DrawerSelectItem<${response}>
+			sourceProviderProps={{
+				name: "${name}",
+				useQuery: use${name}Query,
+				useCountQuery: use${name}CountQuery,
+			}}			
+			toClear={() => undefined}
+			onSelection={onSelection}
+			ofSelection={({value, selectionContext}) => {
+				if (value) {
+					blockContext.block();
+					${name}Promise({filter: {id: value as any}}).then(items => {
+						selectionContext.items(items, true);
+						blockContext.unblock(true);
+						onSelection?.(selectionContext.selection());
+					});
+				}
+			}}
+			drawerSelectProps={{
+				translation: {
+					namespace: ${name}ApiLink, 
+					text: "select.title",
+				}
+			}}
+			{...props}
+		/>}
+	</BlockProvider>
 }
 `);
 }
