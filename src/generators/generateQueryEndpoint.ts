@@ -244,7 +244,7 @@ export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...
 				if (value) {
 					blockContext.block();
 					${name}Promise({filter: {id: value as any}}).then(items => {
-						selectionContext.items(items, true);
+						selectionContext.defaults(items, true);
 						blockContext.unblock(true);
 						onSelection?.(selectionContext.selection());
 					});
