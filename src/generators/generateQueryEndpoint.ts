@@ -188,6 +188,9 @@ export const ${name}InfiniteListSource: FC<I${name}InfiniteListSourceProps> = ({
 		{...providerProps}
 	>
 		<InfiniteList<${response}>
+			translation={{
+				namespace: ${name}ApiLink,
+			}}
 			{...props}					
 		/>
 	</${name}Provider>;
