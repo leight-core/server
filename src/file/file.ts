@@ -1,33 +1,42 @@
-import {IFile, IFileServiceFactory} from "@leight-core/api";
+import {IFile, IFileService, IFileServiceFactory} from "@leight-core/api";
 import {copySync} from "fs-extra";
 import mime from "mime-types";
 import fs from "node:fs";
+import path from "node:path";
 import {v4} from "uuid";
 
 export const FileService: IFileServiceFactory = ({config = {path: ".data/file/{fileId}"}}) => {
-	const toLocation = (fileId: string) => config.path.replace("{fileId}", fileId.split("-").join("/"));
-	const mimeOf = (file: string) => mime.lookup(file) || config?.defaultMimeType || "application/octet-stream";
-	const sizeOf = (file: string) => fs.statSync(file).size;
-
-	return {
-		mimeOf,
-		sizeOf,
-		toLocation,
+	const service: IFileService = {
+		mimeOf: file => file ? (mime.lookup(file) || config?.defaultMimeType || "application/octet-stream") : "application/octet-stream",
+		sizeOf: file => file ? fs.statSync(file).size : 0,
+		infoOf: file => {
+			const $file = path.parse(file);
+			return {
+				name: $file.name,
+				path: $file.dir,
+				location: file,
+				mime: service.mimeOf(file),
+				size: service.sizeOf(file),
+			};
+		},
+		toLocation: fileId => config.path.replace("{fileId}", fileId.split("-").join("/")),
 		store: store => {
 			const id = v4();
-			const location = toLocation(id);
+			const location = service.toLocation(id);
 			const file: IFile = {
 				id,
-				path: store.path,
-				name: store.name,
 				location,
-				mime: mimeOf(store.file),
-				size: sizeOf(store.file),
+				name: store.name,
+				path: store.path,
+				mime: service.mimeOf(store.file),
+				size: service.sizeOf(store.file),
 				created: (new Date()).toISOString(),
 				ttl: undefined,
 			};
-			copySync(store.file, location, {overwrite: store.replace});
+			store.file && copySync(store.file, location, {overwrite: store.replace});
 			return file;
 		}
 	};
+
+	return service;
 };
