@@ -34,9 +34,9 @@ export abstract class AbstractSource<//
 	ISourceEntity<TSource>,
 	ISourceItem<TSource>,
 	ISourceQuery<TSource>,
-	ISourceBackup<TSource>,
 	ISourceFetch<TSource>,
-	ISourceFetchParams<TSource>> {
+	ISourceFetchParams<TSource>,
+	ISourceBackup<TSource>> {
 	readonly mapper: IPromiseMapper<ISourceEntity<TSource>, ISourceItem<TSource>>;
 	readonly name: string;
 	prisma: IPrismaTransaction;
@@ -222,7 +222,7 @@ export abstract class AbstractSource<//
 	}
 
 	withFetch(key: keyof ISourceFetch<TSource>, query: keyof ISourceFetchParams<TSource>): GetServerSideProps<ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
-		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceBackup<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>>>(this)(key, query);
+		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISourceBackup<TSource>>>(this)(key, query);
 	}
 
 	hashOf(query: ISourceQuery<TSource>, type?: string): string {
