@@ -71,10 +71,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 		const pages = Math.ceil(total / size);
 		for (let page = 0; page <= pages; page++) {
 			for (const entity of await source.query({page, size})) {
-				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify({
-					source: entity,
-					entity: await source.map(entity),
-				}));
+				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.toRestore(entity)));
 			}
 		}
 	}
