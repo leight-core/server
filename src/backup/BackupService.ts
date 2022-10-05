@@ -7,6 +7,7 @@ import path from "node:path";
 import {Logger} from "winston";
 
 export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<any, any>>> {
+	version: string;
 	sources: ISource<any, any, any>[];
 	user: IUser;
 	container: TContainer;
@@ -18,6 +19,7 @@ export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<an
 export const BackupService = <TContainer extends IContainer<IFileSource<any, any>>>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
 
 export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, any>>> implements IBackupService {
+	readonly version: string;
 	readonly sources: ISource<any, any, any>[];
 	readonly temp: string;
 	readonly container: TContainer;
@@ -25,7 +27,8 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 	readonly logger: Logger;
 	readonly jobProgress: IJobProgress;
 
-	constructor({sources, container, user, logger, jobProgress, temp}: IBackupServiceDeps<TContainer>) {
+	constructor({version, sources, container, user, logger, jobProgress, temp}: IBackupServiceDeps<TContainer>) {
+		this.version = version;
 		this.sources = sources;
 		this.temp = temp || os.tmpdir();
 		this.container = container;
@@ -45,6 +48,11 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 			});
 			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
 			fs.mkdirSync(backup, {recursive: true});
+
+			fs.writeFileSync(path.normalize(`${backup}/meta.json`), JSON.stringify({
+				version: this.version,
+				sources: this.sources.map(source => source.name),
+			}));
 
 			await Promise.all(this.sources.map(async source => {
 				try {
