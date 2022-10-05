@@ -16,11 +16,15 @@ import {
 	ISourcePatch,
 	ISourceQuery,
 	IWithIdentityQuery
-} from "@leight-core/api";
+}                        from "@leight-core/api";
 import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
-import {Logger, User, withMetrics} from "@leight-core/server";
-import {getToken} from "next-auth/jwt";
-import getRawBody from "raw-body";
+import {
+	Logger,
+	User,
+	withMetrics
+}                        from "@leight-core/server";
+import {getToken}        from "next-auth/jwt";
+import getRawBody        from "raw-body";
 
 export interface IEndpointSource<TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any> {
 	source(params: IEndpointParams<ISourceQuery<TSource>, number, TQueryParams>): TSource;
@@ -37,8 +41,8 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
 	return withMetrics(async (req, res) => {
-		const token = await getToken({req});
-		const timer = logger.startTimer();
+		const token  = await getToken({req});
+		const timer  = logger.startTimer();
 		const labels = {url: req.url, userId: token?.sub};
 		logger.debug("Endpoint Call", {labels, url: req.url, body: req.body});
 		try {
@@ -47,13 +51,13 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				tokens: (token as any)?.tokens,
 			});
 			user.checkAny(acl);
-			const run = async () => await handler({
+			const run      = async () => await handler({
 				req,
 				res,
 				request: req.body,
-				query: req.query,
-				toBody: () => getRawBody(req),
-				end: res.end,
+				query:   req.query,
+				toBody:  () => getRawBody(req),
+				end:     res.end,
 				user,
 			});
 			const response = await run();
@@ -81,10 +85,10 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			res.status(500).end("A request failed with Internal Server Error.");
 		} finally {
 			timer.done({
-				level: "debug",
+				level:   "debug",
 				message: "Endpoint Call Done",
 				labels,
-				url: req.url,
+				url:     req.url,
 			});
 		}
 	});
@@ -110,7 +114,7 @@ export const FetchEndpoint = <TName extends string, TSource extends ISource<any,
 			const $source = withSource(source, params);
 			return $source.map(await $source.get(params.query.id));
 		},
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 
@@ -122,7 +126,7 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 			const $source = withSource(source, params);
 			return $source.map(await $source.create(params.request));
 		},
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 
@@ -134,7 +138,7 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 			const $source = withSource(source, params);
 			return $source.map(await $source.patch(params.request));
 		},
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 
@@ -143,7 +147,7 @@ export const CountEndpoint = <TName extends string, TSource extends ISource<any,
 ): IEndpointCallback<TName, ISourceQuery<TSource>, number, TQueryParams> => {
 	return Endpoint({
 		handler: async params => withSource(source, params).count(params.request),
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 
@@ -155,7 +159,7 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 			const $source = withSource(source, params);
 			return $source.list($source.query(params.request));
 		},
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 
@@ -168,7 +172,7 @@ export const DeleteEndpoint = <TName extends string, TSource extends ISource<any
 ): IEndpointCallback<TName, string[], ISourceItem<TSource>[], TQueryParams> => {
 	return Endpoint({
 		handler: async params => withSource(source, params).remove(params.request),
-		acl: source.acl,
+		acl:     source.acl,
 	});
 };
 

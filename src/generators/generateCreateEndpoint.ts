@@ -1,5 +1,9 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports,
+	toGeneratorCommons
+}             from "@leight-core/server";
 
 export function generateCreateEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -11,7 +15,7 @@ export function generateCreateEndpoint(sdk: ISdk): string {
 				"ISourceCreate",
 				"ISourceItem",
 			],
-			from: "\"@leight-core/api\""
+			from:    "\"@leight-core/api\""
 		},
 		{
 			imports: [
@@ -24,12 +28,12 @@ export function generateCreateEndpoint(sdk: ISdk): string {
 				"toLink",
 				"createMutationHook",
 			],
-			from: "\"@leight-core/client\"",
+			from:    "\"@leight-core/client\"",
 		},
 	]);
 
-	const name = generatorCommons.name;
-	const source = generatorCommons.generics[0];
+	const name        = generatorCommons.name;
+	const source      = generatorCommons.generics[0];
 	const queryParams = `I${name}QueryParams`;
 
 	// language=text

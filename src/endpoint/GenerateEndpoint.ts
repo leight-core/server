@@ -1,4 +1,7 @@
-import {IEndpoint, IGenerators} from "@leight-core/api";
+import {
+	IEndpoint,
+	IGenerators
+}                       from "@leight-core/api";
 import {generateSdkFor} from "@leight-core/server";
 
 export interface IGenerateEndpointRequest {

@@ -1,5 +1,9 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports,
+	toGeneratorCommons
+}             from "@leight-core/server";
 
 export function generateEntityEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -9,7 +13,7 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 			imports: [
 				"FC",
 			],
-			from: "\"react\"",
+			from:    "\"react\"",
 		},
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
@@ -17,7 +21,7 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 				"IQueryFilter",
 				"IQueryOrderBy",
 			],
-			from: "\"@leight-core/api\"",
+			from:    "\"@leight-core/api\"",
 		},
 		{
 			imports: [
@@ -36,14 +40,14 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 				"SourceControlProvider",
 				"ISourceControlProviderProps",
 			],
-			from: "\"@leight-core/client\"",
+			from:    "\"@leight-core/client\"",
 		},
 	]);
 
 	const queryParams = `I${generatorCommons.name}QueryParams`;
-	const name = generatorCommons.name;
-	const request = generatorCommons.generics[0];
-	const response = generatorCommons.generics[1];
+	const name        = generatorCommons.name;
+	const request     = generatorCommons.generics[0];
+	const response    = generatorCommons.generics[1];
 
 	// language=text
 	return cleanup(`

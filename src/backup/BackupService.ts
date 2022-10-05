@@ -1,9 +1,16 @@
-import {IBackupService, IContainer, IFileSource, IJobProgress, ISource, IUser} from "@leight-core/api";
-import {zipOf} from "@leight-core/server";
-import dayjs from "dayjs";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import {
+	IBackupService,
+	IContainer,
+	IFileSource,
+	IJobProgress,
+	ISource,
+	IUser
+}               from "@leight-core/api";
+import {zipOf}  from "@leight-core/server";
+import dayjs    from "dayjs";
+import fs       from "node:fs";
+import os       from "node:os";
+import path     from "node:path";
 import {Logger} from "winston";
 
 export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<any, any>>> {
@@ -28,25 +35,25 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 	readonly jobProgress: IJobProgress;
 
 	constructor({version, sources, container, user, logger, jobProgress, temp}: IBackupServiceDeps<TContainer>) {
-		this.version = version;
-		this.sources = sources;
-		this.temp = temp || os.tmpdir();
-		this.container = container;
-		this.user = user;
-		this.logger = logger;
+		this.version     = version;
+		this.sources     = sources;
+		this.temp        = temp || os.tmpdir();
+		this.container   = container;
+		this.user        = user;
+		this.logger      = logger;
 		this.jobProgress = jobProgress;
 	}
 
 	async backup(): Promise<void> {
 		return this.container.useFileSource(async fileSource => {
-			const stamp = dayjs().format("YYYY-MM-DD");
 			fileSource.withUser(this.user);
-			const file = await fileSource.store({
-				path: "/backup",
-				name: `Backup-${stamp}.zip`,
+			const stamp  = dayjs().format("YYYY-MM-DD");
+			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
+			const file   = await fileSource.store({
+				path:    "/backup",
+				name:    `Backup-${stamp}.zip`,
 				replace: true,
 			});
-			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
 			fs.mkdirSync(backup, {recursive: true});
 
 			fs.writeFileSync(path.normalize(`${backup}/meta.json`), JSON.stringify({
@@ -73,12 +80,11 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 	async export(backup: string, source: ISource<any, any, any>) {
 		const $path = path.normalize(`${backup}/source/${source.name}`);
 		fs.mkdirSync($path, {recursive: true});
-		const size = 250;
-		const total = await source.count({});
-		const pages = Math.ceil(total / size);
+		const size  = 250;
+		const pages = Math.ceil(await source.count({}) / size);
 		for (let page = 0; page <= pages; page++) {
 			for (const entity of await source.query({page, size})) {
-				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.toImport(entity)));
+				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.backup(entity)));
 			}
 		}
 	}

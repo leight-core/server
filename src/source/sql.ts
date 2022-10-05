@@ -1,5 +1,5 @@
 import {PrismaClient} from "@prisma/client";
-import fs from "fs";
+import fs             from "fs";
 
 export const sqlParse = (source: string): string[] => {
 	return source
@@ -15,7 +15,7 @@ export const sqlParse = (source: string): string[] => {
 export const sqlRead = (file: string): string[] => sqlParse(fs.readFileSync(file).toString());
 
 export const sqlFile = async <T>(file: string, executor: (query: string) => Promise<T>): Promise<T[]> => {
-	const queries = sqlRead(file);
+	const queries      = sqlRead(file);
 	const results: T[] = [];
 	for (const query of queries) {
 		results.push(await executor(query));
@@ -24,7 +24,7 @@ export const sqlFile = async <T>(file: string, executor: (query: string) => Prom
 };
 
 export const sqlSource = async <T>(source: string, executor: (query: string) => Promise<T>): Promise<T[]> => {
-	const queries = sqlParse(source);
+	const queries      = sqlParse(source);
 	const results: T[] = [];
 	for (const query of queries) {
 		results.push(await executor(query));

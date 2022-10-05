@@ -1,16 +1,27 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports
+}             from "@leight-core/server";
 
 export function generateGetEndpoint(sdk: ISdk): string {
-	const name = sdk.endpoint.name.replace("Endpoint", "");
-	const query = (sdk.endpoint.generics?.[1] || "any");
-	const response = (sdk.endpoint.generics?.[0] || "void");
+	const name        = sdk.endpoint.name.replace("Endpoint", "");
+	const query       = (sdk.endpoint.generics?.[1] || "any");
+	const response    = (sdk.endpoint.generics?.[0] || "void");
 	const queryParams = `I${name}QueryParams`;
-	const api = sdk.endpoint.api;
+	const api         = sdk.endpoint.api;
 
 	sdk.imports.push(...[
-		{imports: ["FC", "createContext"], from: "\"react\""},
-		{imports: ["IQueryParams", "IEntityContext"], from: "\"@leight-core/api\""},
+		{imports:    [
+				"FC",
+				"createContext"
+			], from: "\"react\""
+		},
+		{imports:    [
+				"IQueryParams",
+				"IEntityContext"
+			], from: "\"@leight-core/api\""
+		},
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
 			imports: [
@@ -26,7 +37,7 @@ export function generateGetEndpoint(sdk: ISdk): string {
 				"IQueryProps",
 				"Query",
 			],
-			from: "\"@leight-core/client\""
+			from:    "\"@leight-core/client\""
 		},
 	]);
 

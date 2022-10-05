@@ -1,4 +1,10 @@
-import {IEndpointReflection, IGenerators, IImportReflection, IInterfaceReflection, ISdk} from "@leight-core/api";
+import {
+	IEndpointReflection,
+	IGenerators,
+	IImportReflection,
+	IInterfaceReflection,
+	ISdk
+}             from "@leight-core/api";
 import {
 	generateCreateEndpoint,
 	generateDeleteEndpoint,
@@ -15,23 +21,27 @@ import {
 	pickNodes,
 	requireNode,
 	toNode
-} from "@leight-core/server";
-import {outputFile, readFileSync, remove} from "fs-extra";
+}             from "@leight-core/server";
+import {
+	outputFile,
+	readFileSync,
+	remove
+}             from "fs-extra";
 import {glob} from "glob";
-import ts from "typescript";
+import ts     from "typescript";
 
 const defaultGenerators = {
-	"Endpoint": generateEndpoint,
-	"CreateEndpoint": generateCreateEndpoint,
-	"PatchEndpoint": generatePatchEndpoint,
-	"GetEndpoint": generateGetEndpoint,
-	"FetchEndpoint": generateFetchEndpoint,
-	"ListEndpoint": generateListEndpoint,
+	"Endpoint":         generateEndpoint,
+	"CreateEndpoint":   generateCreateEndpoint,
+	"PatchEndpoint":    generatePatchEndpoint,
+	"GetEndpoint":      generateGetEndpoint,
+	"FetchEndpoint":    generateFetchEndpoint,
+	"ListEndpoint":     generateListEndpoint,
 	"MutationEndpoint": generateMutationEndpoint,
-	"QueryEndpoint": generateQueryEndpoint,
-	"EntityEndpoint": generateEntityEndpoint,
-	"RequestEndpoint": generateRequestEndpoint,
-	"DeleteEndpoint": generateDeleteEndpoint,
+	"QueryEndpoint":    generateQueryEndpoint,
+	"EntityEndpoint":   generateEntityEndpoint,
+	"RequestEndpoint":  generateRequestEndpoint,
+	"DeleteEndpoint":   generateDeleteEndpoint,
 };
 
 export function isExport(node: ts.Node, sourceFile: ts.SourceFile): boolean {
@@ -39,9 +49,14 @@ export function isExport(node: ts.Node, sourceFile: ts.SourceFile): boolean {
 }
 
 export function exportImport(node: ts.Node, sourceFile: ts.SourceFile): IImportReflection | false {
-	const imports = pickNodes(["ImportClause", "NamedImports", "**", "Identifier"], node, sourceFile).map(node => toNode(node, sourceFile).source);
-	const _from = pickNode(["StringLiteral"], node, sourceFile);
-	const from = _from && toNode(_from, sourceFile).source;
+	const imports = pickNodes([
+		"ImportClause",
+		"NamedImports",
+		"**",
+		"Identifier"
+	], node, sourceFile).map(node => toNode(node, sourceFile).source);
+	const _from   = pickNode(["StringLiteral"], node, sourceFile);
+	const from    = _from && toNode(_from, sourceFile).source;
 	return from ? {
 		imports,
 		from,
@@ -49,9 +64,9 @@ export function exportImport(node: ts.Node, sourceFile: ts.SourceFile): IImportR
 }
 
 export function exportInterface(node: ts.Node, sourceFile: ts.SourceFile): IInterfaceReflection | false {
-	const source = node.getText(sourceFile);
+	const source     = node.getText(sourceFile);
 	const withExport = isExport(node, sourceFile);
-	const name = toNode(requireNode(["Identifier"], node, sourceFile), sourceFile);
+	const name       = toNode(requireNode(["Identifier"], node, sourceFile), sourceFile);
 	console.info(`=== Export interface (${withExport}) ===\n${source}\n`);
 	return withExport && {
 		source,
@@ -81,7 +96,7 @@ export function exportEndpoint(node: ts.Node, sourceFile: ts.SourceFile, generat
 		return false;
 	}
 	const generics = genericsRoot.getChildren().filter(node => ts.SyntaxKind[node.kind] !== "CommaToken").slice(1);
-	const type = toNode(typeRoot, sourceFile).source;
+	const type     = toNode(typeRoot, sourceFile).source;
 	if (!Object.keys(generators).includes(type)) {
 		console.info(`- unknown endpoint type [${type}]\n`);
 		return false;
@@ -90,7 +105,7 @@ export function exportEndpoint(node: ts.Node, sourceFile: ts.SourceFile, generat
 	console.info("- success\n");
 
 	return {
-		name: toNode(name, sourceFile).source.replace(/"/ig, ""),
+		name:     toNode(name, sourceFile).source.replace(/"/ig, ""),
 		api,
 		type,
 		generics: generics.map(node => toNode(node, sourceFile).source),
@@ -99,15 +114,25 @@ export function exportEndpoint(node: ts.Node, sourceFile: ts.SourceFile, generat
 
 export function toSdk(endpoint: string, generators: IGenerators): ISdk | undefined {
 	const interfaces: (IInterfaceReflection | false)[] = [];
-	const imports: (IImportReflection | false)[] = [];
-	const endpoints: (IEndpointReflection | false)[] = [];
-	const root = ts.createSourceFile(endpoint, readFileSync(endpoint, "utf8"), ts.ScriptTarget.Latest);
+	const imports: (IImportReflection | false)[]       = [];
+	const endpoints: (IEndpointReflection | false)[]   = [];
+	const root                                         = ts.createSourceFile(endpoint, readFileSync(endpoint, "utf8"), ts.ScriptTarget.Latest);
 
 	console.log(`${"-".repeat(16)} Parsing ${"-".repeat(16)}\n${endpoint}\n--------------------------------`);
 
-	pickNodes(["*", "ImportDeclaration"], root, root).forEach(node => imports.push(exportImport(node, root)));
-	pickNodes(["*", "InterfaceDeclaration"], root, root).forEach(node => interfaces.push(exportInterface(node, root)));
-	pickNodes(["*", "ExportAssignment", "CallExpression"], root, root).forEach(node => endpoints.push(exportEndpoint(node, root, generators)));
+	pickNodes([
+		"*",
+		"ImportDeclaration"
+	], root, root).forEach(node => imports.push(exportImport(node, root)));
+	pickNodes([
+		"*",
+		"InterfaceDeclaration"
+	], root, root).forEach(node => interfaces.push(exportInterface(node, root)));
+	pickNodes([
+		"*",
+		"ExportAssignment",
+		"CallExpression"
+	], root, root).forEach(node => endpoints.push(exportEndpoint(node, root, generators)));
 
 	const _endpoint = endpoints.filter(item => item).map<IEndpointReflection>(item => item as IEndpointReflection)?.[0];
 
@@ -116,10 +141,10 @@ export function toSdk(endpoint: string, generators: IGenerators): ISdk | undefin
 	}
 
 	return {
-		file: root.fileName.replace("/pages", "/sdk").replace(".ts", ".tsx"),
-		imports: imports.filter(Boolean) as IImportReflection[],
+		file:       root.fileName.replace("/pages", "/sdk").replace(".ts", ".tsx"),
+		imports:    imports.filter(Boolean) as IImportReflection[],
 		interfaces: interfaces.filter(Boolean) as IInterfaceReflection[],
-		endpoint: _endpoint,
+		endpoint:   _endpoint,
 	};
 }
 
@@ -134,7 +159,7 @@ export function toSource(sdk: ISdk, generators: IGenerators): string {
 }
 
 export async function generateSdkFor(path: string, generators?: IGenerators): Promise<string[]> {
-	const _generators = generators || defaultGenerators;
+	const _generators        = generators || defaultGenerators;
 	const exported: string[] = [];
 	await remove("src/sdk");
 	toSdks(path, _generators).forEach(sdk => {

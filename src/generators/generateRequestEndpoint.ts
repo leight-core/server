@@ -1,5 +1,9 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports,
+	toGeneratorCommons
+}             from "@leight-core/server";
 
 export function generateRequestEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -12,14 +16,14 @@ export function generateRequestEndpoint(sdk: ISdk): string {
 				"createPromise",
 				"toLink",
 			],
-			from: "\"@leight-core/client\"",
+			from:    "\"@leight-core/client\"",
 		},
 	]);
 
 	const queryParams = `I${generatorCommons.name}QueryParams`;
-	const name = generatorCommons.name;
-	const request = generatorCommons.generics[0];
-	const response = generatorCommons.generics[1];
+	const name        = generatorCommons.name;
+	const request     = generatorCommons.generics[0];
+	const response    = generatorCommons.generics[1];
 
 	// language=text
 	return cleanup(`

@@ -10,7 +10,7 @@ export const toGeneratorCommons = (sdk: ISdk): IGeneratorCommons => {
 	const name = sdk.endpoint.name.replace("Endpoint", "");
 	return {
 		name,
-		api: sdk.endpoint.api,
+		api:      sdk.endpoint.api,
 		generics: sdk.endpoint.generics,
 	};
 };

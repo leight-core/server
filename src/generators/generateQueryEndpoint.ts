@@ -1,5 +1,9 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports, toGeneratorCommons} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports,
+	toGeneratorCommons
+}             from "@leight-core/server";
 
 export function generateQueryEndpoint(sdk: ISdk): string {
 	const generatorCommons = toGeneratorCommons(sdk);
@@ -10,7 +14,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"FC",
 				"ConsumerProps",
 			],
-			from: "\"react\"",
+			from:    "\"react\"",
 		},
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
@@ -22,7 +26,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"ISourceQuery",
 				"ISourceItem",
 			],
-			from: "\"@leight-core/api\"",
+			from:    "\"@leight-core/api\"",
 		},
 		{
 			imports: [
@@ -62,15 +66,15 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"DrawerSelectItem",
 				"IDrawerSelectItemProps",
 			],
-			from: "\"@leight-core/client\"",
+			from:    "\"@leight-core/client\"",
 		},
 	]);
 
 	const queryParams = `I${generatorCommons.name}QueryParams`;
-	const name = generatorCommons.name;
-	const source = generatorCommons.generics[0];
-	const request = `ISourceQuery<${source}>`;
-	const response = `ISourceItem<${source}>`;
+	const name        = generatorCommons.name;
+	const source      = generatorCommons.generics[0];
+	const request     = `ISourceQuery<${source}>`;
+	const response    = `ISourceItem<${source}>`;
 
 	// language=text
 	return cleanup(`

@@ -5,6 +5,7 @@ import {
 	IPromiseMapper,
 	IQueryFilter,
 	ISource,
+	ISourceBackup,
 	ISourceCreate,
 	ISourceEntity,
 	ISourceFetch,
@@ -14,15 +15,28 @@ import {
 	IUser,
 	IWithIdentity,
 	UndefinableOptional
-} from "@leight-core/api";
-import {onUnique, User, withFetch} from "@leight-core/server";
-import {PromiseMapper} from "@leight-core/utils";
-import {Prisma} from "@prisma/client";
-import LRUCache from "lru-cache";
+}                           from "@leight-core/api";
+import {
+	onUnique,
+	User,
+	withFetch
+}                           from "@leight-core/server";
+import {PromiseMapper}      from "@leight-core/utils";
+import {Prisma}             from "@prisma/client";
+import LRUCache             from "lru-cache";
 import {GetServerSideProps} from "next";
-import crypto from "node:crypto";
+import crypto               from "node:crypto";
 
-export abstract class AbstractSource<TSource extends ISource<any, any, any>> implements ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
+export abstract class AbstractSource<//
+	TSource extends ISource<any, any, any>,
+	> implements ISource<//
+	ISourceCreate<TSource>,
+	ISourceEntity<TSource>,
+	ISourceItem<TSource>,
+	ISourceQuery<TSource>,
+	ISourceBackup<TSource>,
+	ISourceFetch<TSource>,
+	ISourceFetchParams<TSource>> {
 	readonly mapper: IPromiseMapper<ISourceEntity<TSource>, ISourceItem<TSource>>;
 	readonly name: string;
 	prisma: IPrismaTransaction;
@@ -33,11 +47,11 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	};
 
 	constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
-		this.name = name;
+		this.name   = name;
 		this.prisma = prisma;
-		this.user = user;
+		this.user   = user;
 		this.mapper = PromiseMapper(this.map.bind(this));
-		this.cache = undefined;
+		this.cache  = undefined;
 	}
 
 	async create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
@@ -95,8 +109,13 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async toImport(entity: ISourceEntity<TSource>): Promise<ISourceCreate<TSource> | undefined> {
-		throw new Error(`Source [${this.name}] does not support generating create DTOs.`);
+	async backup(entity: ISourceEntity<TSource>): Promise<ISourceBackup<TSource> | undefined> {
+		throw new Error(`Source [${this.name}] does not support making backups.`);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async restore(backup?: ISourceBackup<TSource>): Promise<ISourceEntity<TSource>> {
+		throw new Error(`Source [${this.name}] does not support restoring backups.`);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -177,7 +196,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 			[this.name]: () => {
 				return {
 					withUser: this.withUser.bind(this),
-					handler: this.import.bind(this),
+					handler:  this.import.bind(this),
 				};
 			},
 		};
@@ -203,7 +222,7 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	withFetch(key: keyof ISourceFetch<TSource>, query: keyof ISourceFetchParams<TSource>): GetServerSideProps<ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
-		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>>>(this)(key, query);
+		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceBackup<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>>>(this)(key, query);
 	}
 
 	hashOf(query: ISourceQuery<TSource>, type?: string): string {

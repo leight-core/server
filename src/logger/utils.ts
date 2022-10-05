@@ -1,11 +1,16 @@
-import winston from "winston";
-import LokiTransport from "winston-loki";
+import winston         from "winston";
+import LokiTransport   from "winston-loki";
 import TransportStream from "winston-transport";
 
 const {transports} = winston;
-const {format} = winston;
+const {format}     = winston;
 
-export type ILogLevel = "info" | "error" | "warning" | "debug" | "silly";
+export type ILogLevel =
+	"info"
+	| "error"
+	| "warning"
+	| "debug"
+	| "silly";
 
 interface LokiTransportOptions extends TransportStream.TransportStreamOptions {
 	host: string;
@@ -51,18 +56,18 @@ const createDefaultMeta = (version: string) => ({
 
 const createDefaultLogger = (service: string, version: string, level: ILogLevel, withLoki: boolean) => ({
 	level,
-	format: winston.format.json(),
+	format:      winston.format.json(),
 	defaultMeta: createDefaultMeta(version),
-	transports: [
-		createConsole(),
-		withLoki ? createLoki({
-			labels: {
-				version,
-				service,
-			},
-			level,
-		}) : null,
-	].filter(i => i) as TransportStream[],
+	transports:  [
+					 createConsole(),
+					 withLoki ? createLoki({
+						 labels: {
+							 version,
+							 service,
+						 },
+						 level,
+					 }) : null,
+				 ].filter(i => i) as TransportStream[],
 });
 
 export interface IBootstrapLoggerRequest {

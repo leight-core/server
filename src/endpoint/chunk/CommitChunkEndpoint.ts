@@ -1,4 +1,10 @@
-import {IChunkCommit, IChunkCommitEvent, IChunkService, IEndpoint, IFile} from "@leight-core/api";
+import {
+	IChunkCommit,
+	IChunkCommitEvent,
+	IChunkService,
+	IEndpoint,
+	IFile
+}                            from "@leight-core/api";
 import {IChunkEndpointQuery} from "@leight-core/server";
 
 export interface ICommitChunkEndpointRequest {

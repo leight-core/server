@@ -1,11 +1,14 @@
 import {ISdk} from "@leight-core/api";
-import {cleanup, generateImports} from "@leight-core/server";
+import {
+	cleanup,
+	generateImports
+}             from "@leight-core/server";
 
 export function generateFetchEndpoint(sdk: ISdk): string {
-	const name = sdk.endpoint.name.replace("Endpoint", "");
-	const response = `ISourceItem<${(sdk.endpoint.generics?.[0] || "void")}>`;
+	const name        = sdk.endpoint.name.replace("Endpoint", "");
+	const response    = `ISourceItem<${(sdk.endpoint.generics?.[0] || "void")}>`;
 	const queryParams = `I${name}QueryParams`;
-	const api = sdk.endpoint.api;
+	const api         = sdk.endpoint.api;
 
 	sdk.imports.push(...[
 		{
@@ -15,14 +18,14 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"ReactElement",
 				"ReactNode",
 			],
-			from: "\"react\""
+			from:    "\"react\""
 		},
 		{
 			imports: [
 				"BreadcrumbProps",
 				"Breadcrumb",
 			],
-			from: "\"antd\""
+			from:    "\"antd\""
 		},
 		{
 			imports: [

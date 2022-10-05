@@ -1,7 +1,10 @@
-import {IUser} from "@leight-core/api";
-import {User} from "@leight-core/server";
+import {IUser}                     from "@leight-core/api";
+import {User}                      from "@leight-core/server";
 import {GetServerSidePropsContext} from "next";
-import {getToken as getCoolToken, JWT} from "next-auth/jwt";
+import {
+	getToken as getCoolToken,
+	JWT
+}                                  from "next-auth/jwt";
 
 export const getToken = async <T extends JWT = JWT>(context: GetServerSidePropsContext<any, any>): Promise<T> => {
 	const token = await getCoolToken({req: context.req as any}) as T;

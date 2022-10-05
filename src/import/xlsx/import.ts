@@ -1,8 +1,16 @@
-import {IImportMeta, IImportTabs, IImportTranslations, IJob, IJobProgress, IUser, IWithImporters} from "@leight-core/api";
-import {Logger} from "@leight-core/server";
+import {
+	IImportMeta,
+	IImportTabs,
+	IImportTranslations,
+	IJob,
+	IJobProgress,
+	IUser,
+	IWithImporters
+}                    from "@leight-core/api";
+import {Logger}      from "@leight-core/server";
 import {measureTime} from "measure-time";
-import {Readable} from "node:stream";
-import xlsx from "xlsx";
+import {Readable}    from "node:stream";
+import xlsx          from "xlsx";
 
 export const toTabs = (workbook: xlsx.WorkBook): IImportTabs[] => {
 	const tabs = workbook.Sheets["tabs"];
@@ -24,7 +32,7 @@ export const toTranslations = (workbook: xlsx.WorkBook): IImportTranslations => 
 };
 
 export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
-	tabs: toTabs(workbook),
+	tabs:         toTabs(workbook),
 	translations: toTranslations(workbook),
 });
 
@@ -43,16 +51,16 @@ export const toImport = async (
 		importers,
 		workbook
 	}: IToImportRequest): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
-	const logger = Logger("import");
+	const logger    = Logger("import");
 	const jobLabels = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
 	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
 	const meta = toMeta(workbook);
 	logger.info("Meta", {labels: jobLabels, meta});
 
-	let total = 0;
+	let total   = 0;
 	let success = 0;
 	let failure = 0;
-	let skip = 0;
+	let skip    = 0;
 	await Promise.all(meta.tabs.map(async tab => {
 		const workSheet = workbook.Sheets[tab.tab];
 		if (!workSheet) {
@@ -80,7 +88,7 @@ export const toImport = async (
 			const stream: Readable = xlsx.stream.to_json(workSheet, {
 				defval: null,
 			});
-			const handler = importers[service]?.();
+			const handler          = importers[service]?.();
 			if (!handler) {
 				logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -113,7 +121,7 @@ export const toImport = async (
 				} catch (e) {
 					failure++;
 					await jobProgress.onFailure();
-					let error = "Error on item";
+					let error  = "Error on item";
 					const meta = {labels: serviceLabels, tab: tab.tab, service, item};
 					if (e instanceof Error) {
 						error = e.message;
@@ -124,8 +132,8 @@ export const toImport = async (
 			}
 			await handler.end?.({});
 			logger.info("Service done, import results:", {
-				labels: serviceLabels,
-				tab: tab.tab,
+				labels:  serviceLabels,
+				tab:     tab.tab,
 				service,
 				total,
 				success,

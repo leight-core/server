@@ -1,13 +1,17 @@
-import {IForeachNodeCallback, INode, INodePath} from "@leight-core/api";
+import {
+	IForeachNodeCallback,
+	INode,
+	INodePath
+}                 from "@leight-core/api";
 import micromatch from "micromatch";
-import ts from "typescript";
+import ts         from "typescript";
 
 export function toNode(node: ts.Node, sourceFile: ts.SourceFile): INode {
 	return {
 		node,
 		sourceFile,
 		syntaxKind: ts.SyntaxKind[node.kind],
-		source: node.getText(sourceFile),
+		source:     node.getText(sourceFile),
 	};
 }
 
@@ -46,7 +50,7 @@ export function requireNode(path: string[], root: ts.Node, sourceFile: ts.Source
 
 export function toPrintNode(node: ts.Node, sourceFile: ts.SourceFile, indentLevel = 0) {
 	const indentation = "    ".repeat(indentLevel);
-	const _node = toNode(node, sourceFile);
+	const _node       = toNode(node, sourceFile);
 	console.log(`${indentation}${_node.syntaxKind}: ${_node.source}`);
 	node.getChildren(sourceFile).forEach(child => toPrintNode(child, sourceFile, indentLevel + 1));
 }

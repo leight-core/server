@@ -1,4 +1,7 @@
-import {IChunkService, IEndpoint} from "@leight-core/api";
+import {
+	IChunkService,
+	IEndpoint
+}                            from "@leight-core/api";
 import {IChunkEndpointQuery} from "@leight-core/server";
 
 export interface IUploadChunkEndpointRequest {

@@ -2,7 +2,7 @@ export const toFulltext = <TFilter>(search: string | undefined, fields: (keyof T
 	OR: fields.map(field => ({
 		[field]: {
 			contains: search,
-			mode: "insensitive",
+			mode:     "insensitive",
 		}
 	}))
 } as any : undefined;
