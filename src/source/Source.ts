@@ -4,7 +4,6 @@ import {
 	IPrismaTransaction,
 	IPromiseMapper,
 	IQueryFilter,
-	IRestoreItem,
 	ISource,
 	ISourceCreate,
 	ISourceEntity,
@@ -96,6 +95,11 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	async toImport(entity: ISourceEntity<TSource>): Promise<ISourceCreate<TSource> | undefined> {
+		throw new Error(`Source [${this.name}] does not support generating create DTOs.`);
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async createToId(create: ISourceCreate<TSource>): Promise<{ id: string }> {
 		throw new Error(`Source [${this.name}] does not support mapping Create object to an ID.`);
 	}
@@ -136,16 +140,6 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async $find(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support finding an item by a query.`);
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	toRestore(entity: ISourceEntity<TSource>): IRestoreItem<ISourceEntity<TSource>, ISourceItem<TSource>> | undefined {
-		throw new Error(`Source [${this.name}] does not support making backups (generating restore DTO).`);
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	restore(restore?: IRestoreItem<ISourceEntity<TSource>, ISourceItem<TSource>>): ISourceItem<TSource> {
-		throw new Error(`Source [${this.name}] does not support restoring from backups.`);
 	}
 
 	async query(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>[]> {

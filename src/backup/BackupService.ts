@@ -1,4 +1,4 @@
-import {IBackupRequest, IBackupService, IContainer, IFileSource, IJobProgress, ISource, IUser} from "@leight-core/api";
+import {IBackupService, IContainer, IFileSource, IJobProgress, ISource, IUser} from "@leight-core/api";
 import {zipOf} from "@leight-core/server";
 import dayjs from "dayjs";
 import fs from "node:fs";
@@ -34,8 +34,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 		this.jobProgress = jobProgress;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async backup(backup: IBackupRequest): Promise<void> {
+	async backup(): Promise<void> {
 		return this.container.useFileSource(async fileSource => {
 			const stamp = dayjs().format("YYYY-MM-DD");
 			fileSource.withUser(this.user);
@@ -71,7 +70,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 		const pages = Math.ceil(total / size);
 		for (let page = 0; page <= pages; page++) {
 			for (const entity of await source.query({page, size})) {
-				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.toRestore(entity)));
+				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.toImport(entity)));
 			}
 		}
 	}
