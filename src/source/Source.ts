@@ -110,11 +110,11 @@ export abstract class AbstractSource<//
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async backup(entity: ISourceEntity<TSource>): Promise<ISourceBackup<TSource> | undefined> {
-		throw new Error(`Source [${this.name}] does not support making backups.`);
+		throw entity;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async restore(backup?: ISourceBackup<TSource>): Promise<ISourceEntity<TSource>> {
+	async restore(backup?: ISourceBackup<TSource>): Promise<ISourceEntity<TSource> | undefined> {
 		throw new Error(`Source [${this.name}] does not support restoring backups.`);
 	}
 
