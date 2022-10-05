@@ -188,7 +188,10 @@ export abstract class AbstractSource<TSource extends ISource<any, any, any>> imp
 		return this;
 	}
 
-	ofSource(source: ISource<any, any, any>): this {
+	ofSource(source?: ISource<any, any, any>): this {
+		if (!source) {
+			return this;
+		}
 		this.withPrisma(source.prisma);
 		this.withUser(source.user);
 		return this;
