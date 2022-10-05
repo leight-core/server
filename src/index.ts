@@ -1,4 +1,5 @@
 export * from "./auth";
+export * from "./backup";
 export * from "./endpoint";
 export * from "./file";
 export * from "./generators";
