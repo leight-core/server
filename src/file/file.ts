@@ -3,6 +3,7 @@ import {copySync} from "fs-extra";
 import mime from "mime-types";
 import fs from "node:fs";
 import path from "node:path";
+import touch from "touch";
 import {v4} from "uuid";
 
 export const FileService: IFileServiceFactory = ({config = {path: ".data/file/{fileId}"}}) => {
@@ -33,7 +34,8 @@ export const FileService: IFileServiceFactory = ({config = {path: ".data/file/{f
 				created: (new Date()).toISOString(),
 				ttl: undefined,
 			};
-			store.file && copySync(store.file, location, {overwrite: store.replace});
+			fs.mkdirSync(path.dirname(location), {recursive: true});
+			store.file ? copySync(store.file, location, {overwrite: store.replace}) : touch.sync(location);
 			return file;
 		}
 	};

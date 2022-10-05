@@ -1,5 +1,5 @@
 {
-	"version": "0.6.207",
+	"version": "0.6.208",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -25,22 +25,23 @@
 	"dependencies": {
 		"@leight-core/api": "^0.6.175",
 		"@leight-core/utils": "^0.5.38",
+		"@prisma/client": "^4.3.1",
 		"filesize": "^9.0.11",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.0.3",
+		"isobject": "^4.0.0",
+		"lru-cache": "^7.14.0",
 		"measure-time": "^5.0.8",
+		"memoizee": "^0.4.15",
 		"micromatch": "^4.0.5",
 		"mime-types": "^2.1.35",
+		"prom-client": "^14.1.0",
 		"raw-body": "^2.5.1",
+		"touch": "^3.1.0",
 		"uuid": "^9.0.0",
 		"winston": "^3.8.2",
 		"winston-loki": "^6.0.6",
-		"xlsx": "^0.18.5",
-		"isobject": "^4.0.0",
-		"prom-client": "^14.1.0",
-		"@prisma/client": "^4.3.1",
-		"memoizee": "^0.4.15",
-		"lru-cache": "^7.14.0"
+		"xlsx": "^0.18.5"
 	},
 	"peerDependencies": {
 		"next": "^12.1.6",
@@ -50,16 +51,17 @@
 	"devDependencies": {
 		"@types/fs-extra": "^9.0.13",
 		"@types/glob": "^8.0.0",
+		"@types/memoizee": "^0.4.8",
 		"@types/micromatch": "^4.0.2",
 		"@types/mime-types": "^2.1.1",
 		"@types/node": "^18.7.21",
+		"@types/touch": "^3.1.2",
 		"@types/uuid": "^8.3.4",
-		"@types/memoizee": "^0.4.8",
 		"@typescript-eslint/eslint-plugin": "^5.38.0",
 		"@typescript-eslint/parser": "^5.38.0",
 		"eslint": "8.22.0",
 		"eslint-plugin-unicorn": "^43.0.2",
-		"typescript": "^4.8.3",
-		"prisma": "^4.3.1"
+		"prisma": "^4.3.1",
+		"typescript": "^4.8.3"
 	}
 }
