@@ -7,7 +7,7 @@ import path from "node:path";
 import {Logger} from "winston";
 
 export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<any, any>>> {
-	sources: Promise<ISource<any, any, any>>[];
+	sources: ISource<any, any, any>[];
 	user: IUser;
 	container: TContainer;
 	jobProgress: IJobProgress;
@@ -18,7 +18,7 @@ export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<an
 export const BackupService = <TContainer extends IContainer<IFileSource<any, any>>>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
 
 export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, any>>> implements IBackupService {
-	readonly sources: Promise<ISource<any, any, any>>[];
+	readonly sources: ISource<any, any, any>[];
 	readonly temp: string;
 	readonly container: TContainer;
 	readonly user: IUser;
@@ -49,7 +49,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 
 			await Promise.all(this.sources.map(async source => {
 				try {
-					await this.export(backup, await source);
+					await this.export(backup, source);
 				} catch (e) {
 					this.logger.error(e);
 				}
