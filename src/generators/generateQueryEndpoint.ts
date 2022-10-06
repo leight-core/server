@@ -21,8 +21,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 			imports: [
 				"ISourceContext",
 				"IToOptionMapper",
-				"IQueryFilter",
-				"IQueryOrderBy",
+				"QueryInfer",
 				"SourceInfer",
 			],
 			from:    "\"@leight-core/api\"",
@@ -121,15 +120,15 @@ export const use${name}Link = () => to${name}Link;
 export const use${name}Promise = createPromiseHook<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
 export const ${name}Promise = createPromise<${request}, ${response}[], ${queryParams}>(${name}ApiLink, "post");
 
-export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<IQueryFilter<${request}>>> {
+export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<QueryInfer.Filter<${request}>>> {
 }
 
-export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<IQueryFilter<${request}>> name={"${name}"} {...props}/>;
+export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<QueryInfer.Filter<${request}>> name={"${name}"} {...props}/>;
 
-export const use${name}OptionalFilterContext = () => useOptionalFilterContext<IQueryFilter<${request}>>()
-export const use${name}FilterContext = () => useFilterContext<IQueryFilter<${request}>>()
+export const use${name}OptionalFilterContext = () => useOptionalFilterContext<QueryInfer.Filter<${request}>>()
+export const use${name}FilterContext = () => useFilterContext<QueryInfer.Filter<${request}>>()
 
-export interface I${name}ProviderFilterProps extends IFilterWithoutTranslationProps<IQueryFilter<${request}>> {
+export interface I${name}ProviderFilterProps extends IFilterWithoutTranslationProps<QueryInfer.Filter<${request}>> {
 }
 
 export const ${name}ProviderFilter: FC<I${name}ProviderFilterProps> = props => <Filter
@@ -137,18 +136,18 @@ export const ${name}ProviderFilter: FC<I${name}ProviderFilterProps> = props => <
 	translation={'common.filter.${name}'}
 />;
 
-export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<IQueryOrderBy<${request}>>> {
+export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<QueryInfer.OrderBy<${request}>>> {
 }
 
-export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<QueryInfer.OrderBy<${request}>> name={"${name}"} {...props}/>;
 
-export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<IQueryOrderBy<${request}>>()
-export const use${name}OrderByContext = () => useOrderByContext<IQueryOrderBy<${request}>>()
+export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<QueryInfer.OrderBy<${request}>>()
+export const use${name}OrderByContext = () => useOrderByContext<QueryInfer.OrderBy<${request}>>()
 
-export interface I${name}ProviderControlProps extends Partial<ISourceControlProviderProps<IQueryFilter<${request}>, IQueryOrderBy<${request}>, ${queryParams}>> {
+export interface I${name}ProviderControlProps extends Partial<ISourceControlProviderProps<QueryInfer.Filter<${request}>, QueryInfer.OrderBy<${request}>, ${queryParams}>> {
 }
 
-export const ${name}ProviderControl: FC<I${name}ProviderControlProps> = props => <SourceControlProvider<IQueryFilter<${request}>, IQueryOrderBy<${request}>> name={"${name}"} {...props}/>;
+export const ${name}ProviderControl: FC<I${name}ProviderControlProps> = props => <SourceControlProvider<QueryInfer.Filter<${request}>, QueryInfer.OrderBy<${request}>> name={"${name}"} {...props}/>;
 
 export interface I${name}TableSourceProps extends Partial<ITableProps<${response}>> {
 	providerProps?: Partial<I${name}ProviderProps>;
