@@ -3,17 +3,11 @@ import {
 	IImportHandlers,
 	IPrismaTransaction,
 	IPromiseMapper,
-	IQueryFilter,
 	ISource,
-	ISourceBackup,
-	ISourceCreate,
-	ISourceEntity,
-	ISourceFetch,
-	ISourceFetchParams,
-	ISourceItem,
-	ISourceQuery,
 	IUser,
 	IWithIdentity,
+	QueryInfer,
+	SourceInfer,
 	UndefinableOptional
 }                           from "@leight-core/api";
 import {
@@ -30,23 +24,23 @@ import crypto               from "node:crypto";
 export abstract class AbstractSource<//
 	TSource extends ISource<any, any, any>,
 	> implements ISource<//
-	ISourceCreate<TSource>,
-	ISourceEntity<TSource>,
-	ISourceItem<TSource>,
-	ISourceQuery<TSource>,
-	ISourceFetch<TSource>,
-	ISourceFetchParams<TSource>,
-	ISourceBackup<TSource>> {
-	readonly mapper: IPromiseMapper<ISourceEntity<TSource>, ISourceItem<TSource>>;
+	SourceInfer.Create<TSource>,
+	SourceInfer.Entity<TSource>,
+	SourceInfer.Item<TSource>,
+	SourceInfer.Query<TSource>,
+	SourceInfer.Fetch<TSource>,
+	SourceInfer.FetchParams<TSource>,
+	SourceInfer.Backup<TSource>> {
+	readonly mapper: IPromiseMapper<SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>>;
 	readonly name: string;
 	prisma: IPrismaTransaction;
 	user: IUser;
 	cache?: {
 		count?: LRUCache<string, number>;
-		query?: LRUCache<string, ISourceEntity<TSource>[]>;
+		query?: LRUCache<string, SourceInfer.Entity<TSource>[]>;
 	};
 
-	constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
+	protected constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
 		this.name   = name;
 		this.prisma = prisma;
 		this.user   = user;
@@ -54,7 +48,7 @@ export abstract class AbstractSource<//
 		this.cache  = undefined;
 	}
 
-	async create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
+	async create(create: SourceInfer.Create<TSource>): Promise<SourceInfer.Entity<TSource>> {
 		return onUnique(
 			async () => {
 				const result = await this.$create(create);
@@ -71,11 +65,11 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $create(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
+	async $create(create: SourceInfer.Create<TSource>): Promise<SourceInfer.Entity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support item creation.`);
 	}
 
-	async patch(patch: UndefinableOptional<ISourceCreate<TSource>> & IWithIdentity): Promise<ISourceEntity<TSource>> {
+	async patch(patch: UndefinableOptional<SourceInfer.Create<TSource>> & IWithIdentity): Promise<SourceInfer.Entity<TSource>> {
 		return onUnique(
 			async () => {
 				const result = await this.$patch(patch);
@@ -92,11 +86,11 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $patch(patch: UndefinableOptional<ISourceCreate<TSource>> & IWithIdentity): Promise<ISourceEntity<TSource>> {
+	async $patch(patch: UndefinableOptional<SourceInfer.Create<TSource>> & IWithIdentity): Promise<SourceInfer.Entity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support item patching.`);
 	}
 
-	async import(create: ISourceCreate<TSource>): Promise<ISourceEntity<TSource>> {
+	async import(create: SourceInfer.Create<TSource>): Promise<SourceInfer.Entity<TSource>> {
 		return onUnique(
 			() => this.$create(create),
 			async () => {
@@ -109,41 +103,41 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async backup(entity: ISourceEntity<TSource>): Promise<ISourceBackup<TSource> | undefined> {
+	async backup(entity: SourceInfer.Entity<TSource>): Promise<SourceInfer.Backup<TSource> | undefined> {
 		throw entity;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async restore(backup?: ISourceBackup<TSource>): Promise<ISourceEntity<TSource> | undefined> {
+	async restore(backup?: SourceInfer.Backup<TSource>): Promise<SourceInfer.Entity<TSource> | undefined> {
 		throw new Error(`Source [${this.name}] does not support restoring backups.`);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async createToId(create: ISourceCreate<TSource>): Promise<{ id: string }> {
+	async createToId(create: SourceInfer.Create<TSource>): Promise<{ id: string }> {
 		throw new Error(`Source [${this.name}] does not support mapping Create object to an ID.`);
 	}
 
-	async remove(ids: string[]): Promise<ISourceEntity<TSource>[]> {
+	async remove(ids: string[]): Promise<SourceInfer.Entity<TSource>[]> {
 		const result = await this.$remove(ids);
 		await this.clearCache();
 		return result;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $remove(ids: string[]): Promise<ISourceEntity<TSource>[]> {
+	async $remove(ids: string[]): Promise<SourceInfer.Entity<TSource>[]> {
 		throw new Error(`Source [${this.name}] does not support item deletion.`);
 	}
 
-	async get(id: string): Promise<ISourceEntity<TSource>> {
+	async get(id: string): Promise<SourceInfer.Entity<TSource>> {
 		return this.$get(id);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $get(id: string): Promise<ISourceEntity<TSource>> {
+	async $get(id: string): Promise<SourceInfer.Entity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support getting an item by an id.`);
 	}
 
-	async fetch(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource> | null> {
+	async fetch(query: SourceInfer.Query<TSource>): Promise<SourceInfer.Entity<TSource> | null> {
 		try {
 			return await this.find(query);
 		} catch (e) {
@@ -152,16 +146,16 @@ export abstract class AbstractSource<//
 		}
 	}
 
-	async find(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>> {
+	async find(query: SourceInfer.Query<TSource>): Promise<SourceInfer.Entity<TSource>> {
 		return this.$find(query);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $find(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>> {
+	async $find(query: SourceInfer.Query<TSource>): Promise<SourceInfer.Entity<TSource>> {
 		throw new Error(`Source [${this.name}] does not support finding an item by a query.`);
 	}
 
-	async query(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>[]> {
+	async query(query: SourceInfer.Query<TSource>): Promise<SourceInfer.Entity<TSource>[]> {
 		const hash = this.hashOf(query, "query");
 		if (this.cache?.query && !this.cache?.query?.has(hash)) {
 			this.cache?.query?.set(hash, await this.$query(query));
@@ -170,11 +164,11 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $query(query: ISourceQuery<TSource>): Promise<ISourceEntity<TSource>[]> {
+	async $query(query: SourceInfer.Query<TSource>): Promise<SourceInfer.Entity<TSource>[]> {
 		throw new Error(`Source [${this.name}] does not support querying items.`);
 	}
 
-	async count(query: ISourceQuery<TSource>): Promise<number> {
+	async count(query: SourceInfer.Query<TSource>): Promise<number> {
 		const hash = this.hashOf(query, "count");
 		if (this.cache?.count && !this.cache?.count?.has(hash)) {
 			this.cache?.count?.set(hash, await this.$count(query));
@@ -183,11 +177,11 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async $count(query: ISourceQuery<TSource>): Promise<number> {
+	async $count(query: SourceInfer.Query<TSource>): Promise<number> {
 		throw new Error(`Source [${this.name}] does not support counting items by a query.`);
 	}
 
-	withFilter({filter}: ISourceQuery<TSource>): IQueryFilter<ISourceQuery<TSource>> | undefined {
+	withFilter({filter}: SourceInfer.Query<TSource>): QueryInfer.Filter<SourceInfer.Query<TSource>> | undefined {
 		return filter;
 	}
 
@@ -221,11 +215,11 @@ export abstract class AbstractSource<//
 		return this;
 	}
 
-	withFetch(key: keyof ISourceFetch<TSource>, query: keyof ISourceFetchParams<TSource>): GetServerSideProps<ISourceFetch<TSource>, ISourceFetchParams<TSource>> {
-		return withFetch<ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISource<ISourceCreate<TSource>, ISourceEntity<TSource>, ISourceItem<TSource>, ISourceQuery<TSource>, ISourceFetch<TSource>, ISourceFetchParams<TSource>, ISourceBackup<TSource>>>(this)(key, query);
+	withFetch(key: keyof SourceInfer.Fetch<TSource>, query: keyof SourceInfer.FetchParams<TSource>): GetServerSideProps<SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>> {
+		return withFetch<SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>, ISource<SourceInfer.Create<TSource>, SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>, SourceInfer.Query<TSource>, SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>, SourceInfer.Backup<TSource>>>(this)(key, query);
 	}
 
-	hashOf(query: ISourceQuery<TSource>, type?: string): string {
+	hashOf(query: SourceInfer.Query<TSource>, type?: string): string {
 		return crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,
@@ -242,13 +236,13 @@ export abstract class AbstractSource<//
 	async $clearCache(): Promise<any> {
 	}
 
-	async mapNull(source?: ISourceEntity<TSource> | null): Promise<ISourceItem<TSource> | undefined> {
+	async mapNull(source?: SourceInfer.Entity<TSource> | null): Promise<SourceInfer.Item<TSource> | undefined> {
 		return source ? this.map(source) : undefined;
 	}
 
-	async list(source: Promise<ISourceEntity<TSource>[]>): Promise<ISourceItem<TSource>[]> {
+	async list(source: Promise<SourceInfer.Entity<TSource>[]>): Promise<SourceInfer.Item<TSource>[]> {
 		return this.mapper.list(source);
 	}
 
-	abstract map(source: ISourceEntity<TSource>): Promise<ISourceItem<TSource>>;
+	abstract map(source: SourceInfer.Entity<TSource>): Promise<SourceInfer.Item<TSource>>;
 }
