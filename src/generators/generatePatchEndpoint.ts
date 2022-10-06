@@ -12,7 +12,6 @@ export function generatePatchEndpoint(sdk: ISdk): string {
 		{imports: ["FC"], from: "\"react\""},
 		{
 			imports: [
-				"ISourcePatch",
 				"SourceInfer",
 			],
 			from:    "\"@leight-core/api\""
@@ -50,21 +49,21 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
-export const use${name}Mutation = createMutationHook<ISourcePatch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 
-export interface I${name}DefaultFormProps extends Partial<IFormProps<ISourcePatch<${source}>, SourceInfer.Item<${source}>>> {
+export interface I${name}DefaultFormProps extends Partial<IFormProps<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>> {
 }
 
-export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<ISourcePatch<${source}>, SourceInfer.Item<${source}>>
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
 />
 
-export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<ISourcePatch<${source}>, SourceInfer.Item<${source}>>> {
+export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>> {
 }
 
-export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<ISourcePatch<${source}>, SourceInfer.Item<${source}>>
+export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
@@ -73,9 +72,9 @@ export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = prop
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<ISourcePatch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 
-export const ${name}Promise = createPromise<ISourcePatch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<SourceInfer.Patch<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 `);
 }
 
