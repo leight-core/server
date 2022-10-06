@@ -12,7 +12,7 @@ export function generateDeleteEndpoint(sdk: ISdk): string {
 		{imports: ["FC"], from: "\"react\""},
 		{
 			imports: [
-				"ISourceItem",
+				"SourceInfer",
 			],
 			from:    "\"@leight-core/api\""
 		},
@@ -45,13 +45,13 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
-export const use${name}Mutation = createMutationHook<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<string[], SourceInfer.Item<${source}>, ${queryParams}>(${name}ApiLink, "post");
 
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<string[], SourceInfer.Item<${source}>, ${queryParams}>(${name}ApiLink, "post");
 
-export const ${name}Promise = createPromise<string[], ISourceItem<${source}>, ${queryParams}>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<string[], SourceInfer.Item<${source}>, ${queryParams}>(${name}ApiLink, "post");
 `);
 }

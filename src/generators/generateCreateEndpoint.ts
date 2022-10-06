@@ -12,8 +12,7 @@ export function generateCreateEndpoint(sdk: ISdk): string {
 		{imports: ["FC"], from: "\"react\""},
 		{
 			imports: [
-				"ISourceCreate",
-				"ISourceItem",
+				"SourceInfer",
 			],
 			from:    "\"@leight-core/api\""
 		},
@@ -50,21 +49,21 @@ export const ${name}ApiLink = "${generatorCommons.api}";
 
 export type ${queryParams} = ${generatorCommons.generics[2] || "any"};
 
-export const use${name}Mutation = createMutationHook<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+export const use${name}Mutation = createMutationHook<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 
-export interface I${name}DefaultFormProps extends Partial<IFormProps<ISourceCreate<${source}>, ISourceItem<${source}>>> {
+export interface I${name}DefaultFormProps extends Partial<IFormProps<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>> {
 }
 
-export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<ISourceCreate<${source}>, ISourceItem<${source}>>
+export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
 />
 
-export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<ISourceCreate<${source}>, ISourceItem<${source}>>> {
+export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>> {
 }
 
-export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<ISourceCreate<${source}>, ISourceItem<${source}>>
+export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
@@ -73,9 +72,9 @@ export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = prop
 export const to${name}Link = (queryParams?: ${queryParams}) => toLink(${name}ApiLink, queryParams);
 export const use${name}Link = () => to${name}Link;
 
-export const use${name}Promise = createPromiseHook<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+export const use${name}Promise = createPromiseHook<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 
-export const ${name}Promise = createPromise<ISourceCreate<${source}>, ISourceItem<${source}>>(${name}ApiLink, "post");
+export const ${name}Promise = createPromise<SourceInfer.Create<${source}>, SourceInfer.Item<${source}>>(${name}ApiLink, "post");
 `);
 }
 

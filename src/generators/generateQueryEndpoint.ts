@@ -23,8 +23,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"IToOptionMapper",
 				"IQueryFilter",
 				"IQueryOrderBy",
-				"ISourceQuery",
-				"ISourceItem",
+				"SourceInfer",
 			],
 			from:    "\"@leight-core/api\"",
 		},
@@ -73,8 +72,8 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 	const queryParams = `I${generatorCommons.name}QueryParams`;
 	const name        = generatorCommons.name;
 	const source      = generatorCommons.generics[0];
-	const request     = `ISourceQuery<${source}>`;
-	const response    = `ISourceItem<${source}>`;
+	const request     = `SourceInfer.Query<${source}>`;
+	const response    = `SourceInfer.Item<${source}>`;
 
 	// language=text
 	return cleanup(`
