@@ -65,6 +65,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 				try {
 					await this.export(backup, source);
 				} catch (e) {
+					console.error(e);
 					this.logger.error(e);
 				}
 			}));
