@@ -1,5 +1,5 @@
 {
-	"version": "0.6.226",
+	"version": "0.6.227",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@leight-core/api": "^0.6.196",
-		"@leight-core/utils": "^0.5.41",
+		"@leight-core/utils": "^0.5.42",
 		"@prisma/client": "^4.3.1",
 		"filesize": "^9.0.11",
 		"dayjs": "^1.11.5",

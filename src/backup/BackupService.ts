@@ -23,6 +23,11 @@ export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<an
 	temp?: string;
 }
 
+export interface IBackupMeta {
+	version: string;
+	sources: string[];
+}
+
 export const BackupService = <TContainer extends IContainer<IFileSource<any, any>>>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
 
 export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, any>>> implements IBackupService {
@@ -59,7 +64,15 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 			fs.writeFileSync(path.normalize(`${backup}/meta.json`), JSON.stringify({
 				version: this.version,
 				sources: this.sources.map(source => source.name),
-			}));
+			} as IBackupMeta));
+
+			await this.jobProgress.setTotal(1);
+			let count = 0;
+			for (const source of this.sources) {
+				count += await source.count({});
+			}
+			await this.jobProgress.setTotal(count + 1);
+			await this.jobProgress.onSuccess();
 
 			await Promise.all(this.sources.map(async source => {
 				try {
@@ -85,7 +98,14 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 		const pages = Math.ceil(await source.count({}) / size);
 		for (let page = 0; page <= pages; page++) {
 			for (const entity of await source.query({page, size})) {
-				fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.backup(entity)));
+				try {
+					fs.writeFileSync(path.normalize(`${$path}/${entity.id}.json`), JSON.stringify(await source.backup(entity)));
+					await this.jobProgress.onSuccess();
+				} catch (e) {
+					await this.jobProgress.onFailure();
+					console.error(e);
+					this.logger.error(e);
+				}
 			}
 		}
 	}
