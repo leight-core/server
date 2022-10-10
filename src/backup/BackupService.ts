@@ -6,12 +6,14 @@ import {
 	ISource,
 	IUser
 }               from "@leight-core/api";
-import archiver from "archiver";
 import dayjs    from "dayjs";
 import fs       from "node:fs";
 import os       from "node:os";
 import path     from "node:path";
 import {Logger} from "winston";
+import {pack}   from "../archive/pack";
+
+export type IArchiveCallback = (backup: string, file: string) => Promise<any>
 
 export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<any, any>>> {
 	version: string;
@@ -20,7 +22,15 @@ export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<an
 	container: TContainer;
 	jobProgress: IJobProgress;
 	logger: Logger;
+
 	temp?: string;
+
+	/**
+	 * Custom implementation of archive (should create one file).
+	 * @param backup
+	 * @param file
+	 */
+	archive?: IArchiveCallback;
 }
 
 export interface IBackupMeta {
@@ -38,8 +48,9 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 	readonly user: IUser;
 	readonly logger: Logger;
 	readonly jobProgress: IJobProgress;
+	readonly archive?: IArchiveCallback;
 
-	constructor({version, sources, container, user, logger, jobProgress, temp}: IBackupServiceDeps<TContainer>) {
+	constructor({version, sources, container, user, logger, jobProgress, temp, archive}: IBackupServiceDeps<TContainer>) {
 		this.version     = version;
 		this.sources     = sources;
 		this.temp        = temp || os.tmpdir();
@@ -47,6 +58,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 		this.user        = user;
 		this.logger      = logger;
 		this.jobProgress = jobProgress;
+		this.archive     = archive;
 	}
 
 	async backup(): Promise<void> {
@@ -83,12 +95,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 				}
 			}));
 
-			const archive = archiver("zip", {
-				zlib: {level: 9},
-			});
-			archive.directory(backup, false);
-			archive.pipe(fs.createWriteStream(file.location));
-			await archive.finalize();
+			await (this.archive ? this.archive(backup, file.location) : pack(backup, file.location));
 
 			fs.rmSync(backup, {recursive: true, force: true});
 			await fileSource.refresh(file.id);

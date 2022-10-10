@@ -1,3 +1,4 @@
+export * from "./archive";
 export * from "./auth";
 export * from "./backup";
 export * from "./endpoint";
@@ -11,4 +12,3 @@ export * from "./sdk";
 export * from "./source";
 export * from "./ts";
 export * from "./user";
-export * from "./utils";
