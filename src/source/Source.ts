@@ -104,7 +104,7 @@ export abstract class AbstractSource<//
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async backup(entity: SourceInfer.Entity<TSource>): Promise<SourceInfer.Backup<TSource> | undefined> {
-		throw entity;
+		return entity;
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
