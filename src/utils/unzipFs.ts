@@ -10,9 +10,14 @@ export interface IZipFs {
 
 // noinspection TypeScriptValidateJSTypes
 export const unzipFs = async <T>(zip: string, callback: (fs: IZipFs) => Promise<T>): Promise<T> => {
-	const fs = zipper.sync.unzip(zip).memory();
+	const $zip = zipper.sync.unzip(zip);
+	const fs   = $zip.memory();
 	return callback({
-		read: (path: string, params: Record<string, string> = {}) => fs.read(templateOf(path, params), "text"),
-		json: <T>(path: string, params: Record<string, string> = {}): T => JSON.parse(fs.read(templateOf(path, params), "text")) as T,
+		read(path: string, params: Record<string, string> = {}) {
+			return fs.read(templateOf(path, params), "text");
+		},
+		json<T>(path: string, params: Record<string, string> = {}): T {
+			return JSON.parse(fs.read(templateOf(path, params), "text")) as T;
+		}
 	});
 };
