@@ -6,7 +6,7 @@ import {
 	ISource,
 	IUser
 }               from "@leight-core/api";
-import {zipOf}  from "@leight-core/server";
+import archiver from "archiver";
 import dayjs    from "dayjs";
 import fs       from "node:fs";
 import os       from "node:os";
@@ -83,7 +83,12 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 				}
 			}));
 
-			zipOf(backup, file.location);
+			const archive = archiver("zip", {
+				zlib: {level: 9},
+			});
+			archive.directory(backup, false);
+			archive.pipe(fs.createWriteStream(file.location));
+			await archive.finalize();
 
 			fs.rmSync(backup, {recursive: true, force: true});
 			await fileSource.refresh(file.id);

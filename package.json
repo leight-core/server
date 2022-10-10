@@ -1,5 +1,5 @@
 {
-	"version": "0.6.228",
+	"version": "0.6.229",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -26,10 +26,10 @@
 		"@leight-core/api": "^0.6.196",
 		"@leight-core/utils": "^0.5.42",
 		"@prisma/client": "^4.3.1",
-		"filesize": "^9.0.11",
+		"archiver": "^5.3.1",
 		"dayjs": "^1.11.5",
+		"filesize": "^9.0.11",
 		"fs-extra": "^10.1.0",
-		"zip-local": "^0.3.5",
 		"glob": "^8.0.3",
 		"isobject": "^4.0.0",
 		"lru-cache": "^7.14.0",
@@ -51,6 +51,7 @@
 		"winston": "^3.8.2"
 	},
 	"devDependencies": {
+		"@types/archiver": "^5.3.1",
 		"@types/fs-extra": "^9.0.13",
 		"@types/glob": "^8.0.0",
 		"@types/memoizee": "^0.4.8",
