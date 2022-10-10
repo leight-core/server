@@ -68,7 +68,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
 			const file   = await fileSource.store({
 				path:    "/backup",
-				name:    `Backup-${stamp}.zip`,
+				name:    `Backup-${stamp}.tgz`,
 				replace: true,
 			});
 			fs.mkdirSync(backup, {recursive: true});
