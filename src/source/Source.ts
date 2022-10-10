@@ -95,7 +95,7 @@ export abstract class AbstractSource<//
 			() => this.$create(create),
 			async () => {
 				return this.$patch({
-					id: (await this.createToId(create)).id,
+					id: (await this.resolveId(create)).id,
 					...create,
 				});
 			}
@@ -113,7 +113,7 @@ export abstract class AbstractSource<//
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	async createToId(create: SourceInfer.Create<TSource>): Promise<{ id: string }> {
+	async resolveId(source: SourceInfer.Create<TSource>): Promise<IWithIdentity> {
 		throw new Error(`Source [${this.name}] does not support mapping Create object to an ID.`);
 	}
 
