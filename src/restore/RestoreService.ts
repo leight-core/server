@@ -37,8 +37,8 @@ export class RestoreServiceClass {
 				if (!source) {
 					continue;
 				}
-				const base = templateOf("{restore}/{source}", {restore, source: name});
-				for (const file of fs.readdirSync(base)) {
+				const base = templateOf("{restore}/source/{source}", {restore, source: name});
+				for (const file of fs.readdirSync(path.normalize(base))) {
 					await source.restore(jsonOf(`{base}/{file}`, {base, file}));
 				}
 			}
