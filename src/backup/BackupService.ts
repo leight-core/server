@@ -66,12 +66,12 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 			fileSource.withUser(this.user);
 			const stamp  = dayjs().format("YYYY-MM-DD");
 			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
+			fs.mkdirSync(backup, {recursive: true});
 			const file   = await fileSource.store({
 				path:    "/backup",
 				name:    `Backup-${stamp}.tgz`,
 				replace: true,
 			});
-			fs.mkdirSync(backup, {recursive: true});
 
 			fs.writeFileSync(path.normalize(`${backup}/meta.json`), JSON.stringify({
 				version: this.version,
