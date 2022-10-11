@@ -99,7 +99,7 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 				gzip:     {
 					level: 9,
 				},
-				file,
+				file:     file.location,
 				portable: true,
 				cwd:      backup,
 			}, [
