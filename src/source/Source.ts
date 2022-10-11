@@ -236,6 +236,14 @@ export abstract class AbstractSource<//
 	async $clearCache(): Promise<any> {
 	}
 
+	async truncate(): Promise<void> {
+		await this.$truncate();
+		await this.clearCache();
+	}
+
+	async $truncate(): Promise<void> {
+	}
+
 	async mapNull(source?: SourceInfer.Entity<TSource> | null): Promise<SourceInfer.Item<TSource> | undefined> {
 		return source ? this.map(source) : undefined;
 	}
