@@ -98,7 +98,10 @@ export const toImport = async (
 				}
 				continue;
 			}
-			if (!user.hasAny(["*", `import.${service}`])) {
+			if (!user.hasAny([
+				"*",
+				`import.${service}`
+			])) {
 				logger.error("User does not have proper import token.", {labels: serviceLabels, tab: tab.tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				for await (const _ of stream) {
@@ -107,7 +110,6 @@ export const toImport = async (
 				}
 				continue;
 			}
-			handler.withUser(user);
 			await handler.begin?.({});
 			const getElapsed = measureTime();
 			for await (const item of stream) {

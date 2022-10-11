@@ -30,7 +30,7 @@ export interface IEndpointSource<TSource extends ISource<any, any, any>, TQueryP
 }
 
 const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>({source}: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
-	return source(params).withUser(params.user);
+	return source(params).container.withUser(params.user);
 };
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(

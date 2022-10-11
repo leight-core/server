@@ -1,7 +1,6 @@
 import {
 	IBackupService,
 	IContainer,
-	IFileSource,
 	IJobProgress,
 	ISource,
 	IUser
@@ -15,7 +14,7 @@ import {Logger} from "winston";
 
 export type IArchiveCallback = (backup: string, file: string) => Promise<any>
 
-export interface IBackupServiceDeps<TContainer extends IContainer<IFileSource<any, any>>> {
+export interface IBackupServiceDeps<TContainer extends IContainer> {
 	version: string;
 	sources: ISource<any, any, any>[];
 	user: IUser;
@@ -38,9 +37,9 @@ export interface IBackupMeta {
 	sources: string[];
 }
 
-export const BackupService = <TContainer extends IContainer<IFileSource<any, any>>>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
+export const BackupService = <TContainer extends IContainer>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
 
-export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, any>>> implements IBackupService {
+export class BackupServiceClass<TContainer extends IContainer> implements IBackupService {
 	readonly version: string;
 	readonly sources: ISource<any, any, any>[];
 	readonly temp: string;
@@ -63,11 +62,10 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 
 	async backup(): Promise<void> {
 		return this.container.useFileSource(async fileSource => {
-			fileSource.withUser(this.user);
 			const stamp  = dayjs().format("YYYY-MM-DD");
 			const backup = path.normalize(`${this.temp}/backup/${stamp}`);
 			fs.mkdirSync(backup, {recursive: true});
-			const file   = await fileSource.store({
+			const file = await fileSource.store({
 				path:    "/backup",
 				name:    `Backup-${stamp}.tgz`,
 				replace: true,

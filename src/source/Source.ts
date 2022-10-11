@@ -1,51 +1,49 @@
 import {
 	ClientError,
-	IImportHandlers,
-	IPrismaTransaction,
+	IContainer,
 	IPromiseMapper,
 	ISource,
-	IUser,
 	IWithIdentity,
 	QueryInfer,
 	SourceInfer,
 	UndefinableOptional
-}                           from "@leight-core/api";
-import {
-	onUnique,
-	User,
-	withFetch
-}                           from "@leight-core/server";
-import {PromiseMapper}      from "@leight-core/utils";
-import {Prisma}             from "@prisma/client";
-import LRUCache             from "lru-cache";
-import {GetServerSideProps} from "next";
-import crypto               from "node:crypto";
+}                      from "@leight-core/api";
+import {onUnique}      from "@leight-core/server";
+import {PromiseMapper} from "@leight-core/utils";
+import {Prisma}        from "@prisma/client";
+import LRUCache        from "lru-cache";
+import crypto          from "node:crypto";
 
 export abstract class AbstractSource<//
-	TSource extends ISource<any, any, any>,
+	TSource extends ISource<IContainer, any, any>,
 	> implements ISource<//
-	SourceInfer.Create<TSource>,
+	SourceInfer.Container<TSource>,
 	SourceInfer.Entity<TSource>,
 	SourceInfer.Item<TSource>,
 	SourceInfer.Query<TSource>,
-	SourceInfer.Fetch<TSource>,
-	SourceInfer.FetchParams<TSource>,
+	SourceInfer.Create<TSource>,
 	SourceInfer.Backup<TSource>> {
-	readonly mapper: IPromiseMapper<SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>>;
 	readonly name: string;
-	prisma: IPrismaTransaction;
-	user: IUser;
+	readonly mapper: { toItem: IPromiseMapper<SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>> };
+
+	container: SourceInfer.Container<TSource>;
 	cache?: {
 		count?: LRUCache<string, number>;
 		query?: LRUCache<string, SourceInfer.Entity<TSource>[]>;
 	};
 
-	protected constructor(name: string, prisma: IPrismaTransaction, user: IUser = User()) {
-		this.name   = name;
-		this.prisma = prisma;
-		this.user   = user;
-		this.mapper = PromiseMapper(this.map.bind(this));
-		this.cache  = undefined;
+	protected constructor(name: string, container: SourceInfer.Container<TSource>) {
+		this.name      = name;
+		this.container = container;
+		this.mapper    = {
+			toItem: PromiseMapper(this.toItem.bind(this)),
+		};
+		this.cache     = undefined;
+	}
+
+	withContainer(container: SourceInfer.Container<TSource>): this {
+		this.container = container;
+		return this;
 	}
 
 	async create(create: SourceInfer.Create<TSource>): Promise<SourceInfer.Entity<TSource>> {
@@ -185,45 +183,11 @@ export abstract class AbstractSource<//
 		return filter;
 	}
 
-	importers(): IImportHandlers {
-		return {
-			[this.name]: () => {
-				return {
-					withUser: this.withUser.bind(this),
-					handler:  this.import.bind(this),
-				};
-			},
-		};
-	}
-
-	withPrisma(prisma: IPrismaTransaction): this {
-		this.prisma = prisma;
-		return this;
-	}
-
-	withUser(user: IUser): this {
-		this.user = user;
-		return this;
-	}
-
-	ofSource(source?: ISource<any, any, any>): this {
-		if (!source) {
-			return this;
-		}
-		this.withPrisma(source.prisma);
-		this.withUser(source.user);
-		return this;
-	}
-
-	withFetch(key: keyof SourceInfer.Fetch<TSource>, query: keyof SourceInfer.FetchParams<TSource>): GetServerSideProps<SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>> {
-		return withFetch<SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>, ISource<SourceInfer.Create<TSource>, SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>, SourceInfer.Query<TSource>, SourceInfer.Fetch<TSource>, SourceInfer.FetchParams<TSource>, SourceInfer.Backup<TSource>>>(this)(key, query);
-	}
-
 	hashOf(query: SourceInfer.Query<TSource>, type?: string): string {
 		return crypto.createHash("sha256").update(JSON.stringify({
 			query,
 			type,
-			userId: this.user.optional(),
+			userId: this.container.user.optional(),
 		})).digest("hex");
 	}
 
@@ -244,13 +208,5 @@ export abstract class AbstractSource<//
 	async $truncate(): Promise<void> {
 	}
 
-	async mapNull(source?: SourceInfer.Entity<TSource> | null): Promise<SourceInfer.Item<TSource> | undefined> {
-		return source ? this.map(source) : undefined;
-	}
-
-	async list(source: Promise<SourceInfer.Entity<TSource>[]>): Promise<SourceInfer.Item<TSource>[]> {
-		return this.mapper.list(source);
-	}
-
-	abstract map(source: SourceInfer.Entity<TSource>): Promise<SourceInfer.Item<TSource>>;
+	abstract toItem(source: SourceInfer.Entity<TSource>): Promise<SourceInfer.Item<TSource>>;
 }

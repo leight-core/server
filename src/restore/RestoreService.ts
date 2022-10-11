@@ -30,7 +30,7 @@ export class RestoreServiceClass {
 		const meta = jsonOf<IBackupMeta>("{restore}/meta.json", {restore});
 		await prisma.$transaction(async transaction => {
 			for (const source of sources) {
-				await source.withPrisma(transaction).truncate();
+				await source.container.withPrisma(transaction).truncate();
 			}
 			for (const name of meta.sources) {
 				const source = $sources[name] || undefined;

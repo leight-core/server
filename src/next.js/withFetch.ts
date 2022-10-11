@@ -1,13 +1,10 @@
-import {
-	ISource,
-	IWithFetch
-}                                  from "@leight-core/api";
+import {ISource,}                  from "@leight-core/api";
 import {getTokenUser}              from "@leight-core/server";
 import {GetServerSidePropsContext} from "next";
 import {ParsedUrlQuery}            from "querystring";
 
-export const withFetch = <TWithFetch extends Record<string, any>, TWithFetchParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource): IWithFetch<TWithFetch, TWithFetchParams> => (key, query) => async (context: GetServerSidePropsContext<TWithFetchParams>): Promise<any> => {
-	source.withUser(await getTokenUser(context));
+export const withFetch = <TKeys extends Record<string, any>, TParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource) => (key: keyof TKeys, query: keyof TParams) => async (context: GetServerSidePropsContext<TParams>): Promise<any> => {
+	source.container.withUser(await getTokenUser(context));
 	if (!context.params?.[query]) {
 		return {
 			notFound: true,
@@ -22,7 +19,7 @@ export const withFetch = <TWithFetch extends Record<string, any>, TWithFetchPara
 		}
 		return {
 			props: {
-				[key]: await source.map(item),
+				[key]: await source.mapper.toItem.map(item),
 			}
 		};
 	} catch (e) {
