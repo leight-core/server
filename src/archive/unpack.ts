@@ -6,6 +6,6 @@ export const unpack = (archive: string, target: string) => {
 	return tar.x({
 		strip: 1,
 		file:  archive,
-		C:     target,
+		cwd:   target,
 	});
 };

@@ -10,8 +10,8 @@ import dayjs    from "dayjs";
 import fs       from "node:fs";
 import os       from "node:os";
 import path     from "node:path";
+import tar      from "tar";
 import {Logger} from "winston";
-import {pack}   from "../archive/pack";
 
 export type IArchiveCallback = (backup: string, file: string) => Promise<any>
 
@@ -95,7 +95,17 @@ export class BackupServiceClass<TContainer extends IContainer<IFileSource<any, a
 				}
 			}));
 
-			await (this.archive ? this.archive(backup, file.location) : pack(backup, file.location));
+			await (this.archive ? this.archive(backup, file.location) : tar.c({
+				gzip:     {
+					level: 9,
+				},
+				file,
+				portable: true,
+				cwd:      backup,
+			}, [
+				"meta.json",
+				"source"
+			]));
 
 			fs.rmSync(backup, {recursive: true, force: true});
 			await fileSource.refresh(file.id);
