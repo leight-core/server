@@ -1,9 +1,8 @@
-import {ISource,}                  from "@leight-core/api";
-import {getTokenUser}              from "@leight-core/server";
-import {GetServerSidePropsContext} from "next";
-import {ParsedUrlQuery}            from "querystring";
+import {ISource,}           from "@leight-core/api";
+import {getTokenUser}       from "@leight-core/server";
+import {GetServerSideProps} from "next";
 
-export const withFetch = <TKeys extends Record<string, any>, TParams extends ParsedUrlQuery, TSource extends ISource<any, any, any, any>>(source: TSource) => (key: keyof TKeys, query: keyof TParams) => async (context: GetServerSidePropsContext<TParams>): Promise<any> => {
+export const withFetch = <TKey extends string, TSource extends ISource<any, any, any, any>>(source: TSource, key: TKey, query: string): GetServerSideProps => async context => {
 	source.container.withUser(await getTokenUser(context));
 	if (!context.params?.[query]) {
 		return {
