@@ -1,5 +1,8 @@
-import {IEndpointCallback} from "@leight-core/api";
-import {Histogram}         from "prom-client";
+import {
+	IApiHandler,
+	IQueryParams
+}                  from "@leight-core/api";
+import {Histogram} from "prom-client";
 
 const histogram = new Histogram({
 	aggregator: "average",
@@ -23,9 +26,8 @@ const histogram = new Histogram({
 	],
 });
 
-export const withMetrics = (endpoint: IEndpointCallback<any, any, any, any>): IEndpointCallback<any, any, any, any> => async (req, res) => {
+export const withMetrics = <TRequest, TResponse, TQueryParams extends IQueryParams>(handler: IApiHandler<TRequest, TResponse, TQueryParams>): IApiHandler<TRequest, TResponse, TQueryParams> => async (req, res) => {
 	const timer = histogram.startTimer();
-	const response = await endpoint(req, res);
+	await handler(req, res);
 	timer({method: req.method, route: req.url, code: res.statusCode});
-	return response;
 };

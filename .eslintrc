@@ -17,6 +17,7 @@
 		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/ban-ts-comment": "off",
 		"@typescript-eslint/no-var-requires": "off",
-		"no-mixed-spaces-and-tabs": "off"
+		"no-mixed-spaces-and-tabs": "off",
+		"@typescript-eslint/no-namespace": "off"
 	}
 }

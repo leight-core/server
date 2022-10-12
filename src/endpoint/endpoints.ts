@@ -1,9 +1,10 @@
 import {
 	AclError,
 	ClientError,
+	IApiHandler,
 	IContainer,
-	IEndpoint,
-	IEndpointCallback,
+	IEndpointHandler,
+	IEndpointRequest,
 	IEntityEndpoint,
 	IGetEndpoint,
 	IListEndpoint,
@@ -14,35 +15,44 @@ import {
 	ISource,
 	IWithIdentityQuery,
 	SourceInfer
-}                        from "@leight-core/api";
-import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
+}                 from "@leight-core/api";
 import {
 	Logger,
 	User,
 	withMetrics
-}                        from "@leight-core/server";
-import {getToken}        from "next-auth/jwt";
-import getRawBody        from "raw-body";
+}                 from "@leight-core/server";
+import {getToken} from "next-auth/jwt";
+import getRawBody from "raw-body";
 
 export interface IEndpointSource<//
+	TContainer extends IContainer,
 	TSource extends ISource<any, any, any>,
-	TQueryParams extends IQueryParams = any,
-	TContainer extends IContainer = IContainer,
-	> {
-	container: () => Promise<TContainer>;
+	TQueryParams extends IQueryParams = any> {
+	name: string;
 
 	acl?: string[];
 
-	source(params: IEndpointParams<SourceInfer.Query<TSource>, number, TQueryParams>): TSource;
+	container(): Promise<TContainer>;
+
+	source(params: IEndpointRequest<TContainer, SourceInfer.Query<TSource>, number, TQueryParams>): TSource;
 }
 
-const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>({source}: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
+const withSource = <//
+	TContainer extends IContainer,
+	TSource extends ISource<any, any, any>,
+	TQueryParams extends IQueryParams = any,
+	>({source}: IEndpointSource<TContainer, TSource, TQueryParams>, params: IEndpointRequest<TContainer, any, any, TQueryParams>) => {
 	return source(params).container.withUser(params.user);
 };
 
-export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
-	{container, handler, acl}: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
-): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
+export const Endpoint = <//
+	TContainer extends IContainer,
+	TRequest,
+	TResponse,
+	TQueryParams extends IQueryParams = any,
+	>(
+	{container, handler, acl}: IEndpointHandler<TContainer, TRequest, TResponse, TQueryParams>,
+): IApiHandler<TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
 	return withMetrics(async (req, res) => {
 		const token  = await getToken({req});
@@ -99,22 +109,23 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 	});
 };
 
-export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IListEndpoint<TName, TResponse, TQueryParams>,
-): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => Endpoint(handler);
+export const ListEndpoint = <TContainer extends IContainer, TResponse, TQueryParams extends IQueryParams = any>(
+	handler: IListEndpoint<TContainer, TResponse, TQueryParams>,
+): IApiHandler<undefined, TResponse, TQueryParams> => Endpoint(handler);
 
-export const MutationEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IMutationEndpoint<TName, TRequest, TResponse, TQueryParams>,
-): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
+export const MutationEndpoint = <TContainer extends IContainer, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
+	handler: IMutationEndpoint<TContainer, TRequest, TResponse, TQueryParams>,
+): IApiHandler<TRequest, TResponse, TQueryParams> => Endpoint(handler);
 
-export const GetEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IGetEndpoint<TName, TResponse, TQueryParams>,
-): IEndpointCallback<TName, undefined, TResponse, TQueryParams> => Endpoint(handler);
+export const GetEndpoint = <TContainer extends IContainer, TResponse, TQueryParams extends IQueryParams = any>(
+	handler: IGetEndpoint<TContainer, TResponse, TQueryParams>,
+): IApiHandler<undefined, TResponse, TQueryParams> => Endpoint(handler);
 
-export const FetchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
-	source: IEndpointSource<TSource>,
-): IEndpointCallback<TName, undefined, SourceInfer.Item<TSource>, IWithIdentityQuery> => {
+export const FetchEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>>(
+	source: IEndpointSource<TContainer, TSource, IWithIdentityQuery>,
+): IApiHandler<undefined, SourceInfer.Item<TSource>, IWithIdentityQuery> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => {
@@ -124,10 +135,11 @@ export const FetchEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Create<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
+export const CreateEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
+	source: IEndpointSource<TContainer, TSource, TQueryParams>,
+): IApiHandler<SourceInfer.Create<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => {
@@ -137,10 +149,11 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 	});
 };
 
-export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Patch<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
+export const PatchEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
+	source: IEndpointSource<TContainer, TSource, TQueryParams>,
+): IApiHandler<SourceInfer.Patch<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => {
@@ -150,20 +163,22 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Query<TSource>, number, TQueryParams> => {
+export const CountEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
+	source: IEndpointSource<TContainer, TSource, TQueryParams>,
+): IApiHandler<SourceInfer.Query<TSource>, number, TQueryParams> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => withSource(source, params).count(params.request),
 	});
 };
 
-export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Query<TSource>, SourceInfer.Item<TSource>[], TQueryParams> => {
+export const QueryEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
+	source: IEndpointSource<TContainer, TSource, TQueryParams>,
+): IApiHandler<SourceInfer.Query<TSource>, SourceInfer.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => {
@@ -173,20 +188,21 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 	});
 };
 
-export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IEntityEndpoint<TName, TRequest, TResponse, TQueryParams>,
-): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
+export const EntityEndpoint = <TContainer extends IContainer, TRequest extends IQuery, TResponse, TQueryParams extends IQueryParams = any>(
+	handler: IEntityEndpoint<TContainer, TRequest, TResponse, TQueryParams>,
+): IApiHandler<TRequest, TResponse, TQueryParams> => Endpoint(handler);
 
-export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
-	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, string[], SourceInfer.Item<TSource>[], TQueryParams> => {
+export const DeleteEndpoint = <TContainer extends IContainer, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
+	source: IEndpointSource<TContainer, TSource, TQueryParams>,
+): IApiHandler<string[], SourceInfer.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
+		name:      source.name,
 		container: source.container,
 		acl:       source.acl,
 		handler:   async params => withSource(source, params).remove(params.request),
 	});
 };
 
-export const RequestEndpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
-	handler: IRequestEndpoint<TName, TRequest, TResponse, TQueryParams>,
-): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => Endpoint(handler);
+export const RequestEndpoint = <TContainer extends IContainer, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
+	handler: IRequestEndpoint<TContainer, TRequest, TResponse, TQueryParams>,
+): IApiHandler<TRequest, TResponse, TQueryParams> => Endpoint(handler);
