@@ -6,6 +6,7 @@ import {
 import {generateSdkFor} from "@leight-core/server";
 
 export interface IGenerateEndpointRequest<TContainer extends IContainer> {
+	name: string;
 	path?: string | undefined;
 	generators?: IGenerators | undefined;
 	acl?: string[];
@@ -14,12 +15,13 @@ export interface IGenerateEndpointRequest<TContainer extends IContainer> {
 
 export const GenerateEndpoint: <TContainer extends IContainer>(request: IGenerateEndpointRequest<TContainer>) => IEndpointHandler<TContainer, void, string[]> = (
 	{
+		name,
 		path = "src/pages/api/**/*.ts",
 		generators,
 		acl,
 		container,
 	}) => ({
-	name:    "Generate",
+	name,
 	container,
 	acl,
 	handler: async () => generateSdkFor(path, generators),
