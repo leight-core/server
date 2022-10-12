@@ -3,8 +3,7 @@ import {
 	IContainer,
 	IJobProgress,
 	IServiceContainer,
-	ISource,
-	IUser
+	ISource
 }               from "@leight-core/api";
 import dayjs    from "dayjs";
 import fs       from "node:fs";
@@ -18,7 +17,6 @@ export type IArchiveCallback = (backup: string, file: string) => Promise<any>
 export interface IBackupServiceDeps<TContainer extends IContainer> {
 	version: string;
 	sources: ISource<any, any, any>[];
-	user: IUser;
 	container: TContainer;
 	jobProgress: IJobProgress;
 	logger: Logger;
@@ -45,17 +43,15 @@ export class BackupServiceClass<TContainer extends IServiceContainer> implements
 	readonly sources: ISource<any, any, any>[];
 	readonly temp: string;
 	readonly container: TContainer;
-	readonly user: IUser;
 	readonly logger: Logger;
 	readonly jobProgress: IJobProgress;
 	readonly archive?: IArchiveCallback;
 
-	constructor({version, sources, container, user, logger, jobProgress, temp, archive}: IBackupServiceDeps<TContainer>) {
+	constructor({version, sources, container, logger, jobProgress, temp, archive}: IBackupServiceDeps<TContainer>) {
 		this.version     = version;
 		this.sources     = sources;
 		this.temp        = temp || os.tmpdir();
 		this.container   = container;
-		this.user        = user;
 		this.logger      = logger;
 		this.jobProgress = jobProgress;
 		this.archive     = archive;
