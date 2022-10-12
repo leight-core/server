@@ -1,6 +1,5 @@
 import {
 	ClientError,
-	IContainer,
 	IPromiseMapper,
 	ISource,
 	IWithIdentity,
@@ -15,7 +14,7 @@ import LRUCache        from "lru-cache";
 import crypto          from "node:crypto";
 
 export abstract class AbstractSource<//
-	TSource extends ISource<IContainer, any, any>,
+	TSource extends ISource<any, any, any>,
 	> implements ISource<//
 	SourceInfer.Container<TSource>,
 	SourceInfer.Entity<TSource>,
