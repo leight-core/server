@@ -1,6 +1,7 @@
 import {
 	AclError,
 	ClientError,
+	IContainer,
 	IEndpoint,
 	IEndpointCallback,
 	IEntityEndpoint,
@@ -23,7 +24,13 @@ import {
 import {getToken}        from "next-auth/jwt";
 import getRawBody        from "raw-body";
 
-export interface IEndpointSource<TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any> {
+export interface IEndpointSource<//
+	TSource extends ISource<any, any, any>,
+	TQueryParams extends IQueryParams = any,
+	TContainer extends IContainer = IContainer,
+	> {
+	container: () => Promise<TContainer>;
+
 	acl?: string[];
 
 	source(params: IEndpointParams<SourceInfer.Query<TSource>, number, TQueryParams>): TSource;
@@ -34,7 +41,7 @@ const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends
 };
 
 export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams extends IQueryParams = any>(
-	{handler, acl}: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
+	{container, handler, acl}: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
 	return withMetrics(async (req, res) => {
@@ -49,12 +56,13 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 			});
 			user.checkAny(acl);
 			const run      = async () => await handler({
+				container: await container(),
 				req,
 				res,
-				request: req.body,
-				query:   req.query,
-				toBody:  () => getRawBody(req),
-				end:     res.end,
+				request:   req.body,
+				query:     req.query,
+				toBody:    () => getRawBody(req),
+				end:       res.end,
 				user,
 			});
 			const response = await run();
@@ -107,8 +115,9 @@ export const FetchEndpoint = <TName extends string, TSource extends ISource<any,
 	source: IEndpointSource<TSource>,
 ): IEndpointCallback<TName, undefined, SourceInfer.Item<TSource>, IWithIdentityQuery> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => {
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => {
 			const $source = withSource(source, params);
 			return $source.map(await $source.get(params.query.id));
 		},
@@ -119,8 +128,9 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, SourceInfer.Create<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => {
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => {
 			const $source = withSource(source, params);
 			return $source.map(await $source.create(params.request));
 		},
@@ -131,8 +141,9 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, SourceInfer.Patch<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => {
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => {
 			const $source = withSource(source, params);
 			return $source.map(await $source.patch(params.request));
 		},
@@ -143,8 +154,9 @@ export const CountEndpoint = <TName extends string, TSource extends ISource<any,
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, SourceInfer.Query<TSource>, number, TQueryParams> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => withSource(source, params).count(params.request),
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => withSource(source, params).count(params.request),
 	});
 };
 
@@ -152,8 +164,9 @@ export const QueryEndpoint = <TName extends string, TSource extends ISource<any,
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, SourceInfer.Query<TSource>, SourceInfer.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => {
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => {
 			const $source = withSource(source, params);
 			return $source.list($source.query(params.request));
 		},
@@ -168,8 +181,9 @@ export const DeleteEndpoint = <TName extends string, TSource extends ISource<any
 	source: IEndpointSource<TSource, TQueryParams>,
 ): IEndpointCallback<TName, string[], SourceInfer.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
-		acl:     source.acl,
-		handler: async params => withSource(source, params).remove(params.request),
+		container: source.container,
+		acl:       source.acl,
+		handler:   async params => withSource(source, params).remove(params.request),
 	});
 };
 
