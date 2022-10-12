@@ -4,8 +4,8 @@ import {
 	IImportTranslations,
 	IJob,
 	IJobProgress,
-	IUser,
-	IWithImporters
+	ISource,
+	IUser
 }                    from "@leight-core/api";
 import {Logger}      from "@leight-core/server";
 import {measureTime} from "measure-time";
@@ -36,11 +36,12 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 	translations: toTranslations(workbook),
 });
 
-export interface IToImportRequest extends IWithImporters {
+export interface IToImportRequest {
 	user: IUser;
 	job: IJob<{ fileId: string }>;
 	workbook: xlsx.WorkBook;
 	jobProgress: IJobProgress;
+	sources: ISource<any, any, any>[];
 }
 
 export const toImport = async (
@@ -48,15 +49,15 @@ export const toImport = async (
 		user,
 		jobProgress,
 		job,
-		importers,
+		sources,
 		workbook
 	}: IToImportRequest): Promise<Omit<IJob, "params" | "name" | "skipRatio" | "successRatio" | "failureRatio" | "id" | "userId" | "status" | "progress" | "created">> => {
-	const logger    = Logger("import");
-	const jobLabels = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
+	const logger                                           = Logger("import");
+	const jobLabels                                        = {fileId: job.params?.fileId, userId: job.userId, jobId: job.id};
+	const $sources: Record<string, ISource<any, any, any>> = sources.reduce((prev, current) => ({...prev, [current.name]: current}), {});
 	logger.info("Executing import", {labels: jobLabels, jobId: job.id});
 	const meta = toMeta(workbook);
 	logger.info("Meta", {labels: jobLabels, meta});
-
 	let total   = 0;
 	let success = 0;
 	let failure = 0;
@@ -73,10 +74,8 @@ export const toImport = async (
 			}
 		}));
 	}));
-
 	logger.debug("Total", {labels: jobLabels, total});
 	await jobProgress.setTotal(total);
-
 	for (const tab of meta.tabs) {
 		const workSheet = workbook.Sheets[tab.tab];
 		if (!workSheet) {
@@ -88,9 +87,9 @@ export const toImport = async (
 			const stream: Readable = xlsx.stream.to_json(workSheet, {
 				defval: null,
 			});
-			const handler          = importers[service]?.();
-			if (!handler) {
-				logger.error("Import handler not found.", {labels: serviceLabels, tab: tab.tab, service});
+			const source           = $sources[service];
+			if (!source) {
+				logger.error(`Source for import [${service}] not found.`, {labels: serviceLabels, tab: tab.tab, service});
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				for await (const _ of stream) {
 					skip++;
@@ -110,11 +109,10 @@ export const toImport = async (
 				}
 				continue;
 			}
-			await handler.begin?.({});
 			const getElapsed = measureTime();
 			for await (const item of stream) {
 				try {
-					await handler.handler(Object.keys(item).reduce<any>((obj, key) => {
+					await source.import(Object.keys(item).reduce<any>((obj, key) => {
 						obj[meta.translations[key] || key] = item[key];
 						return obj;
 					}, {}));
@@ -132,7 +130,6 @@ export const toImport = async (
 					e instanceof Error && console.error(e.message, e.stack);
 				}
 			}
-			await handler.end?.({});
 			logger.info("Service done, import results:", {
 				labels:  serviceLabels,
 				tab:     tab.tab,
