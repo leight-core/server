@@ -42,7 +42,9 @@ const withSource = <//
 	TSource extends ISource<any, any, any>,
 	TQueryParams extends IQueryParams = any,
 	>({source}: IEndpointSource<TContainer, TSource, TQueryParams>, params: IEndpointRequest<TContainer, any, any, TQueryParams>) => {
-	return source(params).container.withUser(params.user);
+	const $source = source(params);
+	$source.container.withUser(params.user);
+	return $source;
 };
 
 export const Endpoint = <//
@@ -130,7 +132,7 @@ export const FetchEndpoint = <TContainer extends IContainer, TSource extends ISo
 		acl:       source.acl,
 		handler:   async params => {
 			const $source = withSource(source, params);
-			return $source.map(await $source.get(params.query.id));
+			return $source.mapper.toItem.map(await $source.get(params.query.id));
 		},
 	});
 };
@@ -144,7 +146,7 @@ export const CreateEndpoint = <TContainer extends IContainer, TSource extends IS
 		acl:       source.acl,
 		handler:   async params => {
 			const $source = withSource(source, params);
-			return $source.map(await $source.create(params.request));
+			return $source.mapper.toItem.map(await $source.create(params.request));
 		},
 	});
 };
@@ -158,7 +160,7 @@ export const PatchEndpoint = <TContainer extends IContainer, TSource extends ISo
 		acl:       source.acl,
 		handler:   async params => {
 			const $source = withSource(source, params);
-			return $source.map(await $source.patch(params.request));
+			return $source.mapper.toItem.map(await $source.patch(params.request));
 		},
 	});
 };
@@ -183,7 +185,7 @@ export const QueryEndpoint = <TContainer extends IContainer, TSource extends ISo
 		acl:       source.acl,
 		handler:   async params => {
 			const $source = withSource(source, params);
-			return $source.list($source.query(params.request));
+			return $source.mapper.toItem.list($source.query(params.request));
 		},
 	});
 };
