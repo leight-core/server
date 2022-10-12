@@ -66,7 +66,7 @@ export const Endpoint = <//
 			});
 			user.checkAny(acl);
 			const run      = async () => await handler({
-				container: await container(),
+				container: (await container()).withUser(user),
 				req,
 				res,
 				request:   req.body,
