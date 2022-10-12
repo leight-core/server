@@ -2,6 +2,7 @@ import {
 	IBackupService,
 	IContainer,
 	IJobProgress,
+	IServiceContainer,
 	ISource,
 	IUser
 }               from "@leight-core/api";
@@ -37,9 +38,9 @@ export interface IBackupMeta {
 	sources: string[];
 }
 
-export const BackupService = <TContainer extends IContainer>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
+export const BackupService = <TContainer extends IServiceContainer>(deps: IBackupServiceDeps<TContainer>) => new BackupServiceClass(deps);
 
-export class BackupServiceClass<TContainer extends IContainer> implements IBackupService {
+export class BackupServiceClass<TContainer extends IServiceContainer> implements IBackupService {
 	readonly version: string;
 	readonly sources: ISource<any, any, any>[];
 	readonly temp: string;

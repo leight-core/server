@@ -37,7 +37,6 @@ export abstract class AbstractSource<//
 		this.mapper    = {
 			toItem: PromiseMapper(this.toItem.bind(this)),
 		};
-		this.cache     = undefined;
 	}
 
 	withContainer(container: SourceInfer.Container<TSource>): this {
