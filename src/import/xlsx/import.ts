@@ -1,11 +1,11 @@
 import {
+	IContainer,
 	IImportMeta,
 	IImportTabs,
 	IImportTranslations,
 	IJob,
 	IJobProgress,
-	ISource,
-	IUser
+	ISource
 }                    from "@leight-core/api";
 import {Logger}      from "@leight-core/server";
 import {measureTime} from "measure-time";
@@ -37,7 +37,7 @@ export const toMeta = (workbook: xlsx.WorkBook): IImportMeta => ({
 });
 
 export interface IToImportRequest {
-	user: IUser;
+	container: IContainer;
 	job: IJob<{ fileId: string }>;
 	workbook: xlsx.WorkBook;
 	jobProgress: IJobProgress;
@@ -46,7 +46,7 @@ export interface IToImportRequest {
 
 export const toImport = async (
 	{
-		user,
+		container,
 		jobProgress,
 		job,
 		sources,
@@ -97,7 +97,8 @@ export const toImport = async (
 				}
 				continue;
 			}
-			if (!user.hasAny([
+			source.withContainer(container);
+			if (!container.user.hasAny([
 				"*",
 				`import.${service}`
 			])) {
