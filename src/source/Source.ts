@@ -1,7 +1,9 @@
 import {
 	ClientError,
+	IContainer,
 	IPromiseMapper,
 	ISource,
+	IWithContainer,
 	IWithIdentity,
 	QueryInfer,
 	SourceInfer,
@@ -14,17 +16,19 @@ import LRUCache        from "lru-cache";
 import crypto          from "node:crypto";
 
 export abstract class AbstractSource<//
-	TSource extends ISource<any, any, any>,
+	TSource extends ISource<IContainer, any, any>,
 	> implements ISource<//
 	SourceInfer.Container<TSource>,
 	SourceInfer.Entity<TSource>,
 	SourceInfer.Item<TSource>,
 	SourceInfer.Query<TSource>,
 	SourceInfer.Create<TSource>,
-	SourceInfer.Backup<TSource>> {
+	SourceInfer.Backup<TSource>
+	//
+	>,
+	IWithContainer<SourceInfer.Container<TSource>> {
 	readonly name: string;
 	readonly mapper: { toItem: IPromiseMapper<SourceInfer.Entity<TSource>, SourceInfer.Item<TSource>> };
-
 	container: SourceInfer.Container<TSource>;
 	cache?: {
 		count?: LRUCache<string, number>;
