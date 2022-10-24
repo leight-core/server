@@ -8,12 +8,12 @@ import {
 	IGetEndpoint,
 	IListEndpoint,
 	IMutationEndpoint,
+	InferSource,
 	IQuery,
 	IQueryParams,
 	IRequestEndpoint,
 	ISource,
-	IWithIdentityQuery,
-	SourceInfer
+	IWithIdentityQuery
 }                        from "@leight-core/api";
 import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
 import {
@@ -33,7 +33,7 @@ export interface IEndpointSource<//
 
 	acl?: string[];
 
-	source(params: IEndpointParams<SourceInfer.Query<TSource>, number, TQueryParams>): TSource;
+	source(params: IEndpointParams<InferSource.Query<TSource>, number, TQueryParams>): TSource;
 }
 
 const withSource = <TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>({source}: IEndpointSource<TSource, TQueryParams>, params: IEndpointParams<any, any, TQueryParams>) => {
@@ -113,7 +113,7 @@ export const GetEndpoint = <TName extends string, TResponse, TQueryParams extend
 
 export const FetchEndpoint = <TName extends string, TSource extends ISource<any, any, any>>(
 	source: IEndpointSource<TSource>,
-): IEndpointCallback<TName, undefined, SourceInfer.Item<TSource>, IWithIdentityQuery> => {
+): IEndpointCallback<TName, undefined, InferSource.Item<TSource>, IWithIdentityQuery> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,
@@ -126,7 +126,7 @@ export const FetchEndpoint = <TName extends string, TSource extends ISource<any,
 
 export const CreateEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Create<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
+): IEndpointCallback<TName, InferSource.Create<TSource>, InferSource.Item<TSource>, TQueryParams> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,
@@ -139,7 +139,7 @@ export const CreateEndpoint = <TName extends string, TSource extends ISource<any
 
 export const PatchEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Patch<TSource>, SourceInfer.Item<TSource>, TQueryParams> => {
+): IEndpointCallback<TName, InferSource.Patch<TSource>, InferSource.Item<TSource>, TQueryParams> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,
@@ -152,7 +152,7 @@ export const PatchEndpoint = <TName extends string, TSource extends ISource<any,
 
 export const CountEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Query<TSource>, number, TQueryParams> => {
+): IEndpointCallback<TName, InferSource.Query<TSource>, number, TQueryParams> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,
@@ -162,7 +162,7 @@ export const CountEndpoint = <TName extends string, TSource extends ISource<any,
 
 export const QueryEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, SourceInfer.Query<TSource>, SourceInfer.Item<TSource>[], TQueryParams> => {
+): IEndpointCallback<TName, InferSource.Query<TSource>, InferSource.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,
@@ -179,7 +179,7 @@ export const EntityEndpoint = <TName extends string, TRequest extends IQuery, TR
 
 export const DeleteEndpoint = <TName extends string, TSource extends ISource<any, any, any>, TQueryParams extends IQueryParams = any>(
 	source: IEndpointSource<TSource, TQueryParams>,
-): IEndpointCallback<TName, string[], SourceInfer.Item<TSource>[], TQueryParams> => {
+): IEndpointCallback<TName, string[], InferSource.Item<TSource>[], TQueryParams> => {
 	return Endpoint({
 		container: source.container,
 		acl:       source.acl,

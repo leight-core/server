@@ -18,7 +18,7 @@ export function generateEntityEndpoint(sdk: ISdk): string {
 		{imports: ["useQueryClient"], from: "\"@tanstack/react-query\""},
 		{
 			imports: [
-				"QueryInfer",
+				"InferQuery",
 			],
 			from:    "\"@leight-core/api\"",
 		},
@@ -71,26 +71,26 @@ export const use${name}Promise = createPromiseHook<${request}, ${response}, ${qu
 
 export const ${name}Promise = createPromise<${request}, ${response}, ${queryParams}>(${name}ApiLink, "post");
 
-export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<QueryInfer.Filter<${request}>>> {
+export interface I${name}FilterProviderProps extends Partial<IFilterProviderProps<InferQuery.Filter<${request}>>> {
 }
 
-export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<QueryInfer.Filter<${request}>> name={"${name}"} {...props}/>;
+export const ${name}FilterProvider: FC<I${name}FilterProviderProps> = props => <FilterProvider<InferQuery.Filter<${request}>> name={"${name}"} {...props}/>;
 
-export const use${name}OptionalFilterContext = () => useOptionalFilterContext<QueryInfer.Filter<${request}>>()
-export const use${name}FilterContext = () => useFilterContext<QueryInfer.Filter<${request}>>()
+export const use${name}OptionalFilterContext = () => useOptionalFilterContext<InferQuery.Filter<${request}>>()
+export const use${name}FilterContext = () => useFilterContext<InferQuery.Filter<${request}>>()
 
-export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<QueryInfer.OrderBy<${request}>>> {
+export interface I${name}OrderByProviderProps extends Partial<IOrderByProviderProps<InferQuery.OrderBy<${request}>>> {
 }
 
-export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<QueryInfer.OrderBy<${request}>> name={"${name}"} {...props}/>;
+export const ${name}OrderByProvider: FC<I${name}OrderByProviderProps> = props => <OrderByProvider<InferQuery.OrderBy<${request}>> name={"${name}"} {...props}/>;
 
-export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<QueryInfer.OrderBy<${request}>>()
-export const use${name}OrderByContext = () => useOrderByContext<QueryInfer.OrderBy<${request}>>()
+export const use${name}OptionalOrderByContext = () => useOptionalOrderByContext<InferQuery.OrderBy<${request}>>()
+export const use${name}OrderByContext = () => useOrderByContext<InferQuery.OrderBy<${request}>>()
 
-export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<QueryInfer.Filter<${request}>, QueryInfer.OrderBy<${request}>, ${queryParams}>> {
+export interface I${name}SourceControlProviderProps extends Partial<ISourceControlProviderProps<InferQuery.Filter<${request}>, InferQuery.OrderBy<${request}>, ${queryParams}>> {
 }
 
-export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<QueryInfer.Filter<${request}>, QueryInfer.OrderBy<${request}>> name={"${name}"} {...props}/>;
+export const ${name}SourceControlProvider: FC<I${name}SourceControlProviderProps> = props => <SourceControlProvider<InferQuery.Filter<${request}>, InferQuery.OrderBy<${request}>> name={"${name}"} {...props}/>;
 
 export const use${name}QueryInvalidate = () => {
 	const queryClient = useQueryClient();

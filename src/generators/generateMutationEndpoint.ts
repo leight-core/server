@@ -13,7 +13,7 @@ export function generateMutationEndpoint(sdk: ISdk): string {
 		{
 			imports: [
 				"IQueryParams",
-				"SourceInfer",
+				"InferSource",
 			],
 			from:    "\"@leight-core/api\""
 		},

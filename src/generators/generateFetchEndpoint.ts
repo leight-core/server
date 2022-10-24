@@ -6,7 +6,7 @@ import {
 
 export function generateFetchEndpoint(sdk: ISdk): string {
 	const name        = sdk.endpoint.name.replace("Endpoint", "");
-	const response    = `SourceInfer.Item<${(sdk.endpoint.generics?.[0] || "void")}>`;
+	const response    = `InferSource.Item<${(sdk.endpoint.generics?.[0] || "void")}>`;
 	const queryParams = `I${name}QueryParams`;
 	const api         = sdk.endpoint.api;
 
@@ -30,7 +30,7 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 		{
 			imports: [
 				"IEntityContext",
-				"SourceInfer",
+				"InferSource",
 				"IWithIdentityQuery",
 				"INavigate",
 			],
