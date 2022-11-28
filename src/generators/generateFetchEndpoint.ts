@@ -58,8 +58,6 @@ export function generateFetchEndpoint(sdk: ISdk): string {
 				"Query",
 				"BrowserPage",
 				"IBrowserPageProps",
-				"MobilePage",
-				"IMobilePageProps",
 				"useParams",
 			],
 			from: "\"@leight-core/client\""
@@ -156,33 +154,6 @@ export const ${name}BrowserPage: FC<I${name}BrowserPageProps> = ({children, brea
 					{client => isCallable(children) ? (children as any)(client) : children}
 				</Fetch${name}>
 			</BrowserPage>}
-		</${name}Context.Consumer>
-	</${name}Provider>;
-};
-
-export interface I${name}MobilePageProps extends Omit<IMobilePageProps, "children" > {
-	children?: ReactNode | ((data: ${response}) => ReactNode);
-}
-
-export const ${name}MobilePage: FC<I${name}MobilePageProps> = ({children, title, values, ...props}) => {
-	const {id} = useParams();
-	return <${name}Provider>
-		<${name}Context.Consumer>
-			{entityContext => <MobilePage
-				title={entityContext.entity ? title : undefined}
-				values={{
-					entity: entityContext.entity,
-					...values,
-				}}
-				{...props}
-			>
-				<Fetch${name}
-					context={entityContext}
-					id={id}
-				>
-					{client => isCallable(children) ? (children as any)(client) : children}
-				</Fetch${name}>
-			</MobilePage>}
 		</${name}Context.Consumer>
 	</${name}Provider>;
 };

@@ -60,9 +60,7 @@ export function generateQueryEndpoint(sdk: ISdk): string {
 				"useOptionalSelectionContext",
 				"useSelectionContext",
 				"Table",
-				"ITableProps",
-				"DrawerSelectItem",
-				"IDrawerSelectItemProps",
+				"ITableProps"
 			],
 			from:    "\"@leight-core/client\"",
 		},
@@ -231,39 +229,5 @@ export const use${name}QueryInvalidate = (withCount: boolean = true) => {
 
 export const use${name}OptionalSelectionContext = () => useOptionalSelectionContext<${response}>();
 export const use${name}SelectionContext = () => useSelectionContext<${response}>();
-
-export interface I${name}DrawerItemProps extends Omit<IDrawerSelectItemProps<${response}>, "ofSelection" | "sourceProviderProps"> {
-}
-
-export const ${name}DrawerItem: FC<I${name}DrawerItemProps> = ({onSelection, ...props}) => {
-	return <BlockProvider>
-		{blockContext => <DrawerSelectItem<${response}>
-			sourceProviderProps={{
-				name: "${name}",
-				useQuery: use${name}Query,
-				useCountQuery: use${name}CountQuery,
-			}}			
-			toClear={() => undefined}
-			onSelection={onSelection}
-			ofSelection={({value, selectionContext}) => {
-				if (value) {
-					blockContext.block();
-					${name}Promise({filter: {id: value as any}}).then(items => {
-						selectionContext.defaults(items);
-						blockContext.unblock(true);
-						onSelection?.(selectionContext.selection());
-					});
-				}
-			}}
-			drawerSelectProps={{
-				translation: {
-					namespace: ${name}ApiLink, 
-					text: "select.title",
-				}
-			}}
-			{...props}
-		/>}
-	</BlockProvider>
-}
 `);
 }
