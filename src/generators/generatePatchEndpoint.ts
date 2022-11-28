@@ -20,8 +20,6 @@ export function generatePatchEndpoint(sdk: ISdk): string {
 			imports: [
 				"Form",
 				"IFormProps",
-				"MobileForm",
-				"IMobileFormProps",
 				"createPromiseHook",
 				"createPromise",
 				"toLink",
@@ -55,15 +53,6 @@ export interface I${name}DefaultFormProps extends Partial<IFormProps<InferSource
 }
 
 export const ${name}DefaultForm: FC<I${name}DefaultFormProps> = props => <Form<InferSource.Patch<${source}>, InferSource.Item<${source}>>
-	useMutation={use${name}Mutation}
-	translation={${name}ApiLink}
-	{...props}
-/>
-
-export interface I${name}DefaultMobileFormProps extends Partial<IMobileFormProps<InferSource.Patch<${source}>, InferSource.Item<${source}>>> {
-}
-
-export const ${name}DefaultMobileForm: FC<I${name}DefaultMobileFormProps> = props => <MobileForm<InferSource.Patch<${source}>, InferSource.Item<${source}>>
 	useMutation={use${name}Mutation}
 	translation={${name}ApiLink}
 	{...props}
