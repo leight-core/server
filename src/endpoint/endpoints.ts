@@ -19,7 +19,6 @@ import {IEndpointParams} from "@leight-core/api/lib/cjs/endpoint/interface";
 import {
 	Logger,
 	User,
-	withMetrics
 }                        from "@leight-core/server";
 import {getToken}        from "next-auth/jwt";
 import getRawBody        from "raw-body";
@@ -44,7 +43,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 	{container, handler, acl}: IEndpoint<TName, TRequest, TResponse, TQueryParams>,
 ): IEndpointCallback<TName, TRequest, TResponse, TQueryParams> => {
 	const logger = Logger("endpoint");
-	return withMetrics(async (req, res) => {
+	return async (req, res) => {
 		const token  = await getToken({req});
 		const timer  = logger.startTimer();
 		const labels = {url: req.url, userId: token?.sub};
@@ -96,7 +95,7 @@ export const Endpoint = <TName extends string, TRequest, TResponse, TQueryParams
 				url:     req.url,
 			});
 		}
-	});
+	};
 };
 
 export const ListEndpoint = <TName extends string, TResponse, TQueryParams extends IQueryParams = any>(

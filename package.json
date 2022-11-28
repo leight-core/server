@@ -1,5 +1,5 @@
 {
-	"version": "0.6.245",
+	"version": "0.6.246",
 	"name": "@leight-core/server",
 	"description": "Server-side helper stuff.",
 	"license": "MIT",
@@ -23,7 +23,7 @@
 		"prisma format": "npx prisma format"
 	},
 	"dependencies": {
-		"@leight-core/api": "^0.6.203",
+		"@leight-core/api": "^0.6.205",
 		"@leight-core/utils": "^0.5.42",
 		"@prisma/client": "^4.3.1",
 		"dayjs": "^1.11.5",
@@ -36,7 +36,6 @@
 		"memoizee": "^0.4.15",
 		"micromatch": "^4.0.5",
 		"mime-types": "^2.1.35",
-		"prom-client": "^14.1.0",
 		"raw-body": "^2.5.1",
 		"touch": "^3.1.0",
 		"uuid": "^9.0.0",
@@ -45,7 +44,7 @@
 		"tar": "^6.1.11"
 	},
 	"peerDependencies": {
-		"next": "^12.1.6",
+		"next": "^12.1.6 || ^13",
 		"next-auth": "^4.10.0",
 		"winston": "^3.8.2"
 	},
