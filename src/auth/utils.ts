@@ -13,7 +13,7 @@ export const getToken = async <T extends JWT = JWT>(context: GetServerSidePropsC
 	}
 	return token;
 };
-
+0;
 export const getTokenUser = async (context: GetServerSidePropsContext<any, any>): Promise<IUser> => {
 	const token: any = await getToken(context);
 	return User({
